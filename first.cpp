@@ -2,11 +2,11 @@
 #include <lemon/list_graph.h>
 
 int main() {
-    ListDigraph g;
-    ListDigraph::Node u = g.addNode();
-    ListDigraph::Node v = g.addNode();
-    ListDigraph::Arc  a = g.addArc(u, v);
-    cout << "Hello World! This is LEMON library here." << endl;
-    cout << "We have a directed graph with " << countNodes(g) << " nodes " << "and " << countArcs(g) << " arc." << endl;
+    lemon::ListDigraph g;
+    lemon::ListDigraph::Node u = g.addNode();
+    lemon::ListDigraph::Node v = g.addNode();
+    lemon::ListDigraph::Arc  a = g.addArc(u, v);
+    std::cout << "Hello World! This is LEMON library here." << std::endl;
+    std::cout << "We have a directed graph with " << lemon::countNodes(g) << " nodes " << "and " << lemon::countArcs(g) << " arc." << std::endl;
 }
 

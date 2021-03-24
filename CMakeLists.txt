@@ -11,12 +11,11 @@ enable_testing()
 add_subdirectory(googletest)
 
 
-
-set(lemonpath D:\\Programme\\lemon-1.3.1\\build\\lemon\\Debug)
+set(lemonpath D:\\Programme\\Lemon)
 # set(lemonreleasepath D:\\Programme\\lemon-1.3.1\\build\\lemon\\Release)
 find_library(mylemon lemon PATHS ${lemonpath} NAMES LEMON REQUIRED)
 
-include_directories(D:\\Programme\\lemon-1.3.1 D:\\Programme\\lemon-1.3.1\\lemon)
+include_directories(D:\\Programme\\Lemon\\include)
 # include_directories(${LEMON_INCLUDE_DIRS})
 # message("HIHI")
 
