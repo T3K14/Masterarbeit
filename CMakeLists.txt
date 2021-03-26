@@ -28,3 +28,6 @@ add_executable(${first} first.cpp)
 
 target_link_libraries(${first} PUBLIC ${mylemon})
 
+add_executable(two_stage two_stage.cpp)
+target_link_libraries(two_stage PUBLIC ${mylemon})
+
