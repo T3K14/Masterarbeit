@@ -69,4 +69,10 @@ int main() {
 
     std::cout << countNodes(g) << std::endl;
     std::cout << countEdges(g) << std::endl;
+
+    ListGraph::EdgeMap<int> costMap(g);
+
+    for (ListGraph::EdgeIt e(g); e != INVALID; ++e) {
+        costMap[e] = dist(eng);
+    }
 }
