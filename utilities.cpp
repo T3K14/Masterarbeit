@@ -9,10 +9,11 @@ std::vector<double> calcScenarioProbabilities(size_t n) {
     const auto seed = time(nullptr);
     std::mt19937 eng(static_cast<std::mt19937::result_type>(seed));
 
-    std::uniform_real_distribution<double> dist(1, 100);
+    std::uniform_real_distribution<double> dist(1, 100);                // Intervall anders machen? 
 
     double sum = 0;
     std::vector<double> vec;
+    vec.reserve(n);
     for (int i=0; i<n; i++) {
         double res = dist(eng);
         vec.push_back(res);
