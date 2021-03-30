@@ -26,10 +26,12 @@ include_directories(D:\\Programme\\Lemon\\include)
 
 set (Sources
     two_stage.cpp
+    utilities.cpp
 )
 
 set (Headers
     two_stage.hpp
+    utilities.hpp
 )
 
 add_executable(${first} first.cpp)
@@ -41,3 +43,7 @@ add_library(two_stage STATIC ${Sources} ${Headers})
 target_link_libraries(two_stage PUBLIC ${mylemon})
 
 add_subdirectory(test)
+
+add_executable(second second.cpp ${Sources} ${Headers})
+target_link_libraries(second PUBLIC ${mylemon} two_stage)
+

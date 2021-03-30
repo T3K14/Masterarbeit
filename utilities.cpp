@@ -2,7 +2,7 @@
 #include <random>
 #include <ctime>
 
-#include <iostream>
+// #include <iostream>
 
 std::vector<double> calcScenarioProbabilities(size_t n) {
 
@@ -27,12 +27,12 @@ std::vector<double> calcScenarioProbabilities(size_t n) {
     return vec;
 } 
 
-int main() {
+// int main() {
 
-    double n = 5;
-    auto res = calcScenarioProbabilities(n);
-    for (int i=0; i<n; i++) {
-        std::cout << res[i] << ", ";
-    }
-    std::cout << "\n";
-}
+//     double n = 5;
+//     auto res = calcScenarioProbabilities(n);
+//     for (int i=0; i<n; i++) {
+//         std::cout << res[i] << ", ";
+//     }
+//     std::cout << "\n";
+// }
