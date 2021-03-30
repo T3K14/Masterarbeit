@@ -24,10 +24,20 @@ include_directories(D:\\Programme\\Lemon\\include)
 #   message(STATUS "dir='${dir}'")
 # endforeach()
 
+set (Sources
+    two_stage.cpp
+)
+
+set (Headers
+    two_stage.hpp
+)
+
 add_executable(${first} first.cpp)
 
 target_link_libraries(${first} PUBLIC ${mylemon})
 
-add_executable(two_stage two_stage.cpp)
+
+add_library(two_stage STATIC ${Sources} ${Headers})
 target_link_libraries(two_stage PUBLIC ${mylemon})
 
+add_subdirectory(test)
