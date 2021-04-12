@@ -14,6 +14,7 @@ std::unique_ptr<lemon::ListGraph::EdgeMap<double>> EdgeCostCreator::createUnifor
 
     // lemon::ListGraph::EdgeMap<double> costMap(g);
 
+    // unique_ptr to a ListGraph::EdgeMap<double> 
     auto costMapPtr = std::make_unique<lemon::ListGraph::EdgeMap<double>>(g);
 
     for (lemon::ListGraph::EdgeIt e(g); e !=lemon::INVALID; ++e) {

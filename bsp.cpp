@@ -57,7 +57,7 @@ int main() {
 //         std::cout << dist(eng) << "\n";
 //     }
 
-    const int numberEdges = 100;
+    const int numberEdges = 50;
 
     for (int i=0; i<numberEdges; i++) {
         int a = dist(eng);
