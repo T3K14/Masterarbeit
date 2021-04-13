@@ -47,3 +47,6 @@ add_subdirectory(test)
 add_executable(second second.cpp ${Sources} ${Headers})
 target_link_libraries(second PUBLIC ${mylemon} two_stage)
 
+add_executable(kruskal kruskal_test.cpp ${Sources} ${Headers})
+target_link_libraries(kruskal PUBLIC ${mylemon} two_stage)
+
