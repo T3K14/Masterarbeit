@@ -4,6 +4,10 @@
 
 // #include <iostream>
 
+// define the RNG
+std::mt19937 rng{std::random_device{}()};               // construct it with the seed that I get from the random_device rvalue on which I use the ()-operator (functor)
+
+
 std::vector<double> calcScenarioProbabilities(size_t n) {
 
     const auto seed = time(nullptr);

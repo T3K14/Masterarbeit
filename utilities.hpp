@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <lemon/list_graph.h>
 std::vector<double> calcScenarioProbabilities(size_t n);

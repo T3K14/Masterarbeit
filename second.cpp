@@ -3,7 +3,7 @@
 #include <lemon/list_graph.h>
 #include <lemon/lgf_writer.h>
 #include "two_stage.hpp"
-//test
+
 int main() {
 
     lemon::ListGraph g;
@@ -15,28 +15,28 @@ int main() {
         nodes[i] = g.addNode();
     }
 
-    RNG rng;
-    EdgeCostCreator ecc(rng);
+    // RNG rng;
+    EdgeCostCreator ecc;
 
     // auto x = g.addEdge(nodes[0], nodes[1]);
     // auto y = g.addEdge(nodes[1], nodes[2]);
 
 
-
+    // distribution for selecting a random node 
     std::uniform_int_distribution<int> dist(0, nodeNumber-1);
 
 
     const int numberEdges = 50;
 
     for (int i=0; i<numberEdges; i++) {
-        int a = dist(rng.eng);
-        int b = dist(rng.eng);
+        int a = dist(rng);
+        int b = dist(rng);
         if (a != b && findEdge(g, g.nodeFromId(a), g.nodeFromId(b)) == lemon::INVALID) {
             g.addEdge(nodes[a], nodes[b]);
         }
     }
 
-    auto ptr = ecc.createUniformCosts(g, 1, 99);
+    auto ptr = ecc.createUniformCosts(g, 1, 99, rng);
 
     // std::cout << "AXAXAXAXAXAXAXAXAXAXAXAXXAAXAXXAXAXAXAXAXAXXAX\n";
 
