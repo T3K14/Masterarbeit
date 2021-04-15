@@ -1,6 +1,5 @@
 #include "utilities.hpp"
-#include <random>
-#include <ctime>
+// #include <ctime>
 
 // #include <iostream>
 
@@ -8,10 +7,10 @@
 std::mt19937 rng{std::random_device{}()};               // construct it with the seed that I get from the random_device rvalue on which I use the ()-operator (functor)
 
 
-std::vector<double> calcScenarioProbabilities(size_t n) {
+std::vector<double> calcScenarioProbabilities(size_t n, std::mt19937 & rng) {
 
-    const auto seed = time(nullptr);
-    std::mt19937 eng(static_cast<std::mt19937::result_type>(seed));
+    // const auto seed = time(nullptr);
+    // std::mt19937 eng(static_cast<std::mt19937::result_type>(seed));
 
     std::uniform_real_distribution<double> dist(1, 100);                // Intervall anders machen? 
 
@@ -19,7 +18,7 @@ std::vector<double> calcScenarioProbabilities(size_t n) {
     std::vector<double> vec;
     vec.reserve(n);
     for (int i=0; i<n; i++) {
-        double res = dist(eng);
+        double res = dist(rng);
         vec.push_back(res);
         sum += res;
     }
