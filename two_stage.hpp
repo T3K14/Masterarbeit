@@ -30,3 +30,5 @@ class EdgeCostCreator {
         // void doRandomStuff(float x, RNG && rng);            // perfect forwarding, universial reference (Scott Meyers)
 
 };
+
+void twoStageSetting(std::mt19937 & rng, bool save=false);

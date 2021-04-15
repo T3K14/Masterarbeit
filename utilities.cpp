@@ -12,7 +12,7 @@ std::vector<double> calcScenarioProbabilities(size_t n, std::mt19937 & rng) {
     // const auto seed = time(nullptr);
     // std::mt19937 eng(static_cast<std::mt19937::result_type>(seed));
 
-    std::uniform_real_distribution<double> dist(1, 100);                // Intervall anders machen? 
+    std::uniform_real_distribution<double> dist(1, 1000);                // Intervall anders machen? Dazu gibts schriftliche Ueberlegungen vom 15.04.21
 
     double sum = 0;
     std::vector<double> vec;

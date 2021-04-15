@@ -25,3 +25,24 @@ std::unique_ptr<lemon::ListGraph::EdgeMap<double>> EdgeCostCreator::createUnifor
     }
     return costMapPtr;      //wird gemoved
 }
+
+void twoStageSetting(const lemon::ListGraph & g, std::mt19937 & rng, bool save=false) {
+
+    //TESTEN
+
+    EdgeCostCreator ecc;
+
+    // range values for the real uniform distribution
+    double a = 1.0;
+    double b = 99.0;
+
+    // create costs for the first stage
+    auto stage1Ptr = ecc.createUniformCosts(g, a, b, rng);
+
+    // create costs for the second stage
+    auto stage2Ptr = ecc.createUniformCosts(g, a, b, rng);
+
+
+    // create edgeMap that stores the minimum value of both stages for each edge 
+    // wie iteriere ich ueber die edges??
+}
