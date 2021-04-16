@@ -31,4 +31,6 @@ class EdgeCostCreator {
 
 };
 
-void twoStageSetting(std::mt19937 & rng, bool save=false);
+// returns the total weight of the MST
+template<typename T>        // T is the edge cost type
+T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T> & firstStageCosts, const lemon::ListGraph::EdgeMap<T> & secondStageCosts, bool save=false);

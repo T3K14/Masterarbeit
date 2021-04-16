@@ -1,6 +1,8 @@
 #include <chrono>
 // #include <memory>
 #include "two_stage.hpp"
+#include <lemon/lgf_writer.h>
+#include <lemon/kruskal.h>
 
 // EdgeCostCreator::EdgeCostCreator(RNG & randGen) : rng(randGen) {}
 
@@ -26,7 +28,8 @@ std::unique_ptr<lemon::ListGraph::EdgeMap<double>> EdgeCostCreator::createUnifor
     return costMapPtr;      //wird gemoved
 }
 
-void twoStageSetting(const lemon::ListGraph & g, std::mt19937 & rng, bool save=false) {
+template<typename T>
+T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T> & firstStageCosts, const lemon::ListGraph::EdgeMap<T> & secondStageCosts, bool save) {
 
     //TESTEN
 
@@ -37,12 +40,31 @@ void twoStageSetting(const lemon::ListGraph & g, std::mt19937 & rng, bool save=f
     double b = 99.0;
 
     // create costs for the first stage
-    auto stage1Ptr = ecc.createUniformCosts(g, a, b, rng);
+    // auto stage1Ptr = ecc.createUniformCosts(g, a, b, rng);
 
     // create costs for the second stage
-    auto stage2Ptr = ecc.createUniformCosts(g, a, b, rng);
+    // auto stage2Ptr = ecc.createUniformCosts(g, a, b, rng);
 
 
-    // create edgeMap that stores the minimum value of both stages for each edge 
+    // create edgeMap that stores the minimum value of both stages for each edge
+    lemon::ListGraph::EdgeMap<T> minMap(g); 
     // wie iteriere ich ueber die edges??
+
+    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+        minMap[e] = (firstStageCosts[e] < secondStageCosts[e] ? firstStageCosts[e] : secondStageCosts[e]);
+    }
+
+    // do the MST calculation
+    lemon::ListGraph::EdgeMap<bool> kruskalResMap(g);
+    double totalCosts = lemon::kruskal(g, minMap, kruskalResMap);
+
+
+    if (save) {
+        std::string outputPath(R"(D:\uni\Masterarbeit\Code\output\output.lgf)");
+        lemon::GraphWriter(g, outputPath).edgeMap("first_stage", firstStageCosts).edgeMap("second_stage", secondStageCosts).edgeMap("final_selection", minMap).edgeMap("MST_selection", kruskalResMap).run();
+
+    }
+    return totalCosts;
 }
+
+template int twoStageSetting<int>(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<int> & firstStageCosts, const lemon::ListGraph::EdgeMap<int> & secondStageCosts, bool save);
