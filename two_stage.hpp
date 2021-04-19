@@ -3,6 +3,8 @@
 #include <lemon/list_graph.h>
 #include <random>
 #include <memory>
+// #include <lemon/maps.h>
+#include <functional> // for reference_wrapper
 
 
 // struct RNG{
@@ -31,6 +33,15 @@ class EdgeCostCreator {
 
 };
 
-// returns the total weight of the MST
+// calculates the MST and returns the total weight of the MST
 template<typename T>        // T is the edge cost type
 T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T> & firstStageCosts, const lemon::ListGraph::EdgeMap<T> & secondStageCosts, bool save=false);
+
+
+// calculates the edgeset that minimizes the expected total costs of the MST for a given second stage edgeset-distribution, by trying out every possible combination
+template<typename T>        // T is the edge cost type
+void bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts);
+
+
+// const std::vector<lemon::ListGraph::EdgeMap<T>> & scenarioSecondStageCosts
+// const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts
