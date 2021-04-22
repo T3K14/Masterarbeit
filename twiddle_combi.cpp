@@ -31,7 +31,7 @@ bool twiddle(int & x, int & y, int & z, std::array<int, N+2> & p) {
         while(p[i] == 0)
             p[i++] = -1;
         if(p[i] == -1) {
-            p[i] = p[k];
+            p[i] = p[k];                // lande ich hier auch bei p[k] = 2 oder noch groesser?
             z = p[k]-1;
             x = i-1;
             y = k-1;
