@@ -68,7 +68,7 @@ T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T>
 }
 
 
-template<typename T>        // T is the edge cost type
+// template<typename T>        // T is the edge cost type
 void bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts) {
     // std::cout << "hi\n";
 
