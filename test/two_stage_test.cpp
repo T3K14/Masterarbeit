@@ -123,33 +123,38 @@ TEST(TwoStageSuite, Test2) {
 
 
     ListGraph::EdgeMap<double> secondWeights1(g); 
-    firstWeights[edges[0]] = 2.;
-    firstWeights[edges[1]] = 2.;
-    firstWeights[edges[2]] = 2.;
-    firstWeights[edges[3]] = 2.;
-    firstWeights[edges[4]] = 2.;
-    firstWeights[edges[5]] = 2.;
-    firstWeights[edges[6]] = 2.;
-    firstWeights[edges[7]] = 2.;
-    firstWeights[edges[8]] = 2.;
-    firstWeights[edges[9]] = 2.;
-    firstWeights[edges[10]] = 2.;
+    secondWeights1[edges[0]] = 2.;
+    secondWeights1[edges[1]] = 2.;
+    secondWeights1[edges[2]] = 2.;
+    secondWeights1[edges[3]] = 2.;
+    secondWeights1[edges[4]] = 2.;
+    secondWeights1[edges[5]] = 2.;
+    secondWeights1[edges[6]] = 2.;
+    secondWeights1[edges[7]] = 2.;
+    secondWeights1[edges[8]] = 2.;
+    secondWeights1[edges[9]] = 2.;
+    secondWeights1[edges[10]] = 2.;
 
 
     ListGraph::EdgeMap<double> secondWeights2(g); 
-    firstWeights[edges[0]] = 3.;
-    firstWeights[edges[1]] = 3.;
-    firstWeights[edges[2]] = 3.;
-    firstWeights[edges[3]] = 3.;
-    firstWeights[edges[4]] = 3.;
-    firstWeights[edges[5]] = 3.;
-    firstWeights[edges[6]] = 3.;
-    firstWeights[edges[7]] = 3.;
-    firstWeights[edges[8]] = 3.;
-    firstWeights[edges[9]] = 3.;
-    firstWeights[edges[10]] = 3.;
+    secondWeights2[edges[0]] = 3.;
+    secondWeights2[edges[1]] = 3.;
+    secondWeights2[edges[2]] = 3.;
+    secondWeights2[edges[3]] = 3.;
+    secondWeights2[edges[4]] = 3.;
+    secondWeights2[edges[5]] = 3.;
+    secondWeights2[edges[6]] = 3.;
+    secondWeights2[edges[7]] = 3.;
+    secondWeights2[edges[8]] = 3.;
+    secondWeights2[edges[9]] = 3.;
+    secondWeights2[edges[10]] = 3.;
 
-    std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<double>>> scenarioSecondStageCosts {secondWeights1, secondWeights2};
+    std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> scenarioSecondStageCosts;
+    scenarioSecondStageCosts.push_back(std::unique_ptr<lemon::ListGraph::EdgeMap<double>>(&secondWeights1));
+    scenarioSecondStageCosts.push_back(std::unique_ptr<lemon::ListGraph::EdgeMap<double>>(&secondWeights2));
+
+    // std::cerr << (* (scenarioSecondStageCosts[0]))[edges[0]] << std::endl;
+
     // scenarioSecondStageCosts.push_back(secondWeights1);
     std::vector<double> probs{0.4, 0.6};
     bruteForceEnumeration(g, firstWeights, probs, scenarioSecondStageCosts);
