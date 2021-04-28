@@ -151,6 +151,12 @@ double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::
         sumEV += firstStageCosts[edges[i]];
     }
 
+    // if firststage sum is already larger than the current optimum, save time
+    if (sumEV > currentBest) {
+        // std::cout << "Unnoetig\n";
+        // return crap value, slightly larger than the current optimum
+        return currentBest + 1;
+    }
 
     // loop ueber alle scenarien
     for(int i=0; i<scenarioProbabilities.size(); i++) {
