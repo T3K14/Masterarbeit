@@ -122,43 +122,82 @@ TEST(TwoStageSuite, Test2) {
     firstWeights[edges[10]] = 1.;
 
 
-    ListGraph::EdgeMap<double> secondWeights1(g); 
-    secondWeights1[edges[0]] = 2.;
-    secondWeights1[edges[1]] = 2.;
-    secondWeights1[edges[2]] = 2.;
-    secondWeights1[edges[3]] = 2.;
-    secondWeights1[edges[4]] = 2.;
-    secondWeights1[edges[5]] = 2.;
-    secondWeights1[edges[6]] = 2.;
-    secondWeights1[edges[7]] = 2.;
-    secondWeights1[edges[8]] = 2.;
-    secondWeights1[edges[9]] = 2.;
-    secondWeights1[edges[10]] = 2.;
+    // ListGraph::EdgeMap<double> secondWeights1(g); 
+    // secondWeights1[edges[0]] = 2.;
+    // secondWeights1[edges[1]] = 2.;
+    // secondWeights1[edges[2]] = 2.;
+    // secondWeights1[edges[3]] = 2.;
+    // secondWeights1[edges[4]] = 2.;
+    // secondWeights1[edges[5]] = 2.;
+    // secondWeights1[edges[6]] = 2.;
+    // secondWeights1[edges[7]] = 2.;
+    // secondWeights1[edges[8]] = 2.;
+    // secondWeights1[edges[9]] = 2.;
+    // secondWeights1[edges[10]] = 2.;
 
 
-    ListGraph::EdgeMap<double> secondWeights2(g); 
-    secondWeights2[edges[0]] = 3.;
-    secondWeights2[edges[1]] = 3.;
-    secondWeights2[edges[2]] = 3.;
-    secondWeights2[edges[3]] = 3.;
-    secondWeights2[edges[4]] = 3.;
-    secondWeights2[edges[5]] = 3.;
-    secondWeights2[edges[6]] = 3.;
-    secondWeights2[edges[7]] = 3.;
-    secondWeights2[edges[8]] = 3.;
-    secondWeights2[edges[9]] = 3.;
-    secondWeights2[edges[10]] = 3.;
+    // ListGraph::EdgeMap<double> secondWeights2(g); 
+    // secondWeights2[edges[0]] = 3.;
+    // secondWeights2[edges[1]] = 3.;
+    // secondWeights2[edges[2]] = 3.;
+    // secondWeights2[edges[3]] = 3.;
+    // secondWeights2[edges[4]] = 3.;
+    // secondWeights2[edges[5]] = 3.;
+    // secondWeights2[edges[6]] = 3.;
+    // secondWeights2[edges[7]] = 3.;
+    // secondWeights2[edges[8]] = 3.;
+    // secondWeights2[edges[9]] = 3.;
+    // secondWeights2[edges[10]] = 3.;
 
     std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> scenarioSecondStageCosts;
-    scenarioSecondStageCosts.push_back(std::unique_ptr<lemon::ListGraph::EdgeMap<double>>(&secondWeights1));
-    scenarioSecondStageCosts.push_back(std::unique_ptr<lemon::ListGraph::EdgeMap<double>>(&secondWeights2));
+    // scenarioSecondStageCosts.push_back(std::unique_ptr<lemon::ListGraph::EdgeMap<double>>(&secondWeights1));
+    
+    // std::make_unique<lemon::ListGraph::EdgeMap<double>>
+    scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g));
+    // (*scenarioSecondStageCosts[0]).reset(&secondWeights1);
 
-    // std::cerr << (* (scenarioSecondStageCosts[0]))[edges[0]] << std::endl;
+    (*scenarioSecondStageCosts[0])[edges[0]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[1]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[2]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[3]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[4]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[5]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[6]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[7]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[8]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[9]] = 2.;
+    (*scenarioSecondStageCosts[0])[edges[10]] = 2.;
 
-    // scenarioSecondStageCosts.push_back(secondWeights1);
+    scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g));
+
+    (*scenarioSecondStageCosts[1])[edges[0]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[1]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[2]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[3]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[4]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[5]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[6]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[7]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[8]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[9]] = 3.;
+    (*scenarioSecondStageCosts[1])[edges[10]] = 3.;
+
+    // scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g));
+    // scenarioSecondStageCosts[1].reset(&secondWeights2);
+    // scenarioSecondStageCosts.push_back(std::unique_ptr<lemon::ListGraph::EdgeMap<double>>(&secondWeights2));
+
+    // std::cerr << (* ((*scenarioSecondStageCosts[0])))[edges[0]] << std::endl;
+
+    // // scenarioSecondStageCosts.push_back(secondWeights1);
     std::vector<double> probs{0.4, 0.6};
-    bruteForceEnumeration(g, firstWeights, probs, scenarioSecondStageCosts);
+    auto res = bruteForceEnumeration(g, firstWeights, probs, scenarioSecondStageCosts);
 
-    ASSERT_EQ(1,2);
+    // convert to int
+    res = res + 0.5;
+    int resInt = (int) res;
+
+    ASSERT_EQ(resInt, 6);
+
+    // ASSERT_EQ(1,2);
 }
 

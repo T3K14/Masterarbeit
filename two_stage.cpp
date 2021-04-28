@@ -70,7 +70,7 @@ T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T>
 
 
 // template<typename T>        // T is the edge cost type
-void bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts) {
+double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts) {
     // std::cout << "hi\n";
 
     int EdgeCount = lemon::countEdges(g);
@@ -139,6 +139,7 @@ void bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::E
         }
     }
     std::cout << currentMinEV << " ist die beste Loesung\n";
+    return currentMinEV;
 }
 // template <typename T>
 double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::vector<lemon::ListGraph::Edge> & edges, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts, lemon::ListGraph::EdgeMap<bool> & output, double & currentBest, size_t & optCounter, lemon::ListGraph::EdgeMap<bool> & currentFirstStageSelection) {
@@ -154,8 +155,8 @@ double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::
     // if firststage sum is already larger than the current optimum, save time
     if (sumEV > currentBest) {
         // std::cout << "Unnoetig\n";
-        // return crap value, slightly larger than the current optimum
-        return currentBest + 1;
+        // return crap value to indicate, that this check did not continue
+        return -1;
     }
 
     // loop ueber alle scenarien
