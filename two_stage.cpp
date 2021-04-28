@@ -181,7 +181,7 @@ double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::
         optCounter++;
     } else if (sumEV < currentBest) {
         currentBest = sumEV;
-
+        optCounter = 1;
         // gehe ueber alle Kanten und setze die auf 1, die in c drin stehen
         for (auto & e : edges) {
             currentFirstStageSelection[e] = false;
