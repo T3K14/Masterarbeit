@@ -73,6 +73,7 @@ T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T>
 double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts) {
     // std::cout << "hi\n";
 
+    size_t NodeCount = lemon::countNodes(g);
     int EdgeCount = lemon::countEdges(g);
 
     // current best expectation value
@@ -114,8 +115,8 @@ double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph:
 
     int x,y,z;
 
-    // for every possible number of selectable edges (1,2,3,4,...,M)
-    for (int i=1; i<=EdgeCount; i++) {
+    // for every possible number of selectable edges (1,2,3,4,...,NodeCount-1) (if i select more than N-1 in the first stage, I could drop Edges and would still end up with a spanning tree)
+    for (int i=1; i<NodeCount; i++) {
 
         std::vector<int> p(EdgeCount + 2);
         std::vector<int> c(i);       // store the indices of the selected edges for this iteration (hier drin stehen die Indizes zum array "edges", die angeben, welche Kanten in der jeweiligen Iteration in der 1. stage gekauft werden)
@@ -211,7 +212,8 @@ SecondStageMap::Value SecondStageMap::operator[](SecondStageMap::Key e) const {
     }
     return secondStageCosts[e];
 }
-  
+
+// die Klasse speichert alles nur als Referenzen, da wird also nichts kopiert   
 SecondStageMap::SecondStageMap(const lemon::ListGraph::EdgeMap<double> & s, const std::vector<lemon::ListGraph::Edge> & e, const std::vector<int> & _c)
     : secondStageCosts(s), edges(e), c(_c) {
     }
