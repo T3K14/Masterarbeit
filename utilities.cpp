@@ -1,5 +1,7 @@
 #include "utilities.hpp"
 #include <unordered_map>
+#include <set>
+#include <utility>
 // #include <ctime>
 
 // #include <iostream>
@@ -102,7 +104,7 @@ bool twiddle(int & x, int & y, int & z, std::vector<int> & p) {
     return(0);
 }
 
-std::pair<std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>>, std::vector<double>> edgeWeightIncrease(const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, size_t N, std::mt19937 & rng) {
+std::pair<TestStruct, TestStruct> edgeWeightIncrease(const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, size_t N, std::mt19937 & rng) {
 
     //-------------------
 
@@ -231,6 +233,120 @@ std::pair<std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>>, std::
     for (int i=0; i< scenarioCounts.size(); i++) {
         pair.second.push_back(scenarioCounts[i] / N);
     }
-    return pair;
+    return std::make_pair(TestStruct{2}, TestStruct{3});
 }
 
+std::vector<double> edgeWeightIncrease2(const lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, size_t N, std::mt19937 & rng) {
+
+    // annahme, dass sich die Kantenreihenfolge nicht anedert, weil Graph auch nicht geaendert wird
+
+    using vectorEdgeMap = lemon::ListGraph::EdgeMap<std::vector<double>>;
+
+    // std::pair<vectorEdgeMap, std::vector<double>> pair(vectorEdgeMap(g), std::vector<double>);          // FUNKTIONIERT DIE INITIALISIERUNG SO?
+    std::vector<double> tmp;
+    // auto pair = std::make_pair(vectorEdgeMap(g), tmp);
+
+    // std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> & secondStageCostScenarios = pair.first;
+    std::vector<int> scenarioCounts;
+    
+    // map, wo zur Anzahl an Aenderungen die Szenarien gespeichert sind, benutze pairs, wo der erste Eintrag das Kantengewicht für das jeweilige Szenario enthaelt und
+    // der zweite Eintrag den Index angibt, unter welchem das Szenario in der VectorEdgeMap in pair gespeichert wird
+
+    // std::unordered_map<unsigned int, std::vector<std::pair<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>, unsigned int>>> helpMap;
+
+    std::unordered_map<int, lemon::ListGraph::EdgeMap<std::vector<std::pair<double, int>>>> helpMap;
+
+    // std::vector<std::pair<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>, unsigned int>>
+    // create uniform distribution between 0 and 1
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+    // size_t uniqueCounter = 0;
+
+    // Sample of N scenarios
+    for (int i=0; i<N; i++) {
+
+        int counter = 0; // counts how many changes have been made
+
+        // create new scenario
+        lemon::ListGraph::EdgeMap<double> map(g);
+        
+        // iteriere ueber alle Edges
+        for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+
+            // mit Wahrscheinlichkeit p Kantengewicht anpassen
+            if (dist(rng) < p) {                                    // KLEINER ODER KLEINER GLEICH???
+
+                map[e] = firstStageWeights[e] * factor;
+                // mit counter tracken, wie viele Aenderungen vorgenommen wurden
+                counter++;
+
+            } else {
+                map[e] = firstStageWeights[e];
+            }
+        }
+
+        // schauen, ob dieses Szenario schon existiert
+
+        // dazu iteriere ich ueber alle Szenarien, die gleich viele Aenderungen haben und elementwises Vergleichen
+        int identicalIndex;  // If there is an identical scenario among the already created ones, its index will be stored here   
+
+        bool globalSame = true;    // wenn das am Ende noch true ist, gibt es ein identisches Szenario
+        lemon::ListGraph::EdgeIt e(g);
+        const int matchingScenarios = helpMap[counter][e].size();
+
+        // set in dem alle moeglichen szenarien mit 'counter' Aenderungen per Index gespeichert werden und welche entfernt werden, wenn klar ist, dass sie nicht identisch mit 'map' sind
+        std::set<int> s;
+        for (int setCounter=0; setCounter < matchingScenarios; setCounter++) {
+            s.insert(s.end(), setCounter);
+        }
+        while(e != lemon::INVALID && !s.empty()) {       
+
+            std::vector<int> toDelete;
+
+            // loop over all remaining scenarios
+            for (int j : s) {
+                
+                if (helpMap[counter][e][j].first != map[e]) {
+                    toDelete.push_back(j);
+                }
+            }
+
+            ++e;
+        }
+
+        // entweder ist hier das Set leer oder noch ein Szenario uebrig
+        if (s.empty()) {
+            globalSame = false;
+        } else {
+            // setze 'identicalIndex' auf den Index des identischen Szenarios
+            int index = *(s.begin());
+            identicalIndex = helpMap[counter][e][index].second;
+        }
+
+        if (globalSame) {
+            // increase the count for calculating the probability later
+            scenarioCounts[identicalIndex]++;
+        } else {
+            // fuege das neue Szenario dem return pair hinzu
+            // secondStageCostScenarios.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g));
+
+            for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+                // uebertrage die Gewichte auf die gerade hinzugefuegte EdgeMap 
+                pair.first[e].push_back(map[e]);
+
+                // also add it to the map, damit folgende Szenarien sich auch mit diesem Vergleichen koennen
+                helpMap[counter][e].push_back(std::make_pair(map[e], pair.first[e].size()-1));       // pair.first[e].size() sagt mir, wie viele einzigartige scenarios schon gespeichert sind und damit auch, welchen Index, mein Szenario in dieser Liste hat
+
+            }
+            scenarioCounts.push_back(1);    // for calculating the probability
+        }
+    }
+
+    // std::vector<double> scenarioProbabilities(scenarioCounts.size());
+    for (int i=0; i< scenarioCounts.size(); i++) {
+        pair.second.push_back(scenarioCounts[i] / N);
+    }
+    // return pair;
+    // return std::make_pair(pair.first, pair.second);
+    return tmp;
+}

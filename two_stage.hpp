@@ -65,3 +65,4 @@ public:
 
 // const std::vector<lemon::ListGraph::EdgeMap<T>> & scenarioSecondStageCosts
 // const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts
+
