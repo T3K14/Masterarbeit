@@ -632,7 +632,7 @@ TEST(UtilitiesSuite, Test2) {
     firstWeights[edges[4]] = 1.;
     firstWeights[edges[5]] = 1.;
 
-    auto res = edgeWeightIncrease2(g, firstWeights, 0.9, 2., 10, rng);
+    // auto res = edgeWeightIncrease2(g, firstWeights, 0.9, 2., 10, rng);
     std::cout << 'hi\n';
     EXPECT_EQ(1,1);
 }
