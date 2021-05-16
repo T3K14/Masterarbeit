@@ -635,7 +635,101 @@ TEST(UtilitiesSuite, Test2) {
     lemon::ListGraph::EdgeMap<std::vector<double>> edgeMap(g);
     std::vector<double> scenarioProbabilities;
 
-    edgeWeightIncrease(edgeMap, scenarioProbabilities, g, firstWeights, 0.9, 2., 10, rng);
-    std::cout << 'hi\n';
-    EXPECT_EQ(1,1);
+    edgeWeightIncrease(edgeMap, scenarioProbabilities, g, firstWeights, 1., 2., 10, rng);
+
+    for (int i=0; i<scenarioProbabilities.size(); i++) {
+
+        for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
+        
+            // std::cout << edgeMap[e][i] << ", ";
+            EXPECT_NEAR(edgeMap[e][i],2, 0.0000000001);
+        }
+        // std::cout << "\t with prob." << scenarioProbabilities[i] << '\n';
+    }
+}
+
+TEST(UtilitiesSuite, Test3) {
+
+    ListGraph g;
+    const unsigned nodeNumber = 4;
+    std::array<ListGraph::Node, nodeNumber> nodes;
+
+    for(int i=0; i < nodeNumber; i++) {
+        nodes[i] = g.addNode();
+    }
+
+    std::array<ListGraph::Edge, 6> edges;
+
+    edges[0] = g.addEdge(nodes[0], nodes[1]);
+    edges[1] = g.addEdge(nodes[0], nodes[2]);
+    edges[2] = g.addEdge(nodes[0], nodes[3]);
+    edges[3] = g.addEdge(nodes[1], nodes[2]);
+    edges[4] = g.addEdge(nodes[1], nodes[3]);
+    edges[5] = g.addEdge(nodes[2], nodes[3]);
+
+    ListGraph::EdgeMap<double> firstWeights(g); 
+    firstWeights[edges[0]] = 1.;
+    firstWeights[edges[1]] = 1.;
+    firstWeights[edges[2]] = 1.;
+    firstWeights[edges[3]] = 1.;
+    firstWeights[edges[4]] = 1.;
+    firstWeights[edges[5]] = 1.;
+
+    lemon::ListGraph::EdgeMap<std::vector<double>> edgeMap(g);
+    std::vector<double> scenarioProbabilities;
+
+    edgeWeightIncrease(edgeMap, scenarioProbabilities, g, firstWeights, 0., 2., 10, rng);
+
+    for (int i=0; i<scenarioProbabilities.size(); i++) {
+
+        for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
+        
+            // std::cout << edgeMap[e][i] << ", ";
+            EXPECT_NEAR(edgeMap[e][i],1, 0.0000000001);
+        }
+        // std::cout << "\t with prob." << scenarioProbabilities[i] << '\n';
+    }
+}
+
+TEST(UtilitiesSuite, Test4) {
+
+    ListGraph g;
+    const unsigned nodeNumber = 4;
+    std::array<ListGraph::Node, nodeNumber> nodes;
+
+    for(int i=0; i < nodeNumber; i++) {
+        nodes[i] = g.addNode();
+    }
+
+    std::array<ListGraph::Edge, 4> edges;
+
+    edges[0] = g.addEdge(nodes[0], nodes[1]);
+    edges[1] = g.addEdge(nodes[0], nodes[2]);
+    edges[2] = g.addEdge(nodes[1], nodes[3]);
+    edges[3] = g.addEdge(nodes[2], nodes[3]);
+
+    ListGraph::EdgeMap<double> firstWeights(g); 
+    firstWeights[edges[0]] = 1.;
+    firstWeights[edges[1]] = 1.;
+    firstWeights[edges[2]] = 1.;
+    firstWeights[edges[3]] = 1.;
+
+    lemon::ListGraph::EdgeMap<std::vector<double>> edgeMap(g);
+    std::vector<double> scenarioProbabilities;
+
+    edgeWeightIncrease(edgeMap, scenarioProbabilities, g, firstWeights, 0.5, 2., 200000, rng);
+
+    for (int i=0; i<scenarioProbabilities.size(); i++) {
+        
+        EXPECT_NEAR(scenarioProbabilities[i],0.0625, 0.002);
+        
+        std::cout << "DIESER TEST KANN MIT GERINGER WAHRSCHEINLICHKEIT FEHLSCHLAGEN!\n";
+
+        for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
+            std::cout << edgeMap[e][i] << ", ";
+        }
+        std::cout << "\t with prob." << scenarioProbabilities[i] << '\n';
+
+    }
+    // EXPECT_EQ(1,2);
 }
