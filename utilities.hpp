@@ -16,4 +16,5 @@ bool twiddle(int & x, int & y, int & z, std::vector<int> & p);  //could also be 
 // std::pair<TestStruct, TestStruct> edgeWeightIncrease(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, size_t N, std::mt19937 & rng);
 // std::pair<lemon::ListGraph::EdgeMap<std::vector<double>>, std::vector<double>> edgeWeightIncrease2(const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, size_t N, std::mt19937 & rng);
 
-std::vector<double> edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng);
+// std::vector<double> edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng);
+void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, std::vector<double> & scenarioProbabilities, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng);
