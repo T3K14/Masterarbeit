@@ -68,7 +68,80 @@ T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T>
     return totalCosts;
 }
 
+double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const lemon::ListGraph::EdgeMap<std::vector<double>> & scenarioSecondStageCosts) {
+    
+    size_t NodeCount = lemon::countNodes(g);
+    int EdgeCount = lemon::countEdges(g);
 
+    // current best expectation value
+    double currentMinEV = 0;
+
+    // brauche ich nicht: ABER ich muss irgendwie die edges fuer den twiddle algorithmus durchnumerieren
+    // lemon::ListGraph::EdgeMap<bool> currentBestMST(g);
+
+    // default value is false, so currently not selected 
+    lemon::ListGraph::EdgeMap<bool> currentFirstStageSelection(g, false);           // darin soll immer die aktuell beste Lsg gespeichert werden
+
+    //solution now: create array of edges and use the index of an edge in this array for the twiddle algorithm
+    // std::array<lemon::ListGraph::Edge, EdgeCount> edges; 
+    std::vector<lemon::ListGraph::Edge> edges(EdgeCount);               // da der Graph in dieser Fkt nicht geaendert wird, steht jede Kante an einem eindeutigen Index
+
+    size_t optCounter = 0;
+    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+        edges[optCounter++] = e;
+    }
+
+    // used as temporary output map of the kruskal algorithm
+    lemon::ListGraph::EdgeMap<bool> output(g);      
+
+    // counts how many solutions exist that have the same optimum solution
+    size_t counter = 1;     
+
+    // first case: no edge is selected in stage 1
+    // loop over all scenarios
+
+    for (int i=0; i < scenarioProbabilities.size(); i++) {
+        auto weightedResult = scenarioProbabilities[i] * lemon::kruskal(g, *(scenarioSecondStageCosts[i]), output);
+        currentMinEV += weightedResult;
+    }
+
+
+    // second case: there are edges selected in the first stage
+
+    double firstStageSum = 0;
+
+    int x,y,z;
+
+    // for every possible number of selectable edges (1,2,3,4,...,NodeCount-1) (if i select more than N-1 in the first stage, I could drop Edges and would still end up with a spanning tree)
+    for (int i=1; i<NodeCount; i++) {
+
+        std::vector<int> p(EdgeCount + 2);
+        std::vector<int> c(i);       // store the indices of the selected edges for this iteration (hier drin stehen die Indizes zum array "edges", die angeben, welche Kanten in der jeweiligen Iteration in der 1. stage gekauft werden)
+
+        for (int tmp=0; tmp<i; tmp++) {
+            c[tmp] = EdgeCount - i + tmp;
+        }
+
+        // I want to select i of all [EdgeCount] edges 
+        inittwiddle(i, EdgeCount, p);
+
+        // now check the initial case
+
+        // double res = check<T>(c, scenarioProbabilities, scenarioSecondStageCosts, p, output)
+        auto res = check(g, c, edges, firstStageCosts, scenarioProbabilities, scenarioSecondStageCosts, output, currentMinEV, optCounter, currentFirstStageSelection);
+
+        while(!twiddle(x, y, z, p)) {
+            // update c: 
+            c[z] = x;
+            res = check(g, c, edges, firstStageCosts, scenarioProbabilities, scenarioSecondStageCosts, output, currentMinEV, optCounter, currentFirstStageSelection);
+        }
+    }
+    std::cout << currentMinEV << " ist die beste Loesung\n";
+    return currentMinEV;
+}
+
+
+// deprecated
 // template<typename T>        // T is the edge cost type
 double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts) {
     // std::cout << "hi\n";
