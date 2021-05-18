@@ -4,6 +4,7 @@
 #include "utilities.hpp"
 #include <lemon/lgf_writer.h>
 #include <lemon/kruskal.h>
+#include <array>
 
 // EdgeCostCreator::EdgeCostCreator(RNG & randGen) : rng(randGen) {}
 
@@ -68,8 +69,24 @@ T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T>
     return totalCosts;
 }
 
-double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const lemon::ListGraph::EdgeMap<std::vector<double>> & scenarioSecondStageCosts) {
-    
+double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const lemon::ListGraph::EdgeMap<std::vector<double>> & scenarioSecondStageCostsEM) {
+    // std::cout << "hi\n";
+
+    // convert to vector of unique pointers...
+    std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> scenarioSecondStageCosts;
+
+    lemon::ListGraph::EdgeIt edg(g);
+
+    for (int i=0; i < scenarioSecondStageCostsEM[edg].size(); i++) {
+        scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g)); 
+        for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {                                 // geht das effizienter mit dem Iterator edg?
+            (*scenarioSecondStageCosts[i])[e] = scenarioSecondStageCostsEM[e][i];
+        }
+    }
+
+    return bruteForceEnumeration(g, firstStageCosts, scenarioProbabilities, scenarioSecondStageCosts);
+
+    /*
     size_t NodeCount = lemon::countNodes(g);
     int EdgeCount = lemon::countEdges(g);
 
@@ -79,7 +96,7 @@ double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph:
     // brauche ich nicht: ABER ich muss irgendwie die edges fuer den twiddle algorithmus durchnumerieren
     // lemon::ListGraph::EdgeMap<bool> currentBestMST(g);
 
-    // default value is false, so currently not selected 
+    // default value is false, so currently no 
     lemon::ListGraph::EdgeMap<bool> currentFirstStageSelection(g, false);           // darin soll immer die aktuell beste Lsg gespeichert werden
 
     //solution now: create array of edges and use the index of an edge in this array for the twiddle algorithm
@@ -138,8 +155,8 @@ double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph:
     }
     std::cout << currentMinEV << " ist die beste Loesung\n";
     return currentMinEV;
+    */
 }
-
 
 // deprecated
 // template<typename T>        // T is the edge cost type
@@ -215,6 +232,7 @@ double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph:
     std::cout << currentMinEV << " ist die beste Loesung\n";
     return currentMinEV;
 }
+//deprecated
 // template <typename T>
 double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::vector<lemon::ListGraph::Edge> & edges, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts, lemon::ListGraph::EdgeMap<bool> & output, double & currentBest, size_t & optCounter, lemon::ListGraph::EdgeMap<bool> & currentFirstStageSelection) {
     // ermittle Kanten, die in stage 1 gekauft werden (ueber c gegeben)
@@ -272,6 +290,64 @@ double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::
     return sumEV;
 }   
 
+
+double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::vector<lemon::ListGraph::Edge> & edges, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<lemon::ListGraph::EdgeMap<double>> & scenarioSecondStageCosts, lemon::ListGraph::EdgeMap<bool> & output, double & currentBest, size_t & optCounter, lemon::ListGraph::EdgeMap<bool> & currentFirstStageSelection) {
+    // ermittle Kanten, die in stage 1 gekauft werden (ueber c gegeben)
+    
+    // teilsumme stage 1 berechnen
+    
+    double sumEV = 0;
+    for (int i : c) {
+        sumEV += firstStageCosts[edges[i]];
+    }
+    
+    // if firststage sum is already larger than the current optimum, save time
+    if (sumEV > currentBest) {
+        // std::cout << "Unnoetig\n";
+        // return crap value to indicate, that this check did not continue
+        return -1;
+    }
+
+    // loop ueber alle scenarien
+    for(int i=0; i<scenarioProbabilities.size(); i++) {
+        //setze die kosten von diesen Kanten in der map fuer phase 2 auf 0
+        SecondStageMap secondStageMap(scenarioSecondStageCosts[i], edges, c);
+
+        // optimalen mst ausrechnen
+        double mst = lemon::kruskal(g, secondStageMap, output);
+
+        // Ergebnis mit Wahrscheinlichkeit gewichten und auf Teilsumme stage 2 addieren
+        sumEV += scenarioProbabilities[i] * mst;
+    }
+
+        
+    // return sumEV;
+
+    // Ergebnis mit bisherigem Optimum speichern, gegebenefalls counter erhoehen und neues bessere Ergebnis speichern, 
+
+    // ZU EPSILONVERGLEICH AENDERN
+    if (sumEV == currentBest) {
+        optCounter++;
+    } else if (sumEV < currentBest) {
+        currentBest = sumEV;
+        optCounter = 1;
+        // gehe ueber alle Kanten und setze die auf 1, die in c drin stehen
+        for (auto & e : edges) {
+            currentFirstStageSelection[e] = false;
+        }
+
+        // NOCHMAL DRUEBER NACHDENKEN, ABER ICH WILL JA DIE, DEREN INDEX IN C DRIN STEHT UND NICHT DIE ERSTEN c KANTEN AUS edges
+        // for (int j=0; j<c.size(); j++) {
+        for (int j: c) {
+
+            currentFirstStageSelection[edges[j]] = true;
+        }
+    }
+
+    return sumEV;
+    
+    // return 2.;
+}
 
 SecondStageMap::Value SecondStageMap::operator[](SecondStageMap::Key e) const {
     // return orig_len[e]-(pot[g.target(e)]-pot[g.source(e)]);
