@@ -243,6 +243,9 @@ std::pair<TestStruct, TestStruct> edgeWeightIncrease(const lemon::ListGraph & g 
 void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, std::vector<double> & scenarioProbabilities, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng) {
     // annahme, dass sich die Kantenreihenfolge nicht anedert, weil Graph auch nicht geaendert wird
 
+    // std::vector<lemon::ListGraph::EdgeMap<double>> vec);
+
+
     using vectorEdgeMap = lemon::ListGraph::EdgeMap<std::vector<double>>;
     // std::pair<vectorEdgeMap, std::vector<double>> pair(vectorEdgeMap(g), std::vector<double>);          // FUNKTIONIERT DIE INITIALISIERUNG SO? NEIN, denn c++ denkt, es ist fkts prototyp
 
@@ -275,7 +278,7 @@ void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap,
                 counter++;
 
             } else {
-                map[e] = firstStageWeights[e];
+                map[e] = firstStageWeights[e] / factor;         // DAS '/factor' IST ERSTMAL NUR ZUM TESTEN DA
             }
         }
 

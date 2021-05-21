@@ -69,6 +69,34 @@ T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T>
     return totalCosts;
 }
 
+
+double fourb(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const lemon::ListGraph::EdgeMap<std::vector<double>> & scenarioSecondStageCostsEM) {
+
+    // convert to vector of unique pointers...
+    std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> scenarioSecondStageCosts;
+
+    lemon::ListGraph::EdgeIt edg(g);
+
+    for (int i=0; i < scenarioSecondStageCostsEM[edg].size(); i++) {
+        scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g)); 
+        for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {                                 // geht das effizienter mit dem Iterator edg?
+            (*scenarioSecondStageCosts[i])[e] = scenarioSecondStageCostsEM[e][i];
+        }
+    }
+
+    double res = 0.;
+
+    // loope ueber alle szenarios
+
+    for (int i=0; i < scenarioSecondStageCosts.size(); i++) {
+        res += scenarioProbabilities[i] * twoStageSetting(g, firstStageCosts, *(scenarioSecondStageCosts[i]), false);
+    }
+
+    return res;
+
+}
+
+
 double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const lemon::ListGraph::EdgeMap<std::vector<double>> & scenarioSecondStageCostsEM) {
     // std::cout << "hi\n";
 
@@ -83,6 +111,7 @@ double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph:
             (*scenarioSecondStageCosts[i])[e] = scenarioSecondStageCostsEM[e][i];
         }
     }
+    
 
     return bruteForceEnumeration(g, firstStageCosts, scenarioProbabilities, scenarioSecondStageCosts);
 
@@ -230,6 +259,16 @@ double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph:
         }
     }
     std::cout << currentMinEV << " ist die beste Loesung\n";
+    
+    int cou = 0;
+    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+        if (currentFirstStageSelection[e]) {
+            cou++;
+        }
+    }
+
+    std::cout << cou << " Edges werden in Stage 1 gekauft\n"
+;
     return currentMinEV;
 }
 //deprecated
