@@ -54,3 +54,22 @@ add_executable(4avs4b 4avs4b.cpp ${Source} ${Headers})
 target_link_libraries(4avs4b PUBLIC ${mylemon} two_stage)
 
 add_executable(twiddle twiddle_combi.cpp)
+
+add_executable(mincut min_cut_test.cpp ${Sources} ${Headers})
+target_link_libraries(mincut PUBLIC ${mylemon})
+
+option(Compile_Gurobi_Code "Decide if code that makes use of Gurobi is compiled." OFF)
+
+if(${Compile_Gurobi_Code})
+    set(Gurobi_Sources
+        two_stage_gurobi.cpp
+    )
+
+    set(Gurobi_Headers
+        two_stage_gurobi.hpp
+    )
+
+    add_library(two_stage_gurobi STATIC ${Gurobi_Sources} ${Gurobi_Headers})
+    target_link_libraries(two_stage_gurobi PUBLIC ${mylemon})
+
+endif()

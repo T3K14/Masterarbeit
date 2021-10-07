@@ -75,3 +75,23 @@ public:
 // const std::vector<lemon::ListGraph::EdgeMap<T>> & scenarioSecondStageCosts
 // const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts
 
+class TwoStageProblem {
+
+    lemon::ListGraph g;
+
+    unsigned int numberScenarios;
+    
+    lemon::ListGraph::EdgeMap<double> firstStageCosts;
+
+    lemon::ListGraph::EdgeMap<double> secondStageProbabilities;
+    lemon::ListGraph::EdgeMap<std::vector<double>> secondStageCosts;
+
+public:
+
+    // approximation algorithm 
+    friend void approximate();
+
+    // formulate the given two stage problem as a realaxed lp for gurobi
+    void formulate_as_lp();
+
+};
