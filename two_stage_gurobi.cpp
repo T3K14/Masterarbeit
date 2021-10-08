@@ -1,7 +1,7 @@
 #include "two_stage_gurobi.hpp"
 #include <lemon/hao_orlin.h>
 #include <algorithm>
-
+#include <connectivity.h>
 
 void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map) {
 
@@ -120,10 +120,70 @@ void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_op
 
 void approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map) {
 
-    // konstruiere k forrests
+    
+    // habe hier Map, in die wird eine Edge true, falls diese in einer Iteration fuer die erste Stage gekauft wird 
+    lemon::ListGraph::EdgeMap<bool> first_stage_edges(g, false);
+    
     // das ganze dann sehr gerne parallelisieren
-    for (int i=0; i<numberScenarios; i++) {
-        //konstruiere Forrest
-        lemon::ListGraph g;
-    }   
+
+    // so lange, bis alle forrests connected sind (oder eine andere Abbruchbedingung stattfindet) HIER KANN VLLT EIN COUNTER EINGEBAUT WERDEN, DER HOCHZAEHLT, WENN EIN THREAD FERTIG IST
+    // UND DAS GANZE LAEUFT SO LANGE, BIS DER COUNTER GLEICH DER ANZAHL AN SZENARIEN IST
+    while(true) {
+
+        // jetzt fuer alle scenarios und das kann glaube ich parallelisiert werden
+        for (int i=0; i<numberScenarios; i++) {
+            
+            // erstelle auch hier eine EdgeMap, die die second stage Kanten anzeigt
+            lemon::ListGraph::EdgeMap<bool> second_stage_edges(g, false);
+
+            // bool connected = false;
+            // so lange random Werte ziehen, und die Maps anpassen, bis mein forrest connected ist
+            while(true) {
+                
+                // loop ueber alle Kanten
+                for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+
+                    // falls die Edge nicht entweder schon in der first stage map oder in meiner second stage Map drin ist
+                    if (!first_stage_edges[e] && !second_stage_edges[e]) {
+
+                        // ziehe erste random zahl fuer first stage
+                        if (randomzahl passt) {
+
+                            first_stage_edges[e] = true;
+                        }
+
+                        // koennte jetzt noch checken, dass die Kante nicht gerade in die first_stage_edges aufgenommen wurde, aber ich glaube es ist effizienter auf das if zu verzichten
+                        // ich checke hier einfach nach der zweiten random zahl muss (ich denke aber, dass dieser erste check leichter ist, als die random zahl erstellung, in manchen faellen koennte
+                        // man so vielleicht etwas zeit sparen, wenn die abfrage im if vor der random zahl abfrage steht und schon das if ungueltig macht)
+
+                        if (zweite randomzahl passt) {
+                            second_stage_edges[e] = true;
+                        }
+
+                    }
+
+                }
+
+                // jetzt checken, ob mein forrest schon connected ist
+                lemon::ListGraph::EdgeMap<bool> connected_map(g);
+                for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+                    connected_map[e] = first_stage_edges[e] || second_stage_edges[e];
+                }
+                // weiss nicht, ob ich die Nodemap einfach so als argument erstellen kann
+                lemon::SubGraph<ListGraph> subgraph(g, lemon::ListGraph::NodeMap(g, true), connected_map);
+
+                if (lemon::connected(subgraph)) {
+                    // ich bin connected und breake raus
+                    // HIER UNTER UMSTAENDEN NOCH DEN COUNTER ERHOEHEN!!!
+                    break;
+                }
+
+                
+            }
+        }
+
+
+    }
+
+    
 }
