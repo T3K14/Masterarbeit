@@ -1,79 +1,86 @@
 #include "two_stage_gurobi.hpp"
-#include "gurobi_c++.hpp"
 #include <lemon/hao_orlin.h>
+#include <algorithm>
 
 
-void approximate() {
+void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map) {
 
     GRBEnv env = GRBEnv(true);
 
     GRBModel model = GRBModel(env);
 
-    //std::array<GRBVar, numberScenarios> variables;
+    lemon::ListGraph::EdgeMap<GRBVar *> gurobi_variables_map(g);
 
-    // lower bound (if NULL -> 0), upper bound (if Null -> infty), objective coefficients (null -> we set the coefficients later)
-    unsigned int number_coefficients = numberEdges * (numberScenarios + 1) 
-    GRBVar * variables_array = model.addVars(number_coefficients, GRB_CONTINUOUS);      // die anordnung, wenn ich zB. 4 szenarios und 3 kanten habe: x^1_e1, x^1_e2, x^1_e3, x^2_e1, x^2_e2, x^2_e3, x^3_e1, ...
-
-    // GRBVar variables_array[][]
-
+    // das wird die objective function 
     GRBLinExpr obj = 0.0;
 
-    // die ersten Summanden fuer die first stage variablen zur objective hinzufuegen
-    for (int i=0; i < numberEdges, i++) {
-        obj += firstStageCosts[edges[i]] * variables_array[i];
+    // ich tue so, als haette ich die edges nicht zwangsweise selbst in einem array sondern nutze den lemon edge iterator
+    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+        
+        // jede Kante bekommt array mit Variablen fuer alle Szenarios (+1 fuer die erste Stage)
+        gurobi_variables_map[e] = model.addVars(numberScenarios + 1, GRB_CONTINUOUS);               // werden unten gefreet
+
+        // und ich kann gleich schon die objektive function mit aufbauen
+        // stage 1
+        obj += firstStageCosts[e] * gurobi_variables_map[e][0];
+
+        // stage 2
+        for (int i=1; i<numberScenarios+1; i++) {
+            obj += scenarioProbabilities[i] * secondStageCosts[e][i] * gurobi_variables_map[e][i];
+        }
     }
 
-    // die uebrigen Summanden der anderen Second stage scenarien hinzufuegen3
-    for (int i=numberEdges; i < number_coefficients; i++) {
-
-        // aktuelle Kante und aktuelles Szenario
-        unsigned int edge_num = i % numEdges;
-        unsigned int secnario_num = (i - edge_num) % numberScenarios;
-        obj += scenarioProbabilities[secnario_num] * secondStageCosts[edges[edge_num]][secnario_num] * variables_array[i]
-    }
     model.setObjective(obj, GRB_MINIMIZE);
 
+    // jetzt so lange Cut-Constraints hinzufuegen, bis die Bedingungen immer erfuellt sind 
     while(true) {
 
         model.optimize();
 
-        // map der capacities (wird fuer jedes szenario neu beschrieben)
+        // map der capacities (wird fuer jedes szenario neu beschrieben), brauche ich fuer den HaoOrlin-Algorithmus
         ListGraph::EdgeMap<double> capacity_map(g);
 
-        // map in der angegeben wird, welche Knoten in dereinen MinCut-Teilmenge drin sind
+        // map in der angegeben wird, welche Knoten in dereinen MinCut-Teilmenge drin sind, output des HaoOrlin-Algorithmus, aus dem ich dann die Kanten bestimmen kann, die die Cut-
+        // Teilmengen verbinden
         ListGraph::NodeMap<bool> min_cut_result_map(g);
 
         // gehe alle szenarien durch und suche nach mincut, der die Bedingung nicht erfuellt
-        for (int i=0; i<numberScenarios; i++) {
-            
-
-
-            // die aktuellen Werte der Variablen holen
-            // double * lp_ergebnisse = model.get(GRB_DoubleAttr, scenario_variables.data());
-
-
+        for (int i=1; i<numberScenarios+1; i++) {
 
             // die x^_e und x^i_e Werte addieren und als capacity Werte eintragen
-            for (int j=0; j<numberEdges; j++) {
+            for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
                 // die capacity ist die summe aus den Werten der ersten Phase und den der i-ten Phase
-                capacity_map[edges[j]] = variables_array[j].get(GRB_DoubleAttr) + varables_array[i * numberEdges + j].get(GRB_DoubleAttr);
+                //capacity_map[edges[j]] = variables_array[j].get(GRB_DoubleAttr) + varables_array[i * numberEdges + j].get(GRB_DoubleAttr);
+                capacity_map[e] = gurobi_variables_map[e][0].get(GRB_DoubleAttr) + gurobi_variables_map[e][i].get(GRB_DoubleAttr);
             }
 
-
+            // suche minCut
             HaoOrlin hao(g, capacity_map);
             hao.init();
             hao.calculateIn();
 
-
-
-
-            // falls der minCut die Bedingung verletzt 
+            // falls der minCut die Bedingung verletzt, der Aufruf speichert direkt auch die bools fuer die Teilmengen in min_cut_result_map
             if(hao.minCutMap(min_cut_result_map) < 1) {
                 
                 // fuege neues constraint hinzu, damit diese Bedingung in zukunft erfuellt ist
-                
+                GRBLinExpr constraint = 0.0;
 
+                // dazu muss ich erstmal alle Kanten ermitteln, die bei diesem minCut die beiden Teilmengen verbinden
+                for (lemon::ListGraph::NodeIt n(g); n != lemon::INVALID; ++n) {
+                    if (min_cut_result_map[n]) {
+                        for (lemon::ListGraph::IncEdgeIt e(g, n); e != lemon::INVALID; ++e) {
+                            // wenn entweder n true und die andere edge false ist oder andersrum
+                            if ((g.source(e) && !g.target(e)) || (!g.source(e) && g.target(e))) {
+
+                                constraint += gurobi_variables_map[e][0] + gurobi_variables_map[e][i];
+
+                            }
+                        }
+                    }
+                }
+
+                // constraint jetzt noch hinzufuegen
+                model.addConstr(constraint);
 
                 // und ich gehe aus derm for-loop raus, in der Annahme, dass allein diese Veraenderung schon was bewirkt und es sich vielleicht nicht lohnt, noch weiter durch alle anderen
                 //Szenarien zu schauen
@@ -86,13 +93,37 @@ void approximate() {
         if(hao.minCutValue() >= 1) {
             break;
         }
-        
         // ansonsten optimiere erneut
+    }
 
 
-        // delete[] lp_ergebnisse;
+    // ich schreibe nun in die uebergeben EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
+    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+
+        std::copy_n(model.get(GRB_Double_Attr, gurobi_variables_map[e], numberScenarios+1), result_optimized_values_map[e].size(), result_optimized_values_map[e].begin());
+
+        // hier free ich die Variablen arrays pro Kante
+        delete[] gurobi_variables_map[e];
 
     }
 
-    delete[] variables_array;
+    // for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+        // delete[] gurobi_variables_map[e];
+    // }
+    
+
+    //vielleicht brauche ich auch gar nicht die Variablen zurueckgeben, sondern nur deren Werte
+
+    // return gurobi_variables_map;
+}
+
+
+void approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map) {
+
+    // konstruiere k forrests
+    // das ganze dann sehr gerne parallelisieren
+    for (int i=0; i<numberScenarios; i++) {
+        //konstruiere Forrest
+        lemon::ListGraph g;
+    }   
 }
