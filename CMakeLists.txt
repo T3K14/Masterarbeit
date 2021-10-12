@@ -34,10 +34,10 @@ set (Headers
     utilities.hpp
 )
 
+option(Compile_Test_Code "Decide if code that is only used for testing functionality ist compiled." ON)
+
 add_executable(${first} first.cpp)
-
 target_link_libraries(${first} PUBLIC ${mylemon})
-
 
 add_library(two_stage STATIC ${Sources} ${Headers})
 target_link_libraries(two_stage PUBLIC ${mylemon})
@@ -47,16 +47,21 @@ add_subdirectory(test)
 add_executable(second second.cpp ${Sources} ${Headers})
 target_link_libraries(second PUBLIC ${mylemon} two_stage)
 
-add_executable(kruskal kruskal_test.cpp ${Sources} ${Headers})
-target_link_libraries(kruskal PUBLIC ${mylemon} two_stage)
-
 add_executable(4avs4b 4avs4b.cpp ${Source} ${Headers})
 target_link_libraries(4avs4b PUBLIC ${mylemon} two_stage)
 
-add_executable(twiddle twiddle_combi.cpp)
 
-add_executable(mincut min_cut_test.cpp ${Sources} ${Headers})
-target_link_libraries(mincut PUBLIC ${mylemon})
+if(${Compile_Test_Code})
+
+    add_executable(mincut min_cut_test.cpp ${Sources} ${Headers})
+    target_link_libraries(mincut PUBLIC ${mylemon})
+
+    add_executable(twiddle twiddle_combi.cpp)
+
+    add_executable(kruskal kruskal_test.cpp ${Sources} ${Headers})
+    target_link_libraries(kruskal PUBLIC ${mylemon} two_stage)
+
+endif()
 
 option(Compile_Gurobi_Code "Decide if code that makes use of Gurobi is compiled." OFF)
 

@@ -37,7 +37,6 @@ class EdgeCostCreator {
 template<typename T>        // T is the edge cost type
 T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T> & firstStageCosts, const lemon::ListGraph::EdgeMap<T> & secondStageCosts, bool save=false);
 
-
 // calculates the edgeset that minimizes the expected total costs of the MST for a given second stage edgeset-distribution, by trying out every possible combination
 // template<typename T>        // T is the edge cost type
 // void bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts);
@@ -88,10 +87,12 @@ class TwoStageProblem {
 
 public:
 
-    // approximation algorithm 
-    friend void approximate();
+    // formuliert das relaxed LP Problem, loesst es und speichert die Ergebnisse in 'result_optimized_values_map'
+    friend void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map);
 
-    // formulate the given two stage problem as a realaxed lp for gurobi
-    void formulate_as_lp();
+    // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer in der ersten Stage zu kaufende Kanten 
+    // speichert
+    void approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map, lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);
 
 };
+

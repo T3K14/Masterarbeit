@@ -7,4 +7,3 @@
 #include <vector>
 
 void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map);
-void approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map)

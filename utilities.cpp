@@ -278,7 +278,7 @@ void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap,
                 counter++;
 
             } else {
-                map[e] = firstStageWeights[e] / factor;         // DAS '/factor' IST ERSTMAL NUR ZUM TESTEN DA
+                map[e] = firstStageWeights[e]; /// factor;         // DAS '/factor' IST ERSTMAL NUR ZUM TESTEN DA
             }
         }
 
@@ -292,15 +292,17 @@ void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap,
         // hier schaue ich, ob es schon eine EdgeMap zu der anzahl aenderungen gibt. Falls nicht, fuege ich den hinzu
         // falls es schon einen gibt, ist alles gut, falls nicht, feuege ich es hier zu dem counter hinzu und muss es dann spaeter nicht nochmal machen
         if (helpMap.find(counter) == helpMap.end()) {
-            helpMap.emplace(counter, g);
+            helpMap.emplace(counter, g);    // counter als pair.first und g als argument fuer den constructor von der edgemap pari.second
         }
         auto numberMatchingScenarios = helpMap.at(counter)[e].size();       // number of scenarios that already exist and have the same amount of changes
 
         // set in dem alle moeglichen szenarien mit 'counter' Aenderungen per Index gespeichert werden und welche entfernt werden, wenn klar ist, dass sie nicht identisch mit 'map' sind
         std::set<int> s;
         for (int setCounter=0; setCounter < numberMatchingScenarios; setCounter++) {
-            s.insert(s.end(), setCounter);
+            s.insert(s.end(), setCounter);      //s.end() ist iterator, der auf das past-the-end element zeigt
         }
+        // so lange, es noch szenarien gibt, bei denen bisher alle Kantengewichte mit der neu erstellten map uebereinstimmen, vergleiche ich so lange die naechste Kante, bis entweder keins
+        // mehr uebrig ist, oder alle Kanten verglichen sind. In letzterem Fall, existiert das Szenario bereits
         while(!s.empty() && e != lemon::INVALID) {       
 
             std::vector<int> toDelete;
@@ -384,8 +386,10 @@ void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap,
             scenarioCounts.push_back(1);    // for calculating the probability
         } else {        // there exists one identical scenario, so find it and increase its counter. No new scenario will be created
             int index = *(s.begin());
-            lemon::ListGraph::EdgeIt e(g);                                      //??? ist schon bloed, sich hier nochmal eine Kante auszudenken
-            identicalIndex = helpMap.at(counter)[e][index].second;
+            // nehme hier einfach die Edge mit ID 0
+            auto ed = g.edgeFromId(0);
+            // lemon::ListGraph::EdgeIt e(g);                                      //??? ist schon bloed, sich hier nochmal eine Kante auszudenken
+            identicalIndex = helpMap.at(counter)[ed][index].second;
             scenarioCounts[identicalIndex]++;
         }
     }

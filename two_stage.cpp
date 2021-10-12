@@ -6,6 +6,10 @@
 #include <lemon/kruskal.h>
 #include <array>
 
+#include <lemon/connectivity.h>
+#include <lemon/adaptors.h>
+
+
 // EdgeCostCreator::EdgeCostCreator(RNG & randGen) : rng(randGen) {}
 
 std::unique_ptr<lemon::ListGraph::EdgeMap<double>> EdgeCostCreator::createUniformCosts(const lemon::ListGraph & g, double a, double b, std::mt19937 & rng) {
@@ -411,4 +415,83 @@ SecondStageMap::SecondStageMap(const lemon::ListGraph::EdgeMap<double> & s, cons
 // template void bruteForceEnumeration<double> (const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts);
 template int twoStageSetting<int>(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<int> & firstStageCosts, const lemon::ListGraph::EdgeMap<int> & secondStageCosts, bool save);
 
+void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map, lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng) {
+    
+    // hier ist meine Verteilung 
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+    // hier ist eine NodeMap, die allen Nodes true zuweist und spaeter fuer den Subgraph benutzt wird, da die aber immer die selbe ist, lasse ich die hier mal global
+    lemon::ListGraph::NodeMap<bool> node_map(g, true);
+
+
+    // habe hier Map, in die wird eine Edge true, falls diese in einer Iteration fuer die erste Stage gekauft wird 
+    lemon::ListGraph::EdgeMap<bool> first_stage_edges(g, false);
+    
+    // das ganze dann sehr gerne parallelisieren
+
+    // so lange, bis alle forrests connected sind (oder eine andere Abbruchbedingung stattfindet) HIER KANN VLLT EIN COUNTER EINGEBAUT WERDEN, DER HOCHZAEHLT, WENN EIN THREAD FERTIG IST
+    // UND DAS GANZE LAEUFT SO LANGE, BIS DER COUNTER GLEICH DER ANZAHL AN SZENARIEN IST
+    while(true) {
+
+        // jetzt fuer alle scenarios und das kann glaube ich parallelisiert werden
+        for (int i=1; i<numberScenarios+1; i++) {
+            
+            // erstelle auch hier eine EdgeMap, die die second stage Kanten anzeigt
+            lemon::ListGraph::EdgeMap<bool> second_stage_edges(g, false);
+
+            // bool connected = false;
+            // so lange random Werte ziehen, und die Maps anpassen, bis mein forrest connected ist
+            while(true) {
+                
+                // loop ueber alle Kanten
+                for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+
+                    // falls die Edge nicht entweder schon in der first stage map oder in meiner second stage Map drin ist
+                    if (!first_stage_edges[e] && !second_stage_edges[e]) {
+
+                        // ziehe erste random zahl fuer first stage
+                        if (dist(rng) < result_optimized_values_map[e][0]) {
+
+                            first_stage_edges[e] = true;
+                        }
+
+                        // koennte jetzt noch checken, dass die Kante nicht gerade in die first_stage_edges aufgenommen wurde, aber ich glaube es ist effizienter auf das if zu verzichten
+                        // ich checke hier einfach nach der zweiten random zahl muss (ich denke aber, dass dieser erste check leichter ist, als die random zahl erstellung, in manchen faellen koennte
+                        // man so vielleicht etwas zeit sparen, wenn die abfrage im if vor der random zahl abfrage steht und schon das if ungueltig macht)
+
+                        if (dist(rng) < result_optimized_values_map[e][i]) {
+                            second_stage_edges[e] = true;
+                        }
+
+                    }
+
+                }
+
+                // jetzt checken, ob mein forrest schon connected ist
+                lemon::ListGraph::EdgeMap<bool> connected_map(g);
+                for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+                    connected_map[e] = first_stage_edges[e] || second_stage_edges[e];
+                }
+                // weiss nicht, ob ich die Nodemap einfach so als argument erstellen kann
+                lemon::SubGraph<lemon::ListGraph> subgraph(g, node_map, connected_map);
+
+                if (lemon::connected(subgraph)) {
+                    // ich bin connected und breake raus
+                    // HIER UNTER UMSTAENDEN NOCH DEN COUNTER ERHOEHEN!!!
+                    break;
+                }
+
+                
+            }
+        }
+
+
+    }
+
+    // uebertrage noch die Ergebnisse in die output map, die am Ende die Kanten angeben soll, die der Approxmiationsalgorithmus vorschlaegt in der ersten Phase zu kaufen
+    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+        final_first_stage_map[e] = first_stage_edges[e];
+    }
+    
+}
 
