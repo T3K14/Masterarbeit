@@ -74,10 +74,13 @@ public:
 // const std::vector<lemon::ListGraph::EdgeMap<T>> & scenarioSecondStageCosts
 // const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts
 
+// von der Klasse koennen spaeter subclasses erben, bei denen klar ist, wie der Graph und die Maps dazu intern erstellt werden sollen
 class TwoStageProblem {
 
     lemon::ListGraph g;
 
+    // kann entweder die zahl an generierten scenarios sein oder die zahl an versuchen, die man beim samplen haben moechte, auch wenn dabei potentiell weniger scenarios
+    // am Ende rauskommen
     unsigned int numberScenarios;
     
     lemon::ListGraph::EdgeMap<double> firstStageCosts;
@@ -87,12 +90,24 @@ class TwoStageProblem {
 
 public:
 
+    TwoStageProblem() = delete;    
+    virtual ~TwoStageProblem();
+
     // formuliert das relaxed LP Problem, loesst es und speichert die Ergebnisse in 'result_optimized_values_map'
     friend void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map);
 
     // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer in der ersten Stage zu kaufende Kanten 
     // speichert
     void approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map, lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);
+};
+
+class FullyConnectedTwoStageMST : public TwoStageProblem {
+
+    unsigned int numberNodes;
+
+public:
+    
+    FullyConnectedTwoStageMST(unsigned int number_scenarios, unsigned int number_nodes);
 
 };
 

@@ -240,6 +240,8 @@ std::pair<TestStruct, TestStruct> edgeWeightIncrease(const lemon::ListGraph & g 
 */
 // std::vector<double> edgeWeightIncrease2(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng) {
 // std::pair<lemon::ListGraph::EdgeMap<std::vector<double>>, std::vector<double>> edgeWeightIncrease2(const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng) {
+
+// erklaerung dazu, was die Fkt macht, gibt es fuer mich im Latexdokument, Da steht auch, dass ich denke, dass ich die Fkt vllt. noch besser implementieren koennte!!!
 void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, std::vector<double> & scenarioProbabilities, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng) {
     // annahme, dass sich die Kantenreihenfolge nicht anedert, weil Graph auch nicht geaendert wird
 

@@ -415,6 +415,8 @@ SecondStageMap::SecondStageMap(const lemon::ListGraph::EdgeMap<double> & s, cons
 // template void bruteForceEnumeration<double> (const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts);
 template int twoStageSetting<int>(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<int> & firstStageCosts, const lemon::ListGraph::EdgeMap<int> & secondStageCosts, bool save);
 
+// die fkt nimmt die Ergebnisse von einer relaxed lp loesung und rundet daraus eine feasible Solution, dabei raus kommt eine Empfehlung, welche Kanten man in der ersten
+// Phase kaufen soll (final_first_stage_map)
 void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map, lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng) {
     
     // hier ist meine Verteilung 
@@ -495,3 +497,7 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>>
     
 }
 
+FullyConnectedTwoStageMST::FullyConnectedTwoStageMST(unsigned int number_scenarios, unsigned int number_nodes) 
+    : numberNodes(number_nodes), numberScenarios(number_scenarios) {
+
+}
