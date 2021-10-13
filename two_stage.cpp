@@ -497,7 +497,43 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>>
     
 }
 
-FullyConnectedTwoStageMST::FullyConnectedTwoStageMST(unsigned int number_scenarios, unsigned int number_nodes) 
-    : numberNodes(number_nodes), numberScenarios(number_scenarios) {
+FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites)
+       : numberNodes(number_nodes), numberScenarios(scenario_probabilites.size(), secondStageProbabilites(scenario_probabilites)) {
+
+    // weiss nicht, ob der Iterator in der gewuenschten Reihenfolge ueber die Kanten iteriert...
+    // The order in which the iterators visit the items is undefined.
+    // The only thing you may assume that they will list the items in the same order until the graph is not changed
+
+    // hier uebertrage ich die firststageweights, denn ich gehe davon aus, dass der vector edges so sortiert ist, dass die uebergebenen Werte zu den Kanten passen
+    for (int i =0; i<first_stage_weights.size(); i++) {
+        firstStageWeights[edges[i]] = first_stage_weights[i]; 
+    }
+
+
+}
+
+// Methode zum Erstellen eines Two Stage MST Problems mit einem fully connected graph
+void FullyConnectedTwoStageMST::initialise() {
+    
+    // using lemon::ListGraph::EdgeMap
+
+    //std::array<lemon::ListGraph::Node, numberNodes> node_array;
+    //std::vector<lemon::ListGraph::Edge> edge_vector;
+    
+    // dem Graph die Nodes hinzufuegen
+    for (int i=0; i< numberNodes; i++) {
+        nodes.push_back(g.addNode());
+    }
+
+    // Edges hinzufuegen
+    // Dabei ist es jetzt so, dass zuerst alle Kanten durchgegangen werden ab der ersten Node, dann alle ab der zweiten (ohne die Kante zur ersten Node) etc.
+    for (int i=0; i<numberNodes; i++) {
+        for (int j=0; j<numberNodes; j++) {
+            if (i != j) {
+                edges.push_back(g.addEdge(node_array[i], node_array[j]));
+            }
+        }
+    }
+
 
 }

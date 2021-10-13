@@ -3,6 +3,9 @@
 #include <set>
 #include <utility>
 #include <lemon/core.h>
+
+#include <cassert>
+
 // #include <ctime>
 
 // #include <iostream>
@@ -406,4 +409,20 @@ void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap,
     // return std::make_pair(vectorEdgeMap(g), scenarioProbabilities);
 }
 
+int BinomialCoefficient(const int n, const int k) {
+  assert(n >= k);
+  assert(k >= 0);
 
+  if (k == 0) {
+    return 1;
+  }
+
+  // Recursion ->  (n, k) = (n - 1, k - 1) * n / k
+  int step1 = n - k + 1;
+  int step0;
+  for (int i = 1; i < k; ++i) {
+    step1 = (step0 = step1) * (n - k + 1 + i) / (i + 1);
+  }
+
+  return step1;
+}

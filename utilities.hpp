@@ -18,3 +18,5 @@ bool twiddle(int & x, int & y, int & z, std::vector<int> & p);  //could also be 
 
 // std::vector<double> edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng);
 void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap, std::vector<double> & scenarioProbabilities, const lemon::ListGraph & g ,const lemon::ListGraph::EdgeMap<double> & firstStageWeights, double p, double factor, int N, std::mt19937 & rng);
+
+int BinomialCoefficient(const int n, const int k);

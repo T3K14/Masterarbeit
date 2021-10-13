@@ -77,21 +77,27 @@ public:
 // von der Klasse koennen spaeter subclasses erben, bei denen klar ist, wie der Graph und die Maps dazu intern erstellt werden sollen
 class TwoStageProblem {
 
-    lemon::ListGraph g;
+    virtual void initialise() = 0;
 
+protected:
     // kann entweder die zahl an generierten scenarios sein oder die zahl an versuchen, die man beim samplen haben moechte, auch wenn dabei potentiell weniger scenarios
     // am Ende rauskommen
     unsigned int numberScenarios;
-    
-    lemon::ListGraph::EdgeMap<double> firstStageCosts;
 
-    lemon::ListGraph::EdgeMap<double> secondStageProbabilities;
-    lemon::ListGraph::EdgeMap<std::vector<double>> secondStageCosts;
+    lemon::ListGraph g;
+    std::vector<lemon::ListGraph::Node> nodes;
+    std::vector<lemon::ListGraph::Edge> edges;
+
+    lemon::ListGraph::EdgeMap<double> firstStageWeights;
+
+    std::vector<double> secondStageProbabilities;
+    lemon::ListGraph::EdgeMap<std::vector<double>> secondStageWeights;
+
 
 public:
 
-    TwoStageProblem() = delete;    
-    virtual ~TwoStageProblem();
+    // TwoStageProblem() = delete;    
+    virtual ~TwoStageProblem() = default;
 
     // formuliert das relaxed LP Problem, loesst es und speichert die Ergebnisse in 'result_optimized_values_map'
     friend void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map);
@@ -103,11 +109,12 @@ public:
 
 class FullyConnectedTwoStageMST : public TwoStageProblem {
 
-    unsigned int numberNodes;
+    const unsigned int numberNodes;
+    virtual void initialise();
 
 public:
     
-    FullyConnectedTwoStageMST(unsigned int number_scenarios, unsigned int number_nodes);
+    FullyConnectedTwoStageMST(std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites);
 
 };
 
