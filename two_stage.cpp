@@ -497,8 +497,18 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>>
     
 }
 
-FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites)
-       : numberNodes(number_nodes), numberScenarios(scenario_probabilites.size(), secondStageProbabilites(scenario_probabilites)) {
+// konstruktor fuer TwoStageProblem
+// die number_scenarios lese ich dabei aus dem Vector ab
+TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites) 
+    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g) {
+
+    }
+
+FullyConnectedTwoStageMST::FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites)
+       : TwoStageProblem(scenario_probabilites), numberNodes(number_nodes) {
+
+    // graph erzuegen, in diesem Fall fully connected 
+    initialise_graph();
 
     // weiss nicht, ob der Iterator in der gewuenschten Reihenfolge ueber die Kanten iteriert...
     // The order in which the iterators visit the items is undefined.
@@ -509,11 +519,17 @@ FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first
         firstStageWeights[edges[i]] = first_stage_weights[i]; 
     }
 
-
+    // jetzt second stage weights in die map mit dem vector uebertragen
+    // gehe ueber alle szenarien und dann ueber alle Kanten und uebetrage pro scenario das gewicht in den vector
+    for (int s=0; s<numberScenarios; s++) {
+        for(int i=0; i<edges.size(); i++) {
+            secondStageWeights[edges[i]].push_back(second_stage_weights[s][i]);
+        }
+    }
 }
 
 // Methode zum Erstellen eines Two Stage MST Problems mit einem fully connected graph
-void FullyConnectedTwoStageMST::initialise() {
+void FullyConnectedTwoStageMST::initialise_graph() {
     
     // using lemon::ListGraph::EdgeMap
 
@@ -529,8 +545,8 @@ void FullyConnectedTwoStageMST::initialise() {
     // Dabei ist es jetzt so, dass zuerst alle Kanten durchgegangen werden ab der ersten Node, dann alle ab der zweiten (ohne die Kante zur ersten Node) etc.
     for (int i=0; i<numberNodes; i++) {
         for (int j=0; j<numberNodes; j++) {
-            if (i != j) {
-                edges.push_back(g.addEdge(node_array[i], node_array[j]));
+            if (i < j) {
+                edges.push_back(g.addEdge(nodes[i], nodes[j]));
             }
         }
     }

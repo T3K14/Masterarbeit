@@ -77,7 +77,7 @@ public:
 // von der Klasse koennen spaeter subclasses erben, bei denen klar ist, wie der Graph und die Maps dazu intern erstellt werden sollen
 class TwoStageProblem {
 
-    virtual void initialise() = 0;
+    virtual void initialise_graph() = 0;
 
 protected:
     // kann entweder die zahl an generierten scenarios sein oder die zahl an versuchen, die man beim samplen haben moechte, auch wenn dabei potentiell weniger scenarios
@@ -96,25 +96,26 @@ protected:
 
 public:
 
+    TwoStageProblem(std::vector<double> & second_stage_probabilites);
     // TwoStageProblem() = delete;    
     virtual ~TwoStageProblem() = default;
 
     // formuliert das relaxed LP Problem, loesst es und speichert die Ergebnisse in 'result_optimized_values_map'
     friend void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map);
 
-    // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer in der ersten Stage zu kaufende Kanten 
-    // speichert
+    // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer 
+    // in der ersten Stage zu kaufende Kanten speichert
     void approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map, lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);
 };
 
 class FullyConnectedTwoStageMST : public TwoStageProblem {
 
     const unsigned int numberNodes;
-    virtual void initialise();
+    virtual void initialise_graph() override;
 
 public:
     
-    FullyConnectedTwoStageMST(std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites);
-
+    FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites);
+    virtual ~FullyConnectedTwoStageMST() = default;
 };
 

@@ -5,6 +5,7 @@
 #include "../two_stage.hpp"
 #include "../utilities.hpp"
 
+/* hier sollen die gurobi und die approximationsmethoden getestet werden */
 
 TEST(ApproxSuite, TrivialTest) {
 
@@ -21,10 +22,9 @@ TEST(ApproxSuite, TrivialTest) {
     std::vector<double> firstStageWeights {0.5, 1., 10., 10., 1., 1.};
     std::vector<std::vector<double>> secondStageWeights {{{1.5, 1.5, 1.5, 1.5, 1.5, 1.5}, {1.5, 1.5, 1., 2., 1.5, 1.5}, {0.5, 1.5, 1.5, 0.5, 1., 0.5}}};
 
-    FullyConnectedTwoStageMST mst(number_nodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+    FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
 
-
-    ASSERT_NEAR(1.0, sum, 0.0000001);
+    ASSERT_NEAR(1.0, 2.0, 0.0000001);
 
 }
