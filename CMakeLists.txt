@@ -45,7 +45,7 @@ endif()
 
 
 # set(lemonreleasepath D:\\Programme\\lemon-1.3.1\\build\\lemon\\Release)
-find_library(mylemon PATHS ${lemonpath} NAMES LEMON REQUIRED)
+find_library(mylemon PATHS ${lemonpath} NAMES libemon REQUIRED)
 
 # include_directories(${LEMON_INCLUDE_DIRS})
 # message("HIHI")
