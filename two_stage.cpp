@@ -67,8 +67,8 @@ T twoStageSetting(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<T>
 
     if (save) {
         std::string outputPath(R"(D:\uni\Masterarbeit\Code\output\output.lgf)");
-        lemon::GraphWriter(g, outputPath).edgeMap("first_stage", firstStageCosts).edgeMap("second_stage", secondStageCosts).edgeMap("final_selection", minMap).edgeMap("MST_selection", kruskalResMap).run();
-
+        lemon::GraphWriter<lemon::ListGraph>(g, outputPath).edgeMap("first_stage", firstStageCosts).edgeMap("second_stage", secondStageCosts).edgeMap("final_selection", minMap).edgeMap("MST_selection", kruskalResMap).run();
+        
     }
     return totalCosts;
 }
@@ -409,7 +409,6 @@ SecondStageMap::Value SecondStageMap::operator[](SecondStageMap::Key e) const {
 SecondStageMap::SecondStageMap(const lemon::ListGraph::EdgeMap<double> & s, const std::vector<lemon::ListGraph::Edge> & e, const std::vector<int> & _c)
     : secondStageCosts(s), edges(e), c(_c) {
     }
-
 
 
 // template void bruteForceEnumeration<double> (const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts);

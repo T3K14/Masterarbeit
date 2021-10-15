@@ -37,7 +37,7 @@ int main() {
     capacities[edges[4]] = 0.7;
     capacities[edges[5]] = 0.1;
 
-    HaoOrlin hao(g, capacities);
+    HaoOrlin<lemon::ListGraph, lemon::ListGraph::EdgeMap<double>> hao(g, capacities);
     hao.init();
     hao.calculateIn();
 

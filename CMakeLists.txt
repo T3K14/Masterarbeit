@@ -1,21 +1,45 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.15.0)
 
 set(first LEMONTEST)
 set(This MA)
 
 project(MA C CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 
 enable_testing()
 add_subdirectory(googletest)
 
 
-set(lemonpath D:\\Programme\\Lemon)
+option(On_Cluster "Switch to on if the code should be build on the HPC-Cluster" OFF)
+
+if(${On_Cluster})
+    set(lemonpath cm/shared/uniol/software/6.4/lemon/1.2.1-GCCcore-6.4.0)
+    include_directories("${lemonpath}/include")
+
+    # Gurobi
+    set(Gurobi_Sources
+        two_stage_gurobi.cpp
+    )
+
+    set(Gurobi_Headers
+        two_stage_gurobi.hpp
+    )
+
+    add_library(two_stage_gurobi STATIC ${Gurobi_Sources} ${Gurobi_Headers})
+    target_link_libraries(two_stage_gurobi PUBLIC ${mylemon})
+
+else()
+    set(lemonpath D:\\Programme\\Lemon)
+    include_directories(D:\\Programme\\Lemon\\include)
+endif()
+
+# option(Compile_Gurobi_Code "Decide if code that makes use of Gurobi is compiled." OFF)
+
+
 # set(lemonreleasepath D:\\Programme\\lemon-1.3.1\\build\\lemon\\Release)
 find_library(mylemon lemon PATHS ${lemonpath} NAMES LEMON REQUIRED)
 
-include_directories(D:\\Programme\\Lemon\\include)
 # include_directories(${LEMON_INCLUDE_DIRS})
 # message("HIHI")
 
@@ -63,18 +87,4 @@ if(${Compile_Test_Code})
 
 endif()
 
-option(Compile_Gurobi_Code "Decide if code that makes use of Gurobi is compiled." OFF)
 
-if(${Compile_Gurobi_Code})
-    set(Gurobi_Sources
-        two_stage_gurobi.cpp
-    )
-
-    set(Gurobi_Headers
-        two_stage_gurobi.hpp
-    )
-
-    add_library(two_stage_gurobi STATIC ${Gurobi_Sources} ${Gurobi_Headers})
-    target_link_libraries(two_stage_gurobi PUBLIC ${mylemon})
-
-endif()
