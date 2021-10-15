@@ -18,6 +18,13 @@ if(${On_Cluster})
     include_directories("${lemonpath}/include")
 
     # Gurobi
+    set(mygurobipath "/user/xees8992/Gurobi_src/build/libgurobi_c++.a")
+    find_library(gurobi_c++ PATHS ${mygurobipath} NAMES gurobi_c++)
+    find_library(gurobi91 NAMES gurobi91)
+
+    message("MESSAGE1: ${gurobi_c++}")
+    message("MESSAGE2: ${gurobi91}")
+
     set(Gurobi_Sources
         two_stage_gurobi.cpp
     )
