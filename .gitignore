@@ -4,3 +4,4 @@ googletest/
 build-vscode/
 a.exe
 output/
+build/
