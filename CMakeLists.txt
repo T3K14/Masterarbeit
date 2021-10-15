@@ -14,7 +14,7 @@ add_subdirectory(googletest)
 option(On_Cluster "Switch to on if the code should be build on the HPC-Cluster" OFF)
 
 if(${On_Cluster})
-    set(lemonpath cm/shared/uniol/software/6.4/lemon/1.2.1-GCCcore-6.4.0)
+    set(lemonpath "/cm/shared/uniol/software/6.4/lemon/1.2.1-GCCcore-6.4.0/lib")
     include_directories("${lemonpath}/include")
 
     # Gurobi
@@ -45,7 +45,7 @@ endif()
 
 
 # set(lemonreleasepath D:\\Programme\\lemon-1.3.1\\build\\lemon\\Release)
-find_library(mylemon lemon PATHS ${lemonpath} NAMES LEMON REQUIRED)
+find_library(mylemon PATHS ${lemonpath} NAMES LEMON REQUIRED)
 
 # include_directories(${LEMON_INCLUDE_DIRS})
 # message("HIHI")
