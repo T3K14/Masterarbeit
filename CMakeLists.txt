@@ -29,7 +29,8 @@ if(${On_Cluster})
 
     message("MESSAGE1: ${gurobi_c++}")
     message("MESSAGE2: ${gurobi91}")
-
+    
+    include_directories(/cm/shared/uniol/software/generic/Gurobi/9.1.2/include)
     set(Gurobi_Sources
         two_stage_gurobi.cpp
     )
@@ -39,7 +40,7 @@ if(${On_Cluster})
     )
 
     add_library(two_stage_gurobi STATIC ${Gurobi_Sources} ${Gurobi_Headers})
-    target_link_libraries(two_stage_gurobi PUBLIC ${mylemon})
+    target_link_libraries(two_stage_gurobi PUBLIC ${mylemon} ${gurobi_c++} ${gurobi91} ${two_stage})
 
 else()
     add_subdirectory(googletest)

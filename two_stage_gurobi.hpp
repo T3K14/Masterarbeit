@@ -2,7 +2,7 @@
 
 #include <lemon/list_graph.h>
 #include "utilities.hpp"
-#include "gurobi_c++.hpp"
+#include <gurobi_c++.h>
 #include "two_stage.hpp"
 #include <vector>
 
