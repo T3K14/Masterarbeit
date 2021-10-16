@@ -26,7 +26,10 @@ std::unique_ptr<lemon::ListGraph::EdgeMap<double>> EdgeCostCreator::createUnifor
     // lemon::ListGraph::EdgeMap<double> costMap(g);
 
     // unique_ptr to a ListGraph::EdgeMap<double> 
-    auto costMapPtr = std::make_unique<lemon::ListGraph::EdgeMap<double>>(g);
+    //auto costMapPtr = std::make_unique<lemon::ListGraph::EdgeMap<double>>(g);
+
+    // umschreiben fuer cpp11
+    std::unique_ptr<lemon::ListGraph::EdgeMap<double>> costMapPtr(new lemon::ListGraph::EdgeMap<double>(g));
 
     for (lemon::ListGraph::EdgeIt e(g); e !=lemon::INVALID; ++e) {
         (*costMapPtr)[e] = dist(rng);
@@ -82,7 +85,10 @@ double fourb(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double>
     lemon::ListGraph::EdgeIt edg(g);
 
     for (int i=0; i < scenarioSecondStageCostsEM[edg].size(); i++) {
-        scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g)); 
+        //umschreiben, damit es fuer cpp11 laeuft
+        std::unique_ptr<lemon::ListGraph::EdgeMap<double>> tmp_unique(new lemon::ListGraph::EdgeMap<double>(g));
+        //scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g)); 
+        scenarioSecondStageCosts.push_back(std::move(tmp_unique));
         for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {                                 // geht das effizienter mit dem Iterator edg?
             (*scenarioSecondStageCosts[i])[e] = scenarioSecondStageCostsEM[e][i];
         }
@@ -110,7 +116,11 @@ double bruteForceEnumeration(const lemon::ListGraph & g, const lemon::ListGraph:
     lemon::ListGraph::EdgeIt edg(g);
 
     for (int i=0; i < scenarioSecondStageCostsEM[edg].size(); i++) {
-        scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g)); 
+        // umschreiben, damit es fuer cpp11 funktioniert
+        std::unique_ptr<lemon::ListGraph::EdgeMap<double>> tmp_unique(new lemon::ListGraph::EdgeMap<double>(g));
+
+        //scenarioSecondStageCosts.push_back(std::make_unique<lemon::ListGraph::EdgeMap<double>>(g)); 
+        scenarioSecondStageCosts.push_back(std::move(tmp_unique));
         for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {                                 // geht das effizienter mit dem Iterator edg?
             (*scenarioSecondStageCosts[i])[e] = scenarioSecondStageCostsEM[e][i];
         }

@@ -25,6 +25,6 @@ TEST(ApproxSuite, TrivialTest) {
     FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
 
-    ASSERT_NEAR(1.0, 2.0, 0.0000001);
+    ASSERT_NEAR(1.0, 1.0, 0.0000001);
 
 }

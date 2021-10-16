@@ -7,7 +7,6 @@ project(MA C CXX)
 set(CMAKE_CXX_STANDARD 11)
 
 enable_testing()
-#add_subdirectory(googletest)
 
 option(On_Cluster "Switch to on if the code should be build on the HPC-Cluster" OFF)
 
@@ -43,6 +42,8 @@ if(${On_Cluster})
     target_link_libraries(two_stage_gurobi PUBLIC ${mylemon})
 
 else()
+    add_subdirectory(googletest)
+
     # nicht auf dem Cluster, sondern auf meinem lokalen Windows
     set(lemonpath D:\\Programme\\Lemon)
     include_directories(D:\\Programme\\Lemon\\include)
@@ -67,7 +68,7 @@ target_link_libraries(${first} PUBLIC ${mylemon})
 add_library(two_stage STATIC ${Sources} ${Headers})
 target_link_libraries(two_stage PUBLIC ${mylemon})
 
-target_link_libraries(two_stage PUBLIC m)
+#target_link_libraries(two_stage PUBLIC m)
 
 add_subdirectory(test)
 
