@@ -1,25 +1,31 @@
 cmake_minimum_required(VERSION 3.15.0)
 
 set(first LEMONTEST)
-set(This MA)
 
 project(MA C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 
 enable_testing()
-add_subdirectory(googletest)
-
+#add_subdirectory(googletest)
 
 option(On_Cluster "Switch to on if the code should be build on the HPC-Cluster" OFF)
 
 if(${On_Cluster})
-    set(lemonpath "/cm/shared/uniol/software/6.4/lemon/1.2.1-GCCcore-6.4.0/lib")
-    include_directories("${lemonpath}/include")
+    # muss unter Umstaenden den c und cxx compiler mittels export CXX=/cm/.. und CC=/cm/... aktualisieren
 
-    # Gurobi
-    set(mygurobipath "/user/xees8992/Gurobi_src/build/libgurobi_c++.a")
-    find_library(gurobi_c++ PATHS ${mygurobipath} NAMES gurobi_c++)
+    # nutze die lokale Version, um das math.h Problem zu loesen
+    #set(lemonpath "/cm/shared/uniol/software/6.4/lemon/1.2.1-GCCcore-6.4.0")
+    set(lemonpath /user/xees8992/local_lemon/lemon-1.3.1/build/lemon)
+
+    include_directories(/user/xees8992/local_lemon/lemon-1.3.1/lemon)   
+
+    # find_library von lemon auf dem Cluster 
+    find_library(mylemon PATHS ${lemonpath} NAMES emon.a lemon.a libemon.a)
+
+    # Gurobi, selber gebuilded, damit es keinen Konflikt mit verschiedenen Compilerflags gibt (es gab Error mit _GLIBCXX_USE_CXX11_ABI)
+    set(mygurobipath /user/xees8992/Gurobi_src/build/libguroi)
+    find_library(gurobi_c++ PATHS ${mygurobipath} NAMES gurobi_c++.a gurobi_c++)
     find_library(gurobi91 NAMES gurobi91)
 
     message("MESSAGE1: ${gurobi_c++}")
@@ -37,23 +43,11 @@ if(${On_Cluster})
     target_link_libraries(two_stage_gurobi PUBLIC ${mylemon})
 
 else()
+    # nicht auf dem Cluster, sondern auf meinem lokalen Windows
     set(lemonpath D:\\Programme\\Lemon)
     include_directories(D:\\Programme\\Lemon\\include)
+    find_library(mylemon PATHS ${lemonpath} NAMES lemon emon)
 endif()
-
-# option(Compile_Gurobi_Code "Decide if code that makes use of Gurobi is compiled." OFF)
-
-
-# set(lemonreleasepath D:\\Programme\\lemon-1.3.1\\build\\lemon\\Release)
-find_library(mylemon PATHS ${lemonpath} NAMES libemon REQUIRED)
-
-# include_directories(${LEMON_INCLUDE_DIRS})
-# message("HIHI")
-
-# get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-# foreach(dir ${dirs})
-#   message(STATUS "dir='${dir}'")
-# endforeach()
 
 set (Sources
     two_stage.cpp
@@ -72,6 +66,8 @@ target_link_libraries(${first} PUBLIC ${mylemon})
 
 add_library(two_stage STATIC ${Sources} ${Headers})
 target_link_libraries(two_stage PUBLIC ${mylemon})
+
+target_link_libraries(two_stage PUBLIC m)
 
 add_subdirectory(test)
 
