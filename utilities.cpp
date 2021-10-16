@@ -410,8 +410,8 @@ void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap,
 }
 
 int BinomialCoefficient(const int n, const int k) {
-  assert(n >= k);
-  assert(k >= 0);
+  //assert(n >= k);
+  //assert(k >= 0);
 
   if (k == 0) {
     return 1;
