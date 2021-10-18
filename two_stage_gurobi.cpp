@@ -38,11 +38,11 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
         model.optimize();
 
         // map der capacities (wird fuer jedes szenario neu beschrieben), brauche ich fuer den HaoOrlin-Algorithmus
-        lemon::ListGraph::EdgeMap<double> capacity_map(g);
+        lemon::ListGraph::EdgeMap<double> capacity_map(two_stage_problem.g);
 
         // map in der angegeben wird, welche Knoten in dereinen MinCut-Teilmenge drin sind, output des HaoOrlin-Algorithmus, aus dem ich dann die Kanten bestimmen kann, die die Cut-
         // Teilmengen verbinden
-        lemon::ListGraph::NodeMap<bool> min_cut_result_map(g);
+        lemon::ListGraph::NodeMap<bool> min_cut_result_map(two_stage_problem.g);
 
         // gehe alle szenarien durch und suche nach mincut, der die Bedingung nicht erfuellt
         for (int i=1; i<two_stage_problem.numberScenarios+1; i++) {
