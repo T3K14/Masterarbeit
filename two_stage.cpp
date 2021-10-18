@@ -509,7 +509,7 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>>
 // konstruktor fuer TwoStageProblem
 // die number_scenarios lese ich dabei aus dem Vector ab
 TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites) 
-    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g) {
+    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g) {
 
     }
 

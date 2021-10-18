@@ -3,7 +3,8 @@
 #include <lemon/hao_orlin.h>
 #include <algorithm>
 
-void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map) {
+// nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
+void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
     GRBEnv env = GRBEnv(true);
 
@@ -102,7 +103,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
     // ich schreibe nun in die uebergebene EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
     for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
 
-        std::copy_n(model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), result_optimized_values_map[e].size(), result_optimized_values_map[e].begin());
+        std::copy_n(model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), two_stage_problem.lp_results_map[e].size(), two_stage_problem.lp_results_map[e].begin());
 
         // hier free ich die Variablen arrays pro Kante
         delete[] gurobi_variables_map[e];
