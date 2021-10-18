@@ -17,6 +17,7 @@ target_link_libraries(approx_tests PUBLIC
     gtest_main
     two_stage
     gtest
+    two_stage_gurobi	
 )
 
 add_test(
