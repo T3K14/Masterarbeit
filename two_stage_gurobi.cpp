@@ -36,6 +36,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
     while(true) {
 
         model.optimize();
+        double min_cut_value;
 
         // map der capacities (wird fuer jedes szenario neu beschrieben), brauche ich fuer den HaoOrlin-Algorithmus
         lemon::ListGraph::EdgeMap<double> capacity_map(two_stage_problem.g);
@@ -60,7 +61,8 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
             hao.calculateIn();
 
             // falls der minCut die Bedingung verletzt, der Aufruf speichert direkt auch die bools fuer die Teilmengen in min_cut_result_map
-            if(hao.minCutMap(min_cut_result_map) < 1) {
+            min_cut_value = hao.minCutMap(min_cut_result_map);
+            if(min_cut_value < 1) {
                 
                 // fuege neues constraint hinzu, damit diese Bedingung in zukunft erfuellt ist
                 GRBLinExpr constraint = 0.0;
@@ -90,7 +92,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
         }
 
         // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
-        if(hao.minCutValue() >= 1) {
+        if(min_cut_value >= 1) {
             break;
         }
         // ansonsten optimiere erneut
@@ -100,7 +102,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
     // ich schreibe nun in die uebergebene EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
     for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
 
-        std::copy_n(model.get(GRB_Double_Attr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), result_optimized_values_map[e].size(), result_optimized_values_map[e].begin());
+        std::copy_n(model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), result_optimized_values_map[e].size(), result_optimized_values_map[e].begin());
 
         // hier free ich die Variablen arrays pro Kante
         delete[] gurobi_variables_map[e];
