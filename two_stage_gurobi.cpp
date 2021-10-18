@@ -70,7 +70,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
                     if (min_cut_result_map[n]) {
                         for (lemon::ListGraph::IncEdgeIt e(two_stage_problem.g, n); e != lemon::INVALID; ++e) {
                             // wenn entweder n true und die andere edge false ist oder andersrum
-                            if ((min_cut_result_map[two_stage_problem.g.source(e] ) && !min_cut_result_map[two_stage_problem.g.target(e)]) || (!min_cut_result_map[two_stage_problem.g.source(e)] && min_cut_result_map[two_stage_problem.g.target(e)])) {
+                            if ((min_cut_result_map[two_stage_problem.g.source(e)] && !min_cut_result_map[two_stage_problem.g.target(e)]) || (!min_cut_result_map[two_stage_problem.g.source(e)] && min_cut_result_map[two_stage_problem.g.target(e)])) {
 
                                 constraint += gurobi_variables_map[e][0] + gurobi_variables_map[e][i];
 
