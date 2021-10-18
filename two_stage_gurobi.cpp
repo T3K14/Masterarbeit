@@ -3,19 +3,19 @@
 #include <lemon/hao_orlin.h>
 #include <algorithm>
 
-void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map) {
+void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map) {
 
     GRBEnv env = GRBEnv(true);
 
     GRBModel model = GRBModel(env);
 
-    lemon::ListGraph::EdgeMap<GRBVar *> gurobi_variables_map(g);
+    lemon::ListGraph::EdgeMap<GRBVar *> gurobi_variables_map(two_stage_problem.g);
 
     // das wird die objective function 
     GRBLinExpr obj = 0.0;
 
     // ich tue so, als haette ich die edges nicht zwangsweise selbst in einem array sondern nutze den lemon edge iterator
-    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+    for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
         
         // jede Kante bekommt array mit Variablen fuer alle Szenarios (+1 fuer die erste Stage)
         gurobi_variables_map[e] = model.addVars(numberScenarios + 1, GRB_CONTINUOUS);               // werden unten gefreet
