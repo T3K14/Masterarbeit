@@ -51,11 +51,11 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
             for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
                 // die capacity ist die summe aus den Werten der ersten Phase und den der i-ten Phase
                 //capacity_map[edges[j]] = variables_array[j].get(GRB_DoubleAttr) + varables_array[i * numberEdges + j].get(GRB_DoubleAttr);
-                capacity_map[e] = gurobi_variables_map[e][0].get(GRB_DoubleAttr) + gurobi_variables_map[e][i].get(GRB_DoubleAttr);
+                capacity_map[e] = gurobi_variables_map[e][0].get(GRB_DoubleAttr_X) + gurobi_variables_map[e][i].get(GRB_DoubleAttr_X);
             }
 
             // suche minCut
-            HaoOrlin hao(two_stage_problem.g, capacity_map);
+            lemon::HaoOrlin<lemon::ListGraph, lemon::ListGraph::EdgeMap<double>> hao(two_stage_problem.g, capacity_map);
             hao.init();
             hao.calculateIn();
 
@@ -100,7 +100,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem, lemon::ListGraph::Edg
     // ich schreibe nun in die uebergebene EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
     for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
 
-        std::copy_n(model.get(GRB_Double_Attr, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), result_optimized_values_map[e].size(), result_optimized_values_map[e].begin());
+        std::copy_n(model.get(GRB_Double_Attr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), result_optimized_values_map[e].size(), result_optimized_values_map[e].begin());
 
         // hier free ich die Variablen arrays pro Kante
         delete[] gurobi_variables_map[e];
