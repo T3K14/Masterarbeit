@@ -20,6 +20,7 @@ target_link_libraries(approx_tests PUBLIC
     gtest
     two_stage_gurobi
     gurobi_c++	
+    gurobi91
 )
 endif()
 
