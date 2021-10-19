@@ -23,9 +23,9 @@ if(${On_Cluster})
     find_library(mylemon PATHS ${lemonpath} NAMES emon.a lemon.a libemon.a)
 
     # Gurobi, selber gebuilded, damit es keinen Konflikt mit verschiedenen Compilerflags gibt (es gab Error mit _GLIBCXX_USE_CXX11_ABI)
-    set(mygurobipath /user/xees8992/Gurobi_src/build/libguroi)
+    set(mygurobipath /user/xees8992/Gurobi_src/build/)
     find_library(gurobi_c++ PATHS ${mygurobipath} NAMES gurobi_c++.a gurobi_c++)
-    find_library(gurobi91 NAMES gurobi91)
+    find_library(gurobi91 PATHS ${mygurobipath} NAMES gurobi91)
 
     message("MESSAGE1: ${gurobi_c++}")
     message("MESSAGE2: ${gurobi91}")
