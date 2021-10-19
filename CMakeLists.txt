@@ -8,6 +8,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 enable_testing()
 
+# Option, damit das mit der Gurobi Bibliothek zusammen laeuft
+add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0)
+
 option(On_Cluster "Switch to on if the code should be build on the HPC-Cluster" OFF)
 
 if(${On_Cluster})
