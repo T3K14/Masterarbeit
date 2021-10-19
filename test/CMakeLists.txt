@@ -12,13 +12,16 @@ target_link_libraries(tests PUBLIC
 )
 endif()
 
+if(On_Cluster)
 add_executable(approx_tests approximate_test.cpp)
 target_link_libraries(approx_tests PUBLIC
     gtest_main
     two_stage
     gtest
-    two_stage_gurobi	
+    two_stage_gurobi
+    gurobi_c++	
 )
+endif()
 
 add_test(
     NAME two_stage_test
