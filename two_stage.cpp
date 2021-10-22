@@ -516,7 +516,26 @@ TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites
 void TwoStageProblem::save_lp_result_map(bool on_cluster) {
     if (on_cluster) {
         std::string outputPath(R"(./output_lp_result.lgf)");
-        lemon::GraphWriter<lemon::ListGraph>(g, outputPath).edgeMap("lp results", lp_results_map).run();
+        lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath); //.edgeMap("lp results", lp_results_map).run();
+
+        // ist jetzt sehr schlecht, aber ich schreibe fuer jedes szenario eine eigene Map, welche ich dann am Ende printe
+        std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> edge_maps;
+
+
+        for (int i=0; i<numberScenarios; i++) {
+
+            std::unique_ptr<lemon::ListGraph::EdgeMap<double>> tmp_unique(new lemon::ListGraph::EdgeMap<double>(g));
+            edge_maps.push_back(std::move(tmp_unique));
+            // fuer alle kanten der edgemap des aktuellen szenarios den Wert kopieren
+            for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+                (*edge_maps[i])[e] = lp_results_map[e][i];
+            }
+
+
+            writer.edgeMap(std::to_string(i), *edge_maps[i]);
+        }
+
+        writer.run();
     }
 }
 

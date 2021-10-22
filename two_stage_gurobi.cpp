@@ -14,6 +14,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGrap
 
     GRBModel model = GRBModel(env);
 
+    // jeder Kante wird ein Array von doubles zugeordnet
     lemon::ListGraph::EdgeMap<GRBVar *> gurobi_variables_map(two_stage_problem.g);
 
     // das wird die objective function 
