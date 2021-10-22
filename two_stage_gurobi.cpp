@@ -7,6 +7,9 @@
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
 void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
+    std::cout << "pkt 1 in Funktion\n";
+
+
     GRBEnv env = GRBEnv(true);
 
     GRBModel model = GRBModel(env);
@@ -32,7 +35,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGrap
         }
     }
 
-    std::cout << "Komme ich bis hier in der Fkt?\n";
+    std::cout << "Pkt 2 in Funktion\n";
 
     model.setObjective(obj, GRB_MINIMIZE);
 
