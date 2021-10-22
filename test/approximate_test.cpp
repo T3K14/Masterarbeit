@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <vector>
+#include <iostream>
 
 #include "../two_stage_gurobi.hpp"
 #include "../two_stage.hpp"
@@ -28,6 +29,8 @@ int main() {
         std::vector<double> scenarioProbabilities {0.2, 0.2, 0.6};
         std::vector<double> firstStageWeights {0.5, 1., 10., 10., 1., 1.};
         std::vector<std::vector<double>> secondStageWeights {{{1.5, 1.5, 1.5, 1.5, 1.5, 1.5}, {1.5, 1.5, 1., 2., 1.5, 1.5}, {0.5, 1.5, 1.5, 0.5, 1., 0.5}}};
+
+	std::cout << "hi\n";
 
         FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
