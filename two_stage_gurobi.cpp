@@ -2,6 +2,7 @@
 #include "two_stage.hpp"
 #include <lemon/hao_orlin.h>
 #include <algorithm>
+#include <iostream>
 
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
 void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
@@ -30,6 +31,8 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGrap
             obj += two_stage_problem.secondStageProbabilities[i] * two_stage_problem.secondStageWeights[e][i] * gurobi_variables_map[e][i];
         }
     }
+
+    std::cout << "Komme ich bis hier in der Fkt?\n";
 
     model.setObjective(obj, GRB_MINIMIZE);
 
