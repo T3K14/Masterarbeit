@@ -535,11 +535,15 @@ void TwoStageProblem::save_lp_result_map(bool on_cluster) {
         //     writer.edgeMap(std::to_string(i), *edge_maps[i]);
         // }
 
-        lemon::ListGraph::EdgeMap<double> firstStage(g);
+        // AB HIER DEBUGGING
+        std::cout << lp_results_map[g.edgeFromId(0)].size() << std::endl;
+        //lemon::ListGraph::EdgeMap<double> firstStage(g);
 
-        for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
-            firstStage[e] = lp_results_map[e][0];
-        }
+
+
+        //for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
+        //    firstStage[e] = lp_results_map[e][0];
+        //}
 
         //writer.edgeMap("first stage", firstStage);
         
