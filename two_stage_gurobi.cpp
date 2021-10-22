@@ -106,6 +106,13 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGrap
         // ansonsten optimiere erneut
     }
 
+    // DEBUGGING::
+
+    auto a = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
+    std::cout<< a[0] << std::endl;
+    std::cout << "Anzahl an Szenarios hier:" << std::endl;
+
+    // ENDE DEBUGGING!!
 
     // ich schreibe nun in die uebergebene EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
     for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
