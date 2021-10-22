@@ -110,7 +110,8 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGrap
 
     auto e = two_stage_problem.g.edgeFromId(0);
     auto a = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
-    std::cout<< a[0] << std::endl;
+    std::cout<< a[3] << std::endl;
+    std::cout << a[5] << std::endl;
     std::cout << "Anzahl an Szenarios hier:" << std::endl;
 
     // ENDE DEBUGGING!!
