@@ -10,7 +10,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGrap
     std::cout << "pkt 1 in Funktion\n";
 
 
-    GRBEnv env = GRBEnv(true);
+    GRBEnv env = GRBEnv();
 
     GRBModel model = GRBModel(env);
 
