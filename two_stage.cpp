@@ -513,6 +513,13 @@ TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites
 
     }
 
+void TwoStageProblem::save_lp_result_map(bool on_cluster) {
+    if (on_cluster) {
+        std::string outputPath(R"(./output_lp_result.lgf)");
+        lemon::GraphWriter<lemon::ListGraph>(g, outputPath).edgeMap("lp results", lp_results_map).run();
+    }
+}
+
 FullyConnectedTwoStageMST::FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites)
        : TwoStageProblem(scenario_probabilites), numberNodes(number_nodes) {
 
@@ -553,7 +560,7 @@ void FullyConnectedTwoStageMST::initialise_graph() {
     // Edges hinzufuegen
     // Dabei ist es jetzt so, dass zuerst alle Kanten durchgegangen werden ab der ersten Node, dann alle ab der zweiten (ohne die Kante zur ersten Node) etc.
     for (int i=0; i<numberNodes; i++) {
-        for (int j=0; j<numberNodes; j++) {
+        for (int j=0; j<numberNodes; j++) {  // DER INDEX SOLLTE EIGENTLICH AUCH BEI 1 STARTEN KÖNNEN ODER?
             if (i < j) {
                 edges.push_back(g.addEdge(nodes[i], nodes[j]));
             }

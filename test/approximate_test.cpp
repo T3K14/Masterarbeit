@@ -36,6 +36,7 @@ int main() {
         std::cout << "Komme ich bis hier?\n";
 
         solve_relaxed_lp(mst);
+        mst.save_lp_result_map();
     }
 
     catch(GRBException e) {
