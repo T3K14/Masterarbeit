@@ -80,7 +80,7 @@ TEST(ApproxSuite, Test3) {
 
         std::vector<double> scenarioProbabilities {0.9, 0.1};
         std::vector<double> firstStageWeights {1.0, 1.0, 1.0};
-        std::vector<std::vector<double>> secondStageWeights {{{0.5, 1.0, 1.0}, {1.5, 1.5, 1.5}}};
+        std::vector<std::vector<double>> secondStageWeights {{{0.5, 1.0, 1.0}, {2.99, 1.5, 1.5}}};
 
         FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
@@ -89,7 +89,7 @@ TEST(ApproxSuite, Test3) {
 
         // 1.25, weil man fuer alle Cuts immer zwei Kanten hat und daher muessen alle mindestens einmal den Wert 0.5 zugeordnet bekommen, da die erste Kante im stage 2 aber mit 0.5
         // multipliziert wird, lohnt es sich mehr die in Phase 2 zu kaufen und zu den 2 mal 0.5 kommt noch 0.5*0.5 dazu 
-        ASSERT_NEAR(1.25, res, 0.0000001);
+        ASSERT_NEAR(1.3745, res, 0.0000001);
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
