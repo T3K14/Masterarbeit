@@ -119,7 +119,7 @@ public:
     void approximate(std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
 
     void save_lp_result_map(std::string output_name, bool on_cluster=true);
-    void save_approx_result_map(std::string output_name, bool on_cluster);
+    void save_approx_result_map(std::string output_name, bool on_cluster=true);
 
 };
 
