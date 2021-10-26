@@ -63,7 +63,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
         std::cout << "\n\n Hier nach einem optimierungsvorgang\n";
         // gebe wert der ersten variablen aus und der objective function
         std::cout <<  "Objective:" << model.get(GRB_DoubleAttr_ObjVal) << std::endl;
-        std::cout << gurobi_variables_map[two_stage_problem.g.edgeFromId(0)]->getValue() << std::endl;
+        std::cout << gurobi_variables_map[two_stage_problem.g.edgeFromId(0)]->get(GRB_DoubleAttr_X) << std::endl;
 
         // ENDE DEBUG
 
