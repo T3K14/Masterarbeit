@@ -32,6 +32,10 @@ TEST(ApproxSuite, TrivialTest) {
         mst.save_lp_result_map("lp_test_two_nodes");
 
         ASSERT_NEAR(.5, res, 0.0000001);
+
+        lemon::ListGraph::EdgeMap<double> output(mst.g);
+        mst.approximate(output);
+
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;

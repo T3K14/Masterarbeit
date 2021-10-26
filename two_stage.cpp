@@ -424,9 +424,9 @@ SecondStageMap::SecondStageMap(const lemon::ListGraph::EdgeMap<double> & s, cons
 // template void bruteForceEnumeration<double> (const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts);
 template int twoStageSetting<int>(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<int> & firstStageCosts, const lemon::ListGraph::EdgeMap<int> & secondStageCosts, bool save);
 
-// die fkt nimmt die Ergebnisse von einer relaxed lp loesung und rundet daraus eine feasible Solution, dabei raus kommt eine Empfehlung, welche Kanten man in der ersten
+// die fkt nimmt die Ergebnisse von einer relaxed lp loesung (die in der Klasse als lp_results_map gespeichert ist) und rundet daraus eine feasible Solution, dabei raus kommt eine Empfehlung, welche Kanten man in der ersten
 // Phase kaufen soll (final_first_stage_map)
-void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map, lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng) {
+void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng) {
     
     // hier ist meine Verteilung 
     std::uniform_real_distribution<double> dist(0.0, 1.0);
@@ -434,7 +434,8 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>>
     // hier ist eine NodeMap, die allen Nodes true zuweist und spaeter fuer den Subgraph benutzt wird, da die aber immer die selbe ist, lasse ich die hier mal global
     lemon::ListGraph::NodeMap<bool> node_map(g, true);
 
-
+    //!!!!!!!!!!!!!!!!!! ich glaube, die Map brauche ich gar nicht hier, das kann ich auch direkt als Klassenmember schreiben und spar mir hier die definition!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!! vielleicht brauch ich es aber zum parallelisieren hier
     // habe hier Map, in die wird eine Edge true, falls diese in einer Iteration fuer die erste Stage gekauft wird 
     lemon::ListGraph::EdgeMap<bool> first_stage_edges(g, false);
     
@@ -461,7 +462,7 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>>
                     if (!first_stage_edges[e] && !second_stage_edges[e]) {
 
                         // ziehe erste random zahl fuer first stage
-                        if (dist(rng) < result_optimized_values_map[e][0]) {
+                        if (dist(rng) < lp_results_map[e][0]) {
 
                             first_stage_edges[e] = true;
                         }
@@ -470,12 +471,10 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<std::vector<double>>
                         // ich checke hier einfach nach der zweiten random zahl muss (ich denke aber, dass dieser erste check leichter ist, als die random zahl erstellung, in manchen faellen koennte
                         // man so vielleicht etwas zeit sparen, wenn die abfrage im if vor der random zahl abfrage steht und schon das if ungueltig macht)
 
-                        if (dist(rng) < result_optimized_values_map[e][i]) {
+                        if (dist(rng) < lp_results_map[e][i]) {
                             second_stage_edges[e] = true;
                         }
-
                     }
-
                 }
 
                 // jetzt checken, ob mein forrest schon connected ist
