@@ -12,7 +12,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     // DEBUG
 
     std::cout << "pkt 1 in Funktion\n";
-    auto e = two_stage_problem.g.edgeFromId(0);
+    auto eddy = two_stage_problem.g.edgeFromId(0);
 
     std::cout << "prob:" << two_stage_problem.secondStageProbabilities[0] << "\n";
     std::cout << "first:" << two_stage_problem.firstStageWeight[e] << "\n";
