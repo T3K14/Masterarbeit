@@ -66,6 +66,8 @@ TEST(ApproxSuite, Test2) {
         // 1.25, weil man fuer alle Cuts immer zwei Kanten hat und daher muessen alle mindestens einmal den Wert 0.5 zugeordnet bekommen, da die erste Kante im stage 2 aber mit 0.5
         // multipliziert wird, lohnt es sich mehr die in Phase 2 zu kaufen und zu den 2 mal 0.5 kommt noch 0.5*0.5 dazu 
         ASSERT_NEAR(1.25, res, 0.0000001);
+        mst.approximate(rng);
+        mst.save_approx_result_map("approx_test_three_nodes");
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -96,6 +98,9 @@ TEST(ApproxSuite, Test3) {
         // es ist so, dass fuer das zweite Szenario so lange Kante 1 gekauft wird, bis deren Kosten die von den anderen beiden in diesem Szenario uebersteigen (hier 3), da sie nur 2.99
         // kostet, wird sie hier noch gekauft
         ASSERT_NEAR(1.3745, res, 0.0000001);
+
+        mst.approximate(rng);
+        mst.save_approx_result_map("approx_test_three_nodes2");
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
