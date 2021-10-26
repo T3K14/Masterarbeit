@@ -97,6 +97,9 @@ protected:
     // hier sollen die double Ergebnisse der LP-Algorithmus zwischengespeichert werden
     lemon::ListGraph::EdgeMap<std::vector<double>> lp_results_map;
 
+    // hier wird gespeichert, welche Kanten vom Approximationsalgorithmus fuer die erste Phase eine Kaufempfehlung erhalten
+    lemon::ListGraph::EdgeMap<bool> approx_first_stage_map;
+
 public:
 
     TwoStageProblem(std::vector<double> & second_stage_probabilites);
@@ -109,7 +112,9 @@ public:
 
     // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer 
     // in der ersten Stage zu kaufende Kanten speichert
-    void approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
+    // void approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
+    void approximate(std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
+
     void save_lp_result_map(std::string output_name, bool on_cluster=true);
 };
 

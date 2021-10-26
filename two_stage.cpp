@@ -426,7 +426,7 @@ template int twoStageSetting<int>(const lemon::ListGraph & g, const lemon::ListG
 
 // die fkt nimmt die Ergebnisse von einer relaxed lp loesung (die in der Klasse als lp_results_map gespeichert ist) und rundet daraus eine feasible Solution, dabei raus kommt eine Empfehlung, welche Kanten man in der ersten
 // Phase kaufen soll (final_first_stage_map)
-void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng) {
+void TwoStageProblem::approximate(std::mt19937 & rng) {
     
     // hier ist meine Verteilung 
     std::uniform_real_distribution<double> dist(0.0, 1.0);
@@ -435,9 +435,9 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<bool> & final_first_
     lemon::ListGraph::NodeMap<bool> node_map(g, true);
 
     //!!!!!!!!!!!!!!!!!! ich glaube, die Map brauche ich gar nicht hier, das kann ich auch direkt als Klassenmember schreiben und spar mir hier die definition!!!!!!!!!!!!!!!!!
-    //!!!!!!!!!!!!!!!! vielleicht brauch ich es aber zum parallelisieren hier
+    //!!!!!!!!!!!!!!!! vielleicht brauch ich es aber zum parallelisieren doch hier, deshalb steht es noch hier!!!!!!!!!!!!!!!!!!!
     // habe hier Map, in die wird eine Edge true, falls diese in einer Iteration fuer die erste Stage gekauft wird 
-    lemon::ListGraph::EdgeMap<bool> first_stage_edges(g, false);
+    // lemon::ListGraph::EdgeMap<bool> first_stage_edges(g, false);
     
     // das ganze dann sehr gerne parallelisieren
 
@@ -459,15 +459,15 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<bool> & final_first_
                 for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
 
                     // falls die Edge nicht entweder schon in der first stage map oder in meiner second stage Map drin ist
-                    if (!first_stage_edges[e] && !second_stage_edges[e]) {
+                    if (!approx_first_stage_map[e] && !second_stage_edges[e]) {
 
                         // ziehe erste random zahl fuer first stage
                         if (dist(rng) < lp_results_map[e][0]) {
 
-                            first_stage_edges[e] = true;
+                            approx_first_stage_map[e] = true;
                         }
 
-                        // koennte jetzt noch checken, dass die Kante nicht gerade in die first_stage_edges aufgenommen wurde, aber ich glaube es ist effizienter auf das if zu verzichten
+                        // koennte jetzt noch checken, dass die Kante nicht gerade in die approx_first_stage_map aufgenommen wurde, aber ich glaube es ist effizienter auf das if zu verzichten
                         // ich checke hier einfach nach der zweiten random zahl muss (ich denke aber, dass dieser erste check leichter ist, als die random zahl erstellung, in manchen faellen koennte
                         // man so vielleicht etwas zeit sparen, wenn die abfrage im if vor der random zahl abfrage steht und schon das if ungueltig macht)
 
@@ -480,7 +480,7 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<bool> & final_first_
                 // jetzt checken, ob mein forrest schon connected ist
                 lemon::ListGraph::EdgeMap<bool> connected_map(g);
                 for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
-                    connected_map[e] = first_stage_edges[e] || second_stage_edges[e];
+                    connected_map[e] = approx_first_stage_map[e] || second_stage_edges[e];
                 }
                 // weiss nicht, ob ich die Nodemap einfach so als argument erstellen kann
                 lemon::SubGraph<lemon::ListGraph> subgraph(g, node_map, connected_map);
@@ -498,17 +498,18 @@ void TwoStageProblem::approximate(lemon::ListGraph::EdgeMap<bool> & final_first_
 
     }
 
+    //!!!!!!!!!!!!!!!MUSS ICH hier nicht uebertragen
     // uebertrage noch die Ergebnisse in die output map, die am Ende die Kanten angeben soll, die der Approxmiationsalgorithmus vorschlaegt in der ersten Phase zu kaufen
-    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
-        final_first_stage_map[e] = first_stage_edges[e];
-    }
+    //for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+    //    final_first_stage_map[e] = first_stage_edges[e];
+    //}
     
 }
 
 // konstruktor fuer TwoStageProblem
 // die number_scenarios lese ich dabei aus dem Vector ab
 TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites) 
-    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g) {
+    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g), approx_first_stage_map(g, false) {
 
     }
 

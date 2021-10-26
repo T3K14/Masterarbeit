@@ -33,8 +33,8 @@ TEST(ApproxSuite, TrivialTest) {
 
         ASSERT_NEAR(.5, res, 0.0000001);
 
-        lemon::ListGraph::EdgeMap<double> output(mst.g);
-        mst.approximate(output);
+        // lemon::ListGraph::EdgeMap<double> output(mst.g);
+        mst.approximate(rng);
 
     }
     catch(GRBException e) {
