@@ -28,8 +28,8 @@ TEST(ApproxSuite, TrivialTest) {
 
         FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-        solve_relaxed_lp(mst);
-        double res = mst.save_lp_result_map("lp_test_two_nodes");
+        double res = solve_relaxed_lp(mst);
+        mst.save_lp_result_map("lp_test_two_nodes");
 
         ASSERT_NEAR(.5, res, 0.0000001);
     }
