@@ -49,6 +49,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     // DEBUG
     std::cout << "Pkt 2 in Funktion\n";
     std::cout << obj.size() << std::endl; 
+    std::cout << obj.getCoeff(0) << ", und " << obj.getCoeff(1) << std::endl;
 
     // ENDE DEBUG
 
