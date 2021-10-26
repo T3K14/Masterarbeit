@@ -42,10 +42,32 @@ TEST(ApproxSuite, TrivialTest) {
     }
 }
 
+TEST(ApproxSuite, Test2) {
 
-// int main() {
+    try {
+        // test 2
+        unsigned int numberScenarios = 1;
+        unsigned int numberNodes = 3;
 
-    
+        std::vector<double> scenarioProbabilities {1.0};
+        std::vector<double> firstStageWeights {1.0, 1.0, 1.0};
+        std::vector<std::vector<double>> secondStageWeights {{{0.5, 1.0, 1.0}}};
+
+        FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+        double res = solve_relaxed_lp(mst);
+        mst.save_lp_result_map("lp_test_three_nodes");
+
+        ASSERT_NEAR(.5, res, 0.0000001);
+    }
+    catch(GRBException e) {
+        cout << "Error code = " << e.getErrorCode() << endl;
+        cout << e.getMessage() << endl;
+    } 
+    catch(...) {
+        cout << "Exception during optimization" << endl;
+    }
+}
 
 
 

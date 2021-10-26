@@ -11,12 +11,12 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
 
     // DEBUG
 
-    std::cout << "pkt 1 in Funktion\n";
-    auto eddy = two_stage_problem.g.edgeFromId(0);
+    // std::cout << "pkt 1 in Funktion\n";
+    // auto eddy = two_stage_problem.g.edgeFromId(0);
 
-    std::cout << "prob:" << two_stage_problem.secondStageProbabilities[0] << "\n";
-    std::cout << "first:" << two_stage_problem.firstStageWeights[eddy] << "\n";
-    std::cout << "second:" << two_stage_problem.secondStageWeights[eddy][0] << "\n";
+    // std::cout << "prob:" << two_stage_problem.secondStageProbabilities[0] << "\n";
+    // std::cout << "first:" << two_stage_problem.firstStageWeights[eddy] << "\n";
+    // std::cout << "second:" << two_stage_problem.secondStageWeights[eddy][0] << "\n";
 
     // ENDE DEBUG
 
@@ -48,9 +48,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     }
 
     // DEBUG
-    std::cout << "Pkt 2 in Funktion\n";
-    std::cout << obj.size() << std::endl; 
-    std::cout << obj.getCoeff(0) << ", und " << obj.getCoeff(1) << std::endl;
+    // std::cout << "Pkt 2 in Funktion\n";
+    // std::cout << obj.size() << std::endl; 
+    // std::cout << obj.getCoeff(0) << ", und " << obj.getCoeff(1) << std::endl;
 
     // ENDE DEBUG
 
@@ -61,14 +61,12 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
 
         model.optimize();
 
-        //DEBUG
-        std::cout << "\n\n Hier nach einem optimierungsvorgang\n";
-        // gebe wert der ersten variablen aus und der objective function
-        std::cout <<  "Objective:" << model.get(GRB_DoubleAttr_ObjVal) << std::endl;
-        std::cout << gurobi_variables_map[two_stage_problem.g.edgeFromId(0)][0].get(GRB_DoubleAttr_X) << std::endl;
-        std::cout << gurobi_variables_map[two_stage_problem.g.edgeFromId(0)][1].get(GRB_DoubleAttr_X) << std::endl;
-
-
+        // DEBUG
+        // std::cout << "\n\n Hier nach einem optimierungsvorgang\n";
+        // // gebe wert der ersten variablen aus und der objective function
+        // std::cout <<  "Objective:" << model.get(GRB_DoubleAttr_ObjVal) << std::endl;
+        // std::cout << gurobi_variables_map[two_stage_problem.g.edgeFromId(0)][0].get(GRB_DoubleAttr_X) << std::endl;
+        // std::cout << gurobi_variables_map[two_stage_problem.g.edgeFromId(0)][1].get(GRB_DoubleAttr_X) << std::endl;
         // ENDE DEBUG
 
         double min_cut_value;
@@ -134,11 +132,11 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     }
 
     // DEBUGGING::
-    std::cout << "DEBUGGING" << std::endl;
-    auto e = two_stage_problem.g.edgeFromId(0);
-    auto a = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
-    std::cout<< a[0] << std::endl;
-    std::cout << a[1] << std::endl;
+    // std::cout << "DEBUGGING" << std::endl;
+    // auto e = two_stage_problem.g.edgeFromId(0);
+    // auto a = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
+    // std::cout<< a[0] << std::endl;
+    // std::cout << a[1] << std::endl;
     // std::cout << "Anzahl an Szenarios hier:" << std::endl;
 
     // ENDE DEBUGGING!!
