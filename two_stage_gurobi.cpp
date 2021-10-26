@@ -107,7 +107,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     }
 
     // DEBUGGING::
-
+    std::cout << "DEBUGGING" << std::endl;
     auto e = two_stage_problem.g.edgeFromId(0);
     auto a = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
     std::cout<< a[3] << std::endl;
