@@ -5,7 +5,7 @@
 #include <iostream>
 
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
-void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
+double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
     std::cout << "pkt 1 in Funktion\n";
 
@@ -139,6 +139,7 @@ void solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGrap
     //vielleicht brauche ich auch gar nicht die Variablen zurueckgeben, sondern nur deren Werte
 
     // return gurobi_variables_map;
+    return model.get(GRB_DoubleAttr_ObjVal);
 }
 
 
