@@ -5,6 +5,7 @@
 #include <memory>
 // #include <lemon/maps.h>
 #include <functional> // for reference_wrapper
+#include <string>
 
 
 // struct RNG{
@@ -109,7 +110,7 @@ public:
     // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer 
     // in der ersten Stage zu kaufende Kanten speichert
     void approximate(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map, lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
-    void save_lp_result_map(bool on_cluster=true);
+    void save_lp_result_map(std::string output_name, bool on_cluster=true);
 };
 
 class FullyConnectedTwoStageMST : public TwoStageProblem {

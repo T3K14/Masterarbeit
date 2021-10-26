@@ -513,9 +513,11 @@ TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites
 
     }
 
-void TwoStageProblem::save_lp_result_map(bool on_cluster) {
+void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluster) {
     if (on_cluster) {
-        std::string outputPath(R"(./output_lp_result.lgf)");
+        std::string outputPath(R"(./)");
+        outputPath += output_name;
+        outputPath += R"(.lgf)";
         lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath); //.edgeMap("lp results", lp_results_map).run();
 
         // ist jetzt sehr schlecht, aber ich schreibe fuer jedes szenario eine eigene Map, welche ich dann am Ende printe

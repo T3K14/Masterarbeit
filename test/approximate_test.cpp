@@ -19,6 +19,29 @@ using namespace std;
 int main() {
 
     try {
+        // test 1
+        unsigned int numberScenarios = 1;
+        unsigned int numberNodes = 2;
+
+    // std::array<double, 3> scenarioProbabilities {0.2, 0.2, 0.6};
+    // std::array<double, 6> firstStageWeights {0.5, 1., 10., 10., 1., 1.};
+    // std::array<std::array<double, 6>, 3> secondStageWeights = {{{1.5, 1.5, 1.5, 1.5, 1.5, 1.5}, {1.5, 1.5, 1., 2., 1.5, 1.5}, {0.5, 1.5, 1.5, 0.5, 1., 0.5}}};
+    
+        std::vector<double> scenarioProbabilities {1.0};
+        std::vector<double> firstStageWeights {1.5};
+        std::vector<std::vector<double>> secondStageWeights {{{0.5}}};
+
+        FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+        //std::cout << "Komme ich bis hier?\n";
+
+        solve_relaxed_lp(mst);
+        mst.save_lp_result_map("first");
+
+
+
+        //test 2
+
         unsigned int numberScenarios = 3;
         unsigned int numberNodes = 4;
 
@@ -33,10 +56,10 @@ int main() {
 
         FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-        std::cout << "Komme ich bis hier?\n";
+        //std::cout << "Komme ich bis hier?\n";
 
         solve_relaxed_lp(mst);
-        mst.save_lp_result_map();
+        mst.save_lp_result_map("second");
     }
 
     catch(GRBException e) {
