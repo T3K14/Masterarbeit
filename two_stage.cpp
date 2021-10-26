@@ -554,6 +554,19 @@ void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluste
     }
 }
 
+void TwoStageProblem::save_approx_result_map(std::string output_name, bool on_cluster) {
+    if (on_cluster) {
+        std::string outputPath(R"(./)");
+        outputPath += output_name;
+        outputPath += R"(.lgf)";
+        
+        lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath); //.edgeMap("lp results", lp_results_map).run();
+
+        writer.edgeMap("approx_results", approx_first_stage_map);
+        writer.run();
+    }
+}
+
 FullyConnectedTwoStageMST::FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites)
        : TwoStageProblem(scenario_probabilites), numberNodes(number_nodes) {
 
