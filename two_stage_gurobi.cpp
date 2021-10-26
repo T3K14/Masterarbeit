@@ -41,8 +41,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
         obj += two_stage_problem.firstStageWeights[e] * gurobi_variables_map[e][0];
 
         // stage 2
-        for (int i=1; i<two_stage_problem.numberScenarios+1; i++) {
-            obj += two_stage_problem.secondStageProbabilities[i] * two_stage_problem.secondStageWeights[e][i] * gurobi_variables_map[e][i];
+        // der index geht bei 0 los, aber von den gurobi_variablen muss ich immer 1 drauf rechnen, weil die nullte variable fuer der erste Stage ist
+        for (int i=0; i<two_stage_problem.numberScenarios; i++) {
+            obj += two_stage_problem.secondStageProbabilities[i] * two_stage_problem.secondStageWeights[e][i] * gurobi_variables_map[e][i+1];
         }
     }
 
