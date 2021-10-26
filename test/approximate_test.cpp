@@ -58,7 +58,9 @@ TEST(ApproxSuite, Test2) {
         double res = solve_relaxed_lp(mst);
         mst.save_lp_result_map("lp_test_three_nodes");
 
-        ASSERT_NEAR(.5, res, 0.0000001);
+        // 1.25, weil man fuer alle Cuts immer zwei Kanten hat und daher muessen alle mindestens einmal den Wert 0.5 zugeordnet bekommen, da die erste Kante im stage 2 aber mit 0.5
+        // multipliziert wird, lohnt es sich mehr die in Phase 2 zu kaufen und zu den 2 mal 0.5 kommt noch 0.5*0.5 dazu 
+        ASSERT_NEAR(1.25, res, 0.0000001);
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -69,7 +71,34 @@ TEST(ApproxSuite, Test2) {
     }
 }
 
+TEST(ApproxSuite, Test3) {
 
+    try {
+        // test 2
+        unsigned int numberScenarios = 2;
+        unsigned int numberNodes = 3;
+
+        std::vector<double> scenarioProbabilities {0.9, 0.1};
+        std::vector<double> firstStageWeights {1.0, 1.0, 1.0};
+        std::vector<std::vector<double>> secondStageWeights {{{0.5, 1.0, 1.0}, {1.5, 1.5, 1.5}}};
+
+        FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+        double res = solve_relaxed_lp(mst);
+        mst.save_lp_result_map("lp_test_three_nodes2");
+
+        // 1.25, weil man fuer alle Cuts immer zwei Kanten hat und daher muessen alle mindestens einmal den Wert 0.5 zugeordnet bekommen, da die erste Kante im stage 2 aber mit 0.5
+        // multipliziert wird, lohnt es sich mehr die in Phase 2 zu kaufen und zu den 2 mal 0.5 kommt noch 0.5*0.5 dazu 
+        ASSERT_NEAR(1.25, res, 0.0000001);
+    }
+    catch(GRBException e) {
+        cout << "Error code = " << e.getErrorCode() << endl;
+        cout << e.getMessage() << endl;
+    } 
+    catch(...) {
+        cout << "Exception during optimization" << endl;
+    }
+}
 
 //         //test 2
 
