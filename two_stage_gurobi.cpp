@@ -7,8 +7,18 @@
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
 double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
-    std::cout << "pkt 1 in Funktion\n";
 
+
+    // DEBUG
+
+    std::cout << "pkt 1 in Funktion\n";
+    auto e = two_stage_problem.g.edgeFromId(0);
+
+    std::cout << "prob:" << two_stage_problem.secondStageProbabilities[0] << "\n";
+    std::cout << "first:" << two_stage_problem.firstStageWeight[e] << "\n";
+    std::cout << "second:" << two_stage_problem.secondStageWeights[e][0] << "\n";
+
+    // ENDE DEBUG
 
     GRBEnv env = GRBEnv();
 
@@ -112,7 +122,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     auto a = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
     std::cout<< a[0] << std::endl;
     std::cout << a[1] << std::endl;
-    std::cout << "Anzahl an Szenarios hier:" << std::endl;
+    // std::cout << "Anzahl an Szenarios hier:" << std::endl;
 
     // ENDE DEBUGGING!!
     double res = model.get(GRB_DoubleAttr_ObjVal);
