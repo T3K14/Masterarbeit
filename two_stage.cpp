@@ -443,60 +443,62 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
 
     // so lange, bis alle forrests connected sind (oder eine andere Abbruchbedingung stattfindet) HIER KANN VLLT EIN COUNTER EINGEBAUT WERDEN, DER HOCHZAEHLT, WENN EIN THREAD FERTIG IST
     // UND DAS GANZE LAEUFT SO LANGE, BIS DER COUNTER GLEICH DER ANZAHL AN SZENARIEN IST
-    while(true) {
+    // while(true) {
 
-        // jetzt fuer alle scenarios und das kann glaube ich parallelisiert werden
-        for (int i=1; i<numberScenarios+1; i++) {
+    // habe es jetzt so, dass ich scenario fuer scenario durchgehe und so lange den forrest weiter baue, bis er connected ist
+
+    // jetzt fuer alle scenarios und das kann glaube ich parallelisiert werden
+    for (int i=1; i<numberScenarios+1; i++) {
+        
+        // erstelle auch hier eine EdgeMap, die die second stage Kanten anzeigt
+        lemon::ListGraph::EdgeMap<bool> second_stage_edges(g, false);
+
+        // bool connected = false;
+        // so lange random Werte ziehen, und die Maps anpassen, bis mein forrest connected ist
+        while(true) {
             
-            // erstelle auch hier eine EdgeMap, die die second stage Kanten anzeigt
-            lemon::ListGraph::EdgeMap<bool> second_stage_edges(g, false);
+            // loop ueber alle Kanten
+            for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
 
-            // bool connected = false;
-            // so lange random Werte ziehen, und die Maps anpassen, bis mein forrest connected ist
-            while(true) {
-                
-                // loop ueber alle Kanten
-                for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+                // falls die Edge nicht entweder schon in der first stage map oder in meiner second stage Map drin ist
+                if (!approx_first_stage_map[e] && !second_stage_edges[e]) {
 
-                    // falls die Edge nicht entweder schon in der first stage map oder in meiner second stage Map drin ist
-                    if (!approx_first_stage_map[e] && !second_stage_edges[e]) {
+                    // ziehe erste random zahl fuer first stage
+                    if (dist(rng) < lp_results_map[e][0]) {
 
-                        // ziehe erste random zahl fuer first stage
-                        if (dist(rng) < lp_results_map[e][0]) {
+                        approx_first_stage_map[e] = true;
+                    }
 
-                            approx_first_stage_map[e] = true;
-                        }
+                    // koennte jetzt noch checken, dass die Kante nicht gerade in die approx_first_stage_map aufgenommen wurde, aber ich glaube es ist effizienter auf das if zu verzichten
+                    // ich checke hier einfach nach der zweiten random zahl muss (ich denke aber, dass dieser erste check leichter ist, als die random zahl erstellung, in manchen faellen koennte
+                    // man so vielleicht etwas zeit sparen, wenn die abfrage im if vor der random zahl abfrage steht und schon das if ungueltig macht)
 
-                        // koennte jetzt noch checken, dass die Kante nicht gerade in die approx_first_stage_map aufgenommen wurde, aber ich glaube es ist effizienter auf das if zu verzichten
-                        // ich checke hier einfach nach der zweiten random zahl muss (ich denke aber, dass dieser erste check leichter ist, als die random zahl erstellung, in manchen faellen koennte
-                        // man so vielleicht etwas zeit sparen, wenn die abfrage im if vor der random zahl abfrage steht und schon das if ungueltig macht)
-
-                        if (dist(rng) < lp_results_map[e][i]) {
-                            second_stage_edges[e] = true;
-                        }
+                    if (dist(rng) < lp_results_map[e][i]) {
+                        second_stage_edges[e] = true;
                     }
                 }
-
-                // jetzt checken, ob mein forrest schon connected ist
-                lemon::ListGraph::EdgeMap<bool> connected_map(g);
-                for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
-                    connected_map[e] = approx_first_stage_map[e] || second_stage_edges[e];
-                }
-                // weiss nicht, ob ich die Nodemap einfach so als argument erstellen kann
-                lemon::SubGraph<lemon::ListGraph> subgraph(g, node_map, connected_map);
-
-                if (lemon::connected(subgraph)) {
-                    // ich bin connected und breake raus
-                    // HIER UNTER UMSTAENDEN NOCH DEN COUNTER ERHOEHEN!!!
-                    break;
-                }
-
-                
             }
+
+            // jetzt checken, ob mein forrest schon connected ist
+            lemon::ListGraph::EdgeMap<bool> connected_map(g);
+            for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+                connected_map[e] = approx_first_stage_map[e] || second_stage_edges[e];
+            }
+            // weiss nicht, ob ich die Nodemap einfach so als argument erstellen kann
+            lemon::SubGraph<lemon::ListGraph> subgraph(g, node_map, connected_map);
+
+            if (lemon::connected(subgraph)) {
+                // ich bin connected und breake raus
+                // HIER UNTER UMSTAENDEN NOCH DEN COUNTER ERHOEHEN!!!
+                break;
+            }
+
+            
         }
-
-
     }
+
+
+    // }
 
     //!!!!!!!!!!!!!!!MUSS ICH hier nicht uebertragen
     // uebertrage noch die Ergebnisse in die output map, die am Ende die Kanten angeben soll, die der Approxmiationsalgorithmus vorschlaegt in der ersten Phase zu kaufen

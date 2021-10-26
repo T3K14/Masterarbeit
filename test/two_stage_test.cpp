@@ -603,7 +603,6 @@ TEST(TwoStageSuite, Test7) {
     ASSERT_NEAR(res, 2.9925, 0.00000001);
 }
 
-
 TEST(UtilitiesSuite, Test2) {
 
     ListGraph g;

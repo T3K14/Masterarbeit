@@ -94,6 +94,9 @@ protected:
     std::vector<double> secondStageProbabilities;
     lemon::ListGraph::EdgeMap<std::vector<double>> secondStageWeights;
 
+// sollte spaeter lieber protected sein
+public:
+
     // hier sollen die double Ergebnisse der LP-Algorithmus zwischengespeichert werden
     lemon::ListGraph::EdgeMap<std::vector<double>> lp_results_map;
 
