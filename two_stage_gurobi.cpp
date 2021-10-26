@@ -28,7 +28,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     lemon::ListGraph::EdgeMap<GRBVar *> gurobi_variables_map(two_stage_problem.g);
 
     // das wird die objective function 
-    GRBLinExpr obj = 0.0;
+    GRBLinExpr obj = 0;
 
     // ich tue so, als haette ich die edges nicht zwangsweise selbst in einem array sondern nutze den lemon edge iterator
     for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
@@ -46,7 +46,11 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
         }
     }
 
+    // DEBUG
     std::cout << "Pkt 2 in Funktion\n";
+    std::cout << obj.size() << std::endl;
+
+    // ENDE DEBUG
 
     model.setObjective(obj, GRB_MINIMIZE);
 
