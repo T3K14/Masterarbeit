@@ -70,7 +70,26 @@ public:
   
     SecondStageMap(const lemon::ListGraph::EdgeMap<double> & s, const std::vector<lemon::ListGraph::Edge> & e, const std::vector<int> & _c);
 
+    // hier konstruktor, der mit One
 }; 
+
+// eine Klasse, die mir fuer eine secondstage EdgeMap<vector>-map die Kosten nur fuer ein bestimmtes szenario wiedergibt
+class OneScenarioMap {
+
+    // ich nutze hier nur eine Referenz in der Hoffnung, dass es das effizienter macht, und muss daher dafuer sorgen, dass keine Instanz dieser Klasse laenger im scope ist
+    // als die Objekte, die in ihr referenziert werden
+    const lemon::ListGraph::EdgeMap<std::vector<double>> & secondStageWeights;
+    const unsigned int i;
+
+public:
+    typedef double Value;
+    typedef lemon::ListGraph::Edge Key;
+
+    Value operator[](Key e) const;
+    OneScenarioMap(const lemon::ListGraph::EdgeMap<std::vector<double>> & s, const unsigned int _i);
+};
+
+
 
 // const std::vector<lemon::ListGraph::EdgeMap<T>> & scenarioSecondStageCosts
 // const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts
@@ -102,6 +121,9 @@ public:
     // hier wird gespeichert, welche Kanten vom Approximationsalgorithmus fuer die erste Phase eine Kaufempfehlung erhalten
     lemon::ListGraph::EdgeMap<bool> approx_first_stage_map;
 
+    // hier wird gespeichert, welche Kanten vom optimalen bruteforce Algorithmus fuer die erste Phase gekauft werden
+    lemon::ListGraph::EdgeMap<bool> bruteforce_first_stage_map;
+
 public:
 
     TwoStageProblem(std::vector<double> & second_stage_probabilites);
@@ -117,9 +139,15 @@ public:
     // void approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
     void approximate(std::mt19937 & rng);        // der rng kommt aus utiities.cpp
 
-    // das hier ist sehr schlimm, es ist erstmal nur eine Methode, die die brutefroce Funktion mit den internen Daten aufruft, dabei wird im Hintergrund dann noch in das unique_ptr Format umgebaut
+    // --- BRUTEFORCEFUNKTIONEN
+    // berechnet durch durchprobieren aller (sinnvollen) Moeglichkeiten die optimale Loesung fuer das gegebene Problem und speichert die Kanten, die in Phase 1 gekauft werden in 'bruteforce_first_stage_map'
+    double bruteforce();
+private:
+    // schaut sich fuer eine Edgeauswahl an, was dabei herauskommen wuerde und vergleicht das mit dem bisherigen Optimum und ersetzt es, falls das besser ist
+    double check();
 
-
+public:
+    // --- Funktionen zum abspeichern von den Edgemaps
     void save_lp_result_map(std::string output_name, bool on_cluster=true, bool work=true);
     void save_approx_result_map(std::string output_name, bool on_cluster=true, bool work=true);
 

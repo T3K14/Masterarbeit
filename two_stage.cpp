@@ -402,6 +402,8 @@ double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::
     // return 2.;
 }
 
+// CUSTOM LEMON EDGEMAPS:
+
 SecondStageMap::Value SecondStageMap::operator[](SecondStageMap::Key e) const {
     // return orig_len[e]-(pot[g.target(e)]-pot[g.source(e)]);
     
@@ -419,6 +421,24 @@ SecondStageMap::Value SecondStageMap::operator[](SecondStageMap::Key e) const {
 SecondStageMap::SecondStageMap(const lemon::ListGraph::EdgeMap<double> & s, const std::vector<lemon::ListGraph::Edge> & e, const std::vector<int> & _c)
     : secondStageCosts(s), edges(e), c(_c) {
     }
+
+// konstruktor, der mit einer OneStageMap arbeitet
+
+
+OneScenarioMap::Value OneScenarioMap::operator[](OneScenarioMap::Key e) const {
+
+    // gebe einfach nur den Wert der Kante zum angegebenen szenario an
+    return secondStageWeights[e][i];
+}
+
+OneScenarioMap::OneScenarioMap(const lemon::ListGraph::EdgeMap<std::vector<double>> & s, const unsigned int _i)
+    : secondStageWeights(s), i(_i) {}
+
+
+// ENDE CUSTOM LEMON EDGEMAPS
+
+
+
 
 
 // template void bruteForceEnumeration<double> (const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<double>>> & scenarioSecondStageCosts);
@@ -511,7 +531,7 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
 // konstruktor fuer TwoStageProblem
 // die number_scenarios lese ich dabei aus dem Vector ab
 TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites) 
-    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g), approx_first_stage_map(g, false) {
+    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g), approx_first_stage_map(g, false), bruteforce_first_stage_map(g, false) {
 
     }
 
@@ -632,4 +652,147 @@ void FullyConnectedTwoStageMST::initialise_graph() {
     }
 
 
+}
+
+// berechnet durch durchprobieren aller (sinnvollen) Moeglichkeiten die optimale Loesung fuer das gegebene Problem und speichert die Kanten, die in Phase 1 gekauft werden in 'bruteforce_first_stage_map'
+double TwoStageProblem::bruteforce() {
+
+    //size_t NodeCount = lemon::countNodes(g);
+    //int EdgeCount = lemon::countEdges(g);
+
+    // current best expectation value
+    double currentMinEV = 0.;
+
+    // brauche ich nicht: ABER ich muss irgendwie die edges fuer den twiddle algorithmus durchnumerieren
+    // lemon::ListGraph::EdgeMap<bool> currentBestMST(g);
+
+    // default value is false, so currently no 
+    // lemon::ListGraph::EdgeMap<bool> currentFirstStageSelection(g, false);           // darin soll immer die aktuell beste Lsg gespeichert werden
+
+    //solution now: create array of edges and use the index of an edge in this array for the twiddle algorithm
+    // std::vector<lemon::ListGraph::Edge> edges(EdgeCount);               // da der Graph in dieser Fkt nicht geaendert wird, steht jede Kante an einem eindeutigen Index
+
+    // size_t optCounter = 0;
+    // for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+    //     edges[optCounter++] = e;
+    // }
+
+    // used as temporary output map of the kruskal algorithm
+    lemon::ListGraph::EdgeMap<bool> output(g);      
+
+    // counts how many solutions exist that have the same optimum solution
+    size_t counter = 1;     
+
+    // first case: no edge is selected in stage 1
+    // loop over all scenarios
+    for (int i=1; i < numberScenarios+1; i++) {         // starte bei 1, da der index 0 zur ersten Stage gehoert
+        // baue mir eine map, die fuer die Kanten nur die Kosten aus szenario i zurueck gibt
+        OneScenarioMap scenario_i_map(secondStageWeights, i);
+        auto weightedResult = secondStageProbabilities[i] * lemon::kruskal(g, scenario_i_map, output);
+        currentMinEV += weightedResult;
+    }
+
+    // second case: there are edges selected in the first stage
+
+    // double firstStageSum = 0;
+
+    int x,y,z;
+
+    // for every possible number of selectable edges (1,2,3,4,...,NodeCount-1) (if i select more than N-1 in the first stage, I could drop Edges and would still end up with a spanning tree)
+    for (int i=1; i<nodes.size(); i++) {
+
+        std::vector<int> p(edges.size() + 2);
+        std::vector<int> c(i);       // store the indices of the selected edges for this iteration (hier drin stehen die Indizes zum array "edges", die angeben, welche Kanten in der jeweiligen Iteration in der 1. stage gekauft werden)
+
+        for (int tmp=0; tmp<i; tmp++) {
+            c[tmp] = edges.size() - i + tmp;
+        }
+
+        // I want to select i of all [EdgeCount] edges 
+        inittwiddle(i, edges.size(), p);
+
+        // now check the initial case
+
+        // double res = check<T>(c, scenarioProbabilities, scenarioSecondStageCosts, p, output)
+        auto res = check(g, c, edges, firstStageCosts, scenarioProbabilities, scenarioSecondStageCosts, output, currentMinEV, optCounter, currentFirstStageSelection);
+
+        // now check all other cases
+        while(!twiddle(x, y, z, p)) {
+            // update c: 
+            c[z] = x;
+            res = check(g, c, edges, firstStageCosts, scenarioProbabilities, scenarioSecondStageCosts, output, currentMinEV, optCounter, currentFirstStageSelection);
+        }
+    }
+    std::cout << currentMinEV << " ist die beste Loesung\n";
+    
+    // int cou = 0;
+    // for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+    //     if (currentFirstStageSelection[e]) {
+    //         cou++;
+    //     }
+    // }
+
+    // std::cout << cou << " Edges werden in Stage 1 gekauft\n";
+    return currentMinEV;
+
+}
+
+double TwoStageProblem::check(const std::vector<int> & c, double & current_best) {
+    // ermittle Kanten, die in stage 1 gekauft werden (ueber c gegeben)
+    
+    // teilsumme stage 1 berechnen
+
+    double sumEV = 0.;
+    for (int i : c) {
+        sumEV += firstStageWeights[edges[i]];
+    }
+
+    // if firststage sum is already larger than the current optimum, save time
+    if (sumEV > current_best) {
+        // std::cout << "Unnoetig\n";
+        // return crap value to indicate, that this check did not continue
+        return -1.;
+    }
+
+    // jetzt ausrechnen, welche Kosten diese Edgeauswahl in den szenarien im Mittel zur Folge hat
+    // loop ueber alle scenarien
+    for(int i=1; i<numberScenarios+1; i++) {                // starte bei 1, da szenario 0 zur stage gehoert
+        // erstmal map fuer nur das szenario
+        OneScenarioMap scenario_i_map(secondStageWeights, i);
+        
+        //setze die kosten von diesen Kanten in der map fuer phase 2 auf 0
+        SecondStageMap secondStageMap(scenario_i_map, edges, c);
+
+        // optimalen mst ausrechnen
+        double mst = lemon::kruskal(g, secondStageMap, output);
+
+        // Ergebnis mit Wahrscheinlichkeit gewichten und auf Teilsumme stage 2 addieren
+        sumEV += scenarioProbabilities[i] * mst;
+    }
+
+        
+    // return sumEV;
+
+    // Ergebnis mit bisherigem Optimum speichern, gegebenefalls counter erhoehen und neues bessere Ergebnis speichern, 
+
+    // ZU EPSILONVERGLEICH AENDERN
+    if (sumEV == currentBest) {
+        optCounter++;
+    } else if (sumEV < currentBest) {
+        currentBest = sumEV;
+        optCounter = 1;
+        // gehe ueber alle Kanten und setze die auf 1, die in c drin stehen
+        for (auto & e : edges) {
+            currentFirstStageSelection[e] = false;
+        }
+
+        // NOCHMAL DRUEBER NACHDENKEN, ABER ICH WILL JA DIE, DEREN INDEX IN C DRIN STEHT UND NICHT DIE ERSTEN c KANTEN AUS edges
+        // for (int j=0; j<c.size(); j++) {
+        for (int j: c) {
+
+            currentFirstStageSelection[edges[j]] = true;
+        }
+    }
+
+    return sumEV;
 }
