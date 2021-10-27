@@ -4,6 +4,8 @@
 #include "../two_stage.hpp"
 #include "../utilities.hpp"
 
+using namespace std;
+
 int main() {
 
     try {
