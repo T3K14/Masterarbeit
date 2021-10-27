@@ -118,8 +118,8 @@ public:
     // void approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
     void approximate(std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
 
-    void save_lp_result_map(std::string output_name, bool on_cluster=true);
-    void save_approx_result_map(std::string output_name, bool on_cluster=true);
+    void save_lp_result_map(std::string output_name, bool on_cluster=true, bool work=true);
+    void save_approx_result_map(std::string output_name, bool on_cluster=true, bool work=true);
 
 };
 

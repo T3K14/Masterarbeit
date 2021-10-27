@@ -515,11 +515,21 @@ TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites
 
     }
 
-void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluster) {
+void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluster, bool work) {
     if (on_cluster) {
-        std::string outputPath(R"(./)");
-        outputPath += output_name;
-        outputPath += R"(.lgf)";
+
+        std::string outputPath;
+        if (work) {
+            outputPath = R"(/gss/work/xees8992/)";
+            outputPath += output_name;
+            outputPath += ".lgf";
+
+        } else {
+            outputPath = R"(./)";
+            outputPath += output_name;
+            outputPath += R"(.lgf)";
+        }
+
         lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath); //.edgeMap("lp results", lp_results_map).run();
 
         // ist jetzt sehr schlecht, aber ich schreibe fuer jedes szenario eine eigene Map, welche ich dann am Ende printe
@@ -554,12 +564,19 @@ void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluste
     }
 }
 
-void TwoStageProblem::save_approx_result_map(std::string output_name, bool on_cluster) {
+void TwoStageProblem::save_approx_result_map(std::string output_name, bool on_cluster, bool work) {
     if (on_cluster) {
-        std::string outputPath(R"(./)");
-        outputPath += output_name;
-        outputPath += R"(.lgf)";
-        
+        std::string outputPath;
+        if (work) {
+            outputPath = R"(/gss/work/xees8992/)";
+            outputPath += output_name;
+            outputPath += ".lgf";
+
+        } else {
+            outputPath = R"(./)";
+            outputPath += output_name;
+            outputPath += R"(.lgf)";
+        }
         lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath); //.edgeMap("lp results", lp_results_map).run();
 
         writer.edgeMap("approx_results", approx_first_stage_map);
