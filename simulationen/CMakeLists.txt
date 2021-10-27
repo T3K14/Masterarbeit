@@ -10,3 +10,8 @@ target_link_libraries(erste_approx PUBLIC
     gurobi91
 )
 endif()
+
+add_executable(erste_bruteforce bruteforce.cpp)
+target_link_libraries(erste_bruteforce PUBLIC
+two_stage
+)

@@ -292,7 +292,7 @@ double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::
     
     // teilsumme stage 1 berechnen
 
-    double sumEV = 0;
+    double sumEV = 0.;
     for (int i : c) {
         sumEV += firstStageCosts[edges[i]];
     }

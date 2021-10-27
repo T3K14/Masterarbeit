@@ -80,7 +80,8 @@ class TwoStageProblem {
 
     virtual void initialise_graph() = 0;
 
-protected:
+// sollte spaeter lieber protected sein
+public:
     // kann entweder die zahl an generierten scenarios sein oder die zahl an versuchen, die man beim samplen haben moechte, auch wenn dabei potentiell weniger scenarios
     // am Ende rauskommen
     unsigned int numberScenarios;
@@ -94,8 +95,6 @@ protected:
     std::vector<double> secondStageProbabilities;
     lemon::ListGraph::EdgeMap<std::vector<double>> secondStageWeights;
 
-// sollte spaeter lieber protected sein
-public:
 
     // hier sollen die double Ergebnisse der LP-Algorithmus zwischengespeichert werden
     lemon::ListGraph::EdgeMap<std::vector<double>> lp_results_map;
@@ -116,7 +115,10 @@ public:
     // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer 
     // in der ersten Stage zu kaufende Kanten speichert
     // void approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
-    void approximate(std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
+    void approximate(std::mt19937 & rng);        // der rng kommt aus utiities.cpp
+
+    // das hier ist sehr schlimm, es ist erstmal nur eine Methode, die die brutefroce Funktion mit den internen Daten aufruft, dabei wird im Hintergrund dann noch in das unique_ptr Format umgebaut
+
 
     void save_lp_result_map(std::string output_name, bool on_cluster=true, bool work=true);
     void save_approx_result_map(std::string output_name, bool on_cluster=true, bool work=true);
