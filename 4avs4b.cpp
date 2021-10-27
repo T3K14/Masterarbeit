@@ -52,8 +52,6 @@ int main() {
 
     std::array<double, 11> ps {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.};
 
-
-
     for (double p : ps) {
 
         cout << "entering loop\n";
@@ -73,7 +71,6 @@ int main() {
         cout << "p="<< p << " completed\n";
     }
 
-    
     auto t2 = chrono::high_resolution_clock::now();
     auto s_int = chrono::duration_cast<chrono::seconds>(t2-t1);
     // chrono::duration<double, chrono::minutes> s_double = t2 - t1;

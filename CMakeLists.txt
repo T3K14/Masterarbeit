@@ -83,6 +83,7 @@ target_link_libraries(two_stage PUBLIC ${mylemon})
 #target_link_libraries(two_stage PUBLIC m)
 
 add_subdirectory(test)
+add_subdirectory(simulationen)
 
 add_executable(second second.cpp ${Sources} ${Headers})
 target_link_libraries(second PUBLIC ${mylemon} two_stage)
