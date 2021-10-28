@@ -111,7 +111,25 @@ public:
     OneScenarioMap(const lemon::ListGraph::EdgeMap<std::vector<double>> & s, const unsigned int _i);
 };
 
+// eine Klasse, die mir fuer eine secondstage EdgeMap<vector>-map die Kosten nur fuer ein bestimmtes szenario wiedergibt
+// und ausserdem beruecksichtig, wenn eine Kante bereits in der ersten Stage gekauft wurde
+// das ist quasi eine kombination aus OneScenarioMap und SecondStageMap, die anderen beiden brauche ich aber noch, weil ich in
+// der check-methode nicht ueber die edges loope und mit einer bool map abfrage, sondern mit dem c-vector arbeite
+class OneScenarioSecondStageMap {
 
+    // ich nutze hier nur eine Referenz in der Hoffnung, dass es das effizienter macht, und muss daher dafuer sorgen, dass keine Instanz dieser Klasse laenger im scope ist
+    // als die Objekte, die in ihr referenziert werden
+    const lemon::ListGraph::EdgeMap<std::vector<double>> & secondStageWeights;
+    const unsigned int i;
+    const lemon::ListGraph::EdgeMap<bool> & boolMap;
+
+public:
+    typedef double Value;
+    typedef lemon::ListGraph::Edge Key;
+
+    Value operator[](Key e) const;
+    OneScenarioSecondStageMap(const lemon::ListGraph::EdgeMap<std::vector<double>> & s, const unsigned int _i, const lemon::ListGraph::EdgeMap<bool> & _boolMap);
+};
 
 // const std::vector<lemon::ListGraph::EdgeMap<T>> & scenarioSecondStageCosts
 // const std::vector<std::reference_wrapper<lemon::ListGraph::EdgeMap<T>>> & scenarioSecondStageCosts
@@ -173,6 +191,9 @@ public:
     void save_lp_result_map(std::string output_name, bool on_cluster=true, bool work=true);
     void save_approx_result_map(std::string output_name, bool on_cluster=true, bool work=true);
     void save_bruteforce_first_stage_map(std::string output_name, bool on_cluster=true, bool work=true);
+
+    // Funktion, die mir fuer eine gegebene bool-map die zu erwartenden Kosten ausrechnet
+    double calculate_expected_from_bool_map(lemon::ListGraph::EdgeMap<bool> & bool_map);
 };
 
 class FullyConnectedTwoStageMST : public TwoStageProblem {

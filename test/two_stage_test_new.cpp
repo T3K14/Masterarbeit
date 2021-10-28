@@ -178,6 +178,9 @@ TEST(TwoStageSuite, Test6) {
 
     auto res = mst.bruteforce();
     ASSERT_NEAR(res, 2.2, 0.00000001);
+    auto res2 = mst.calculate_expected_from_bool_map(mst.bruteforce_first_stage_map);
+    std::cout << "die calculate_expected_from_bool_map-methode gibt das zurueck: " << res2 << std::endl;
+    ASSERT_NEAR(res2, 2.2, 0.00000001);
 }
 
 TEST(TwoStageSuite, Test7) {
@@ -192,6 +195,11 @@ TEST(TwoStageSuite, Test7) {
 
     auto res = mst.bruteforce();
     ASSERT_NEAR(res, 2.9925, 0.00000001);
+
+    // teste hier mal noch die calculate_expected_from_bool_map-Funktion
+    auto res2 = mst.calculate_expected_from_bool_map(mst.bruteforce_first_stage_map);
+    std::cout << "die calculate_expected_from_bool_map-methode gibt das zurueck: " << res2 << std::endl;
+    ASSERT_NEAR(res2, 2.9925, 0.00000001);
 }
 
 // test nutze edgeWeightIncrease, da muss ich SPAETER NOCH EINEN EIGENEN KONSTRUKTOR FUER SCHREIBEN, DER INTERN edgeWeightIncreas AUFRUFT

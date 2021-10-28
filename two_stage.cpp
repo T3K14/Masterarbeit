@@ -435,6 +435,19 @@ OneScenarioMap::OneScenarioMap(const lemon::ListGraph::EdgeMap<std::vector<doubl
     : secondStageWeights(s), i(_i) {}
 
 
+OneScenarioSecondStageMap::OneScenarioSecondStageMap(const lemon::ListGraph::EdgeMap<std::vector<double>> & s, const unsigned int _i, const lemon::ListGraph::EdgeMap<bool> & _boolMap)
+    : secondStageWeights(s), i(_i), boolMap(_boolMap) {}
+
+OneScenarioSecondStageMap::Value OneScenarioSecondStageMap::operator[](OneScenarioMap::Key e) const {
+
+    // checke zuerst, ob die key-edge in der bool-map true bekommt
+    if (boolMap[e]) {
+        return 0.;
+    }
+    // ansonsten gebe ich den Wert der Kante zu dem Scenario wieder
+    return secondStageWeights[e][i];
+}
+
 // ENDE CUSTOM LEMON EDGEMAPS
 
 
@@ -622,6 +635,29 @@ void TwoStageProblem::save_bruteforce_first_stage_map(std::string output_name, b
         writer.edgeMap("bruteforce_results", bruteforce_first_stage_map);
         writer.run();
     }
+}
+
+double TwoStageProblem::calculate_expected_from_bool_map(lemon::ListGraph::EdgeMap<bool> & bool_map) {
+
+    //output map fuer den kruskal algorithmus
+    lemon::ListGraph::EdgeMap<bool> output(g);
+
+    double sum = 0.;
+    // erste first stage Werte
+    for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+        if (bool_map[e]) {
+            sum += firstStageWeights[e]; 
+        }
+    }
+
+    // second stage weights
+    for (int i=0; i<numberScenarios; i++) {
+        // erstelle mir eine Map, die die Kosten nur fuer das Szenario i pro Kante zurueckgibt und dabei alle Kosten der Kanten auf 0 setzt, die schon in Phase 1 gekauft wurden
+        double mst = lemon::kruskal(g, OneScenarioSecondStageMap(secondStageWeights, i, bool_map), output);
+        sum += mst * secondStageProbabilities[i];
+    }
+
+    return sum;
 }
 
 FullyConnectedTwoStageMST::FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites)
@@ -863,4 +899,4 @@ UseExternGraphTwoStageMST::UseExternGraphTwoStageMST(const lemon::ListGraph & _g
     }
 
 }
-    
+
