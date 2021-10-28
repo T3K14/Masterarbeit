@@ -604,7 +604,7 @@ void TwoStageProblem::save_approx_result_map(std::string output_name, bool on_cl
     }
 }
 
-void TwoStageProblem::save_bruteforce_first_stage_map(std::string output_name, bool on_cluster=true, bool work=true) {
+void TwoStageProblem::save_bruteforce_first_stage_map(std::string output_name, bool on_cluster, bool work) {
     if (on_cluster) {
         std::string outputPath;
         if (work) {
