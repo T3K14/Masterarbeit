@@ -604,6 +604,26 @@ void TwoStageProblem::save_approx_result_map(std::string output_name, bool on_cl
     }
 }
 
+void TwoStageProblem::save_bruteforce_first_stage_map(std::string output_name, bool on_cluster=true, bool work=true) {
+    if (on_cluster) {
+        std::string outputPath;
+        if (work) {
+            outputPath = R"(/gss/work/xees8992/)";
+            outputPath += output_name;
+            outputPath += ".lgf";
+
+        } else {
+            outputPath = R"(./)";
+            outputPath += output_name;
+            outputPath += R"(.lgf)";
+        }
+        lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath);
+
+        writer.edgeMap("bruteforce_results", bruteforce_first_stage_map);
+        writer.run();
+    }
+}
+
 FullyConnectedTwoStageMST::FullyConnectedTwoStageMST(unsigned int number_nodes, std::vector<double> & first_stage_weights, std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites)
        : TwoStageProblem(scenario_probabilites), numberNodes(number_nodes) {
 

@@ -172,7 +172,7 @@ public:
     // --- Funktionen zum abspeichern von den Edgemaps
     void save_lp_result_map(std::string output_name, bool on_cluster=true, bool work=true);
     void save_approx_result_map(std::string output_name, bool on_cluster=true, bool work=true);
-
+    void save_bruteforce_first_stage_map(std::string output_name, bool on_cluster=true, bool work=true);
 };
 
 class FullyConnectedTwoStageMST : public TwoStageProblem {

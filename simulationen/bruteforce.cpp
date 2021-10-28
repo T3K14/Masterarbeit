@@ -13,7 +13,9 @@ int main() {
 
     FullyConnectedTwoStageMST mst(6, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-    auto res = bruteForceEnumeration(mst.g, mst.firstStageWeights, mst.secondStageProbabilities, mst.secondStageWeights);
+    // auto res = bruteForceEnumeration(mst.g, mst.firstStageWeights, mst.secondStageProbabilities, mst.secondStageWeights);
+    auto res = mst.bruteforce();
+    mst.save_bruteforce_first_stage_map("bruteforce_erste_simulation");
 
     return 0;
 }
