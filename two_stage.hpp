@@ -54,10 +54,11 @@ double check(const lemon::ListGraph & g, const std::vector<int> & c, const std::
 double fourb(const lemon::ListGraph & g, const lemon::ListGraph::EdgeMap<double> & firstStageCosts, const std::vector<double> & scenarioProbabilities, const lemon::ListGraph::EdgeMap<std::vector<double>> & scenarioSecondStageCostsEM);
 
 
-
+template<typename T>
 class SecondStageMap {
 
-    const lemon::ListGraph::EdgeMap<double> & secondStageCosts;
+    // const lemon::ListGraph::EdgeMap<double> & secondStageCosts;
+    const T & ursprungs_map;        // die Map (entweder EdgeMap<double> oder OneScenarioMap)
     const std::vector<lemon::ListGraph::Edge> & edges;
     const std::vector<int> & c;
 
@@ -68,10 +69,31 @@ public:
 
     Value operator[](Key e) const;
   
-    SecondStageMap(const lemon::ListGraph::EdgeMap<double> & s, const std::vector<lemon::ListGraph::Edge> & e, const std::vector<int> & _c);
+    SecondStageMap(const T & s, const std::vector<lemon::ListGraph::Edge> & e, const std::vector<int> & _c);
 
-    // hier konstruktor, der mit One
 }; 
+
+// template definition, das zweite typename ist dafuer da, dass der compiler beim parsen versteht, dass SecondStageMap<T>::Value ein typ ist
+template<typename T>
+typename SecondStageMap<T>::Value SecondStageMap<T>::operator[](SecondStageMap<T>::Key e) const {
+    // return orig_len[e]-(pot[g.target(e)]-pot[g.source(e)]);
+    
+    // HABE DAS HIER AUCH GEAENDERT!!! So gehe ich ueber alle Indizes in c und schaue, ob die Kanten, die dazu gehoeren der uebergebenen entsprechen
+    // for (int i=0; i<c.size(); i++) {
+    for (int i: c) {
+        if (e == edges[i]) {
+            return 0;
+        }
+    }
+    return ursprungs_map[e];
+}
+
+// die Klasse speichert alles nur als Referenzen, da wird also nichts kopiert   
+template<typename T>
+SecondStageMap<T>::SecondStageMap(const T & s, const std::vector<lemon::ListGraph::Edge> & e, const std::vector<int> & _c)
+    : ursprungs_map(s), edges(e), c(_c) {
+    }
+
 
 // eine Klasse, die mir fuer eine secondstage EdgeMap<vector>-map die Kosten nur fuer ein bestimmtes szenario wiedergibt
 class OneScenarioMap {
@@ -125,7 +147,7 @@ public:
     lemon::ListGraph::EdgeMap<bool> bruteforce_first_stage_map;
 
 public:
-
+    // constructor (ist da, damit ich die ganzen member bekomme?)
     TwoStageProblem(std::vector<double> & second_stage_probabilites);
     // TwoStageProblem() = delete;    
     virtual ~TwoStageProblem() = default;
@@ -144,7 +166,7 @@ public:
     double bruteforce();
 private:
     // schaut sich fuer eine Edgeauswahl an, was dabei herauskommen wuerde und vergleicht das mit dem bisherigen Optimum und ersetzt es, falls das besser ist
-    double check();
+    double check(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter);
 
 public:
     // --- Funktionen zum abspeichern von den Edgemaps
@@ -164,3 +186,13 @@ public:
     virtual ~FullyConnectedTwoStageMST() = default;
 };
 
+// eine Klasse, die dazu da ist, einen bereits bestehenden Graph (mit nodes und edges liste) in ein TwoStageMST Problem einzubetten
+class UseExternGraphTwoStageMST : public TwoStageProblem {
+
+    virtual void initialise_graph() override;
+
+public:
+    UseExternGraphTwoStageMST(const lemon::ListGraph & _g, const std::vector<lemon::ListGraph::Node> & _nodes, const std::vector<lemon::ListGraph::Edge> & edges, const std::vector<double> & first_stage_weights, const std::vector<std::vector<double>> & second_stage_weights, std::vector<double> & scenario_probabilites);
+    virtual ~UseExternGraphTwoStageMST() = default;
+
+};

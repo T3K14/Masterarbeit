@@ -12,6 +12,13 @@ target_link_libraries(tests PUBLIC
 )
 endif()
 
+add_executable(tests2 two_stage_test_new.cpp)
+target_link_libraries(tests2 PUBLIC
+    gtest_main
+    two_stage
+    gtest
+)
+
 if(On_Cluster)
 add_executable(approx_tests approximate_test.cpp)
 target_link_libraries(approx_tests PUBLIC
@@ -32,4 +39,9 @@ add_test(
 add_test(
     NAME approximate_test
     COMMAND approx_tests
+)
+
+add_test(
+    NAME two_stage_test_neu
+    COMMAND tests2
 )

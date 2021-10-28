@@ -79,7 +79,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
         lemon::ListGraph::NodeMap<bool> min_cut_result_map(two_stage_problem.g);
 
         // gehe alle szenarien durch und suche nach mincut, der die Bedingung nicht erfuellt
-        for (int i=1; i<two_stage_problem.numberScenarios+1; i++) {
+        for (int i=1; i<two_stage_problem.numberScenarios+1; i++) {     //index geht bei 1 los, weil er nur benutzt wird, um auf die gurobi_variablen zuzugreifen und die haben zum index 0 den Variable fuer die erste stage 
 
             // die x^_e und x^i_e Werte addieren und als capacity Werte eintragen
             for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
