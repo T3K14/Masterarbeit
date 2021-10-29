@@ -21,5 +21,8 @@ int main() {
     auto res = mst.bruteforce();
     mst.save_bruteforce_first_stage_map("bruteforce_zweite_simulation");
 
+    double expected_costs = mst.calculate_expected_from_bool_map(mst.bruteforce_first_stage_map);
+    std::cout << "Mit dieser Auswahl hat man Gesamterwartungskosten von : " << expected_costs << std::endl;
+
     return 0;
 }
