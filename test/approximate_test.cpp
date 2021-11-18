@@ -55,7 +55,7 @@ TEST(LPSuite, TrivialTest) {
             outFile.close();
         }
         else {
-            cout << "Error beim Feiloeffnen\n";
+            cout << "Error beim Fileoeffnen\n";
         }
 
         // cout << expected_costs << endl;
@@ -94,7 +94,16 @@ TEST(LPSuite, Test2) {
 
         double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
         //output, zum Vergleichen
-        std::cout << expected_costs << std::endl;
+        string filepath = R"(/gss/work/xees8992/test2.txt)";
+        ofstream outFile(filepath, ios_base::app);
+
+        if (outFile.is_open()) {
+            outFile << expected_costs << "\n";
+            outFile.close();
+        }
+        else {
+            cout << "Error beim Fileoeffnen\n";
+        }
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -131,7 +140,16 @@ TEST(LPSuite, Test3) {
 
         double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
         //output, zum Vergleichen
-        std::cout << expected_costs << std::endl;
+        string filepath = R"(/gss/work/xees8992/test3.txt)";
+        ofstream outFile(filepath, ios_base::app);
+
+        if (outFile.is_open()) {
+            outFile << expected_costs << "\n";
+            outFile.close();
+        }
+        else {
+            cout << "Error beim Fileoeffnen\n";
+        }    
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
