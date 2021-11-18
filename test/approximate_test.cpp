@@ -2,6 +2,7 @@
 #include <array>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 #include "../two_stage_gurobi.hpp"
 #include "../two_stage.hpp"
