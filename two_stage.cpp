@@ -521,12 +521,10 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
             lemon::SubGraph<lemon::ListGraph> subgraph(g, node_map, connected_map);
 
             if (lemon::connected(subgraph)) {
-                // ich bin connected und breake raus
+                // ich bin connected und breake raus, d.h. es gibt mindestens einen Baum, vermutlich sogar mehr Kanten, als eigentlich fuer einen Baum benoetigt wuerden
                 // HIER UNTER UMSTAENDEN NOCH DEN COUNTER ERHOEHEN!!!
                 break;
             }
-
-            
         }
     }
 

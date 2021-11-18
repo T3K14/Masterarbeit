@@ -7,7 +7,6 @@
 
 using namespace lemon;
 
-
 TEST(TwoStageSuite, Test2) {
 
     ListGraph g;

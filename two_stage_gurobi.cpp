@@ -140,7 +140,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     // std::cout << "Anzahl an Szenarios hier:" << std::endl;
 
     // ENDE DEBUGGING!!
-    double res = model.get(GRB_DoubleAttr_ObjVal);
+    double res = model.get(GRB_DoubleAttr_ObjVal);              // res ist der Wert der objective function
     //double res = obj.getValue();
     
 // ich schreibe nun in die uebergebene EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
