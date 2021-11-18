@@ -44,8 +44,20 @@ TEST(LPSuite, TrivialTest) {
 
 
         double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
-        //output, zum Vergleichen
-        std::cout << expected_costs << std::endl;
+        //output, zum Vergleichen, da der Test nur auf dem Cluster laeuft, schreibe ich hier direkt den Work-path rein
+
+        string filepath = R"(/gss/work/xees8992/trivialtest.txt)";
+        ofstream outFile(filepath, ios_base::app);
+
+        if (outFile.is_open()) {
+            outFile << expected_costs << "\n";
+            outFile.close();
+        }
+        else {
+            cout << "Error beim Feiloeffnen\n";
+        }
+
+        // cout << expected_costs << endl;
 
     }
     catch(GRBException e) {

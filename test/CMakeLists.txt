@@ -10,6 +10,12 @@ target_link_libraries(tests PUBLIC
     two_stage
     gtest
 )
+
+add_test(
+    NAME two_stage_test
+    COMMAND tests
+)
+
 endif()
 
 add_executable(tests2 two_stage_test_new.cpp)
@@ -37,10 +43,7 @@ add_test(
 
 endif()
 
-add_test(
-    NAME two_stage_test
-    COMMAND tests
-)
+
 
 add_test(
     NAME two_stage_test_neu
