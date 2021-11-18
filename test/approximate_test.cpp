@@ -61,6 +61,8 @@ TEST(TrivialSuite, Test1) {
     mst.approximate(rng);
     mst.save_approx_result_map("approx_test_trivial1");
 
+    double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
+
     string filepath = R"(/gss/work/xees8992/trivial1.txt)";
     ofstream outFile(filepath, ios_base::app);
 
