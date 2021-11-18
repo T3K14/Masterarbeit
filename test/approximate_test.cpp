@@ -15,6 +15,7 @@
     // visualisierung des Problems befindet sich in meinen Notizen vom 09.10.21
 
 using namespace std;
+using namespace lemon;
 
 // Hier soll der approxalg auf die simplen Tests (die einfachen, wo zB. in Phase 1 alles billiger ist etc.) angewendet werden
 // gibt nur das Problem, dass der Approxalg unterschiedliche Ergebnisse ausgeben kann
