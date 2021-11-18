@@ -29,6 +29,10 @@ TEST(TrivialSuite, Test1) {
     for(int i=0; i < nodeNumber; i++) {
         nodes.push_back(g.addNode());
     }
+    cout << "HIER KOMMEN DIE IDS!!!\n"; 
+    for(int i=0; i < nodeNumber; i++) {
+        cout << g.id(nodes[i]) << endl;
+    }
 
     // std::array<ListGraph::Edge, 11> edges;
     std::vector<ListGraph::Edge> edges;
