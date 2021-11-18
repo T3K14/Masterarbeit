@@ -32,6 +32,9 @@ int main() {
 
         double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
         std::cout << "Mit dieser Auswahl hat man Gesamterwartungskosten von : " << expected_costs << std::endl;
+
+        // //output, zum Vergleichen
+        // std::cout << expected_costs << std::endl;
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;

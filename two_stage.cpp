@@ -779,7 +779,7 @@ double TwoStageProblem::bruteforce() {
             res = check(c, currentMinEV, output, optCounter);
         }
     }
-    std::cout << currentMinEV << " ist die beste Loesung\n";
+    // std::cout << currentMinEV << " ist die beste Loesung\n";
     
     // int cou = 0;
     // for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {

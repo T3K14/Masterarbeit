@@ -15,7 +15,12 @@
 
 using namespace std;
 
-TEST(ApproxSuite, TrivialTest) {
+// Hier soll der approxalg auf die simplen Tests (die einfachen, wo zB. in Phase 1 alles billiger ist etc.) angewendet werden
+//TEST(TrivialSuite, Test1) {
+// }
+
+// Tests im LPSuite testen, ob der LP-Teil mit dem gurobi-Algorithmus verlaessliche Ergebnisse liefert
+TEST(LPSuite, TrivialTest) {
 
     try {
         // test 1
@@ -37,6 +42,11 @@ TEST(ApproxSuite, TrivialTest) {
         mst.approximate(rng);
         mst.save_approx_result_map("approx_test_two_nodes");
 
+
+        double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
+        //output, zum Vergleichen
+        std::cout << expected_costs << std::endl;
+
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -47,7 +57,7 @@ TEST(ApproxSuite, TrivialTest) {
     }
 }
 
-TEST(ApproxSuite, Test2) {
+TEST(LPSuite, Test2) {
 
     try {
         // test 2
@@ -68,6 +78,10 @@ TEST(ApproxSuite, Test2) {
         ASSERT_NEAR(1.25, res, 0.0000001);
         mst.approximate(rng);
         mst.save_approx_result_map("approx_test_three_nodes");
+
+        double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
+        //output, zum Vergleichen
+        std::cout << expected_costs << std::endl;
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -78,7 +92,7 @@ TEST(ApproxSuite, Test2) {
     }
 }
 
-TEST(ApproxSuite, Test3) {
+TEST(LPSuite, Test3) {
 
     try {
         // test 2
@@ -101,6 +115,10 @@ TEST(ApproxSuite, Test3) {
 
         mst.approximate(rng);
         mst.save_approx_result_map("approx_test_three_nodes2");
+
+        double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
+        //output, zum Vergleichen
+        std::cout << expected_costs << std::endl;
     }
     catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
