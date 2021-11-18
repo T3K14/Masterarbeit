@@ -63,7 +63,7 @@ TEST(ApproxSuite, Test2) {
         double res = solve_relaxed_lp(mst);
         mst.save_lp_result_map("lp_test_three_nodes");
 
-        // 1.25, weil man fuer alle Cuts immer zwei Kanten hat und daher muessen alle mindestens einmal den Wert 0.5 zugeordnet bekommen, da die erste Kante im stage 2 aber mit 0.5
+        // 1.25, weil man fuer alle Cuts immer zwei Kanten hat und daher muessen alle mindestens einmal den Wert 0.5 zugeordnet bekommen, da die erste Kante in stage 2 aber mit 0.5
         // multipliziert wird, lohnt es sich mehr die in Phase 2 zu kaufen und zu den 2 mal 0.5 kommt noch 0.5*0.5 dazu 
         ASSERT_NEAR(1.25, res, 0.0000001);
         mst.approximate(rng);

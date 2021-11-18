@@ -29,16 +29,17 @@ target_link_libraries(approx_tests PUBLIC
     gurobi_c++	
     gurobi91
 )
+
+add_test(
+    NAME approximate_test
+    COMMAND approx_tests
+)
+
 endif()
 
 add_test(
     NAME two_stage_test
     COMMAND tests
-)
-
-add_test(
-    NAME approximate_test
-    COMMAND approx_tests
 )
 
 add_test(
