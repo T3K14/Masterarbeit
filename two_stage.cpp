@@ -883,6 +883,12 @@ UseExternGraphTwoStageMST::UseExternGraphTwoStageMST(const lemon::ListGraph & _g
     }
     // ENDE ---
 
+
+    std::cout << "HIER KOMMEN DIE IDS intern!!!\n"; 
+    for(int i=0; i < _nodes.size(); i++) {
+        std::cout << g.id(nodes[i]) << std::endl;
+    }
+
     // jetzt noch die Gewichte uebernehmen          // KANN EIGENTLICH AUCH EINE KLEINE INTERNE FUNKTION WERDEN
     for (int i=0; i<first_stage_weights.size(); i++) {
         firstStageWeights[edges[i]] = first_stage_weights[i]; 
