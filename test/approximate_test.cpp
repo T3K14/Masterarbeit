@@ -49,6 +49,8 @@ TEST(TrivialSuite, Test1) {
     edges.push_back(g.addEdge(nodes[4], nodes[6]));
     edges.push_back(g.addEdge(nodes[5], nodes[6]));
 
+    std::cout << g.id(g.u(edges[0])) << " , " << g.id(g.v(edges[0])) << std::endl;
+
     std::vector<double> scenarioProbabilities {0.4, 0.6};
     std::vector<double> firstStageWeights {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
     std::vector<std::vector<double>> secondStageWeights {{{2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0}, {3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0}}};

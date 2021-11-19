@@ -888,6 +888,7 @@ UseExternGraphTwoStageMST::UseExternGraphTwoStageMST(const lemon::ListGraph & _g
     for(int i=0; i < _nodes.size(); i++) {
         std::cout << g.id(nodes[i]) << std::endl;
     }
+    std::cout << g.id(g.u(edges[0])) << " , " << g.id(g.v(edges[0])) << std::endl;
 
     // jetzt noch die Gewichte uebernehmen          // KANN EIGENTLICH AUCH EINE KLEINE INTERNE FUNKTION WERDEN
     for (int i=0; i<first_stage_weights.size(); i++) {
