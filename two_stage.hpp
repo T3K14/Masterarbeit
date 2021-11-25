@@ -178,7 +178,7 @@ public:
     // in der ersten Stage zu kaufende Kanten speichert
     // void approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????
     void approximate(std::mt19937 & rng);        // der rng kommt aus utiities.cpp
-
+    void approximate_old(std::mt19937 & rng);
     // --- BRUTEFORCEFUNKTIONEN
     // berechnet durch durchprobieren aller (sinnvollen) Moeglichkeiten die optimale Loesung fuer das gegebene Problem und speichert die Kanten, die in Phase 1 gekauft werden in 'bruteforce_first_stage_map'
     double bruteforce();

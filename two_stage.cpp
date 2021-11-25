@@ -460,7 +460,7 @@ template int twoStageSetting<int>(const lemon::ListGraph & g, const lemon::ListG
 
 // die fkt nimmt die Ergebnisse von einer relaxed lp loesung (die in der Klasse als lp_results_map gespeichert ist) und rundet daraus eine feasible Solution, dabei raus kommt eine Empfehlung, welche Kanten man in der ersten
 // Phase kaufen soll (final_first_stage_map)
-void TwoStageProblem::approximate(std::mt19937 & rng) {
+void TwoStageProblem::approximate_old(std::mt19937 & rng) {
     
     // hier ist meine Verteilung 
     std::uniform_real_distribution<double> dist(0.0, 1.0);
@@ -538,6 +538,102 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
     //    final_first_stage_map[e] = first_stage_edges[e];
     //}
     
+}
+
+void TwoStageProblem::approximate(std::mt19937 & rng) {
+    
+    // hier ist meine Verteilung 
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+    // hier ist eine NodeMap, die allen Nodes true zuweist und spaeter fuer den Subgraph benutzt wird, da die aber immer die selbe ist, lasse ich die hier mal global
+    lemon::ListGraph::NodeMap<bool> node_map(g, true);
+
+    //!!!!!!!!!!!!!!!!!! ich glaube, die Map brauche ich gar nicht hier, das kann ich auch direkt als Klassenmember schreiben und spar mir hier die definition!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!! vielleicht brauch ich es aber zum parallelisieren doch hier, deshalb steht es noch hier!!!!!!!!!!!!!!!!!!!
+    // habe hier Map, in die wird eine Edge true, falls diese in einer Iteration fuer die erste Stage gekauft wird 
+    // lemon::ListGraph::EdgeMap<bool> first_stage_edges(g, false);
+    
+    // das ganze dann sehr gerne parallelisieren
+
+    // so lange, bis alle forrests connected sind (oder eine andere Abbruchbedingung stattfindet) HIER KANN VLLT EIN COUNTER EINGEBAUT WERDEN, DER HOCHZAEHLT, WENN EIN THREAD FERTIG IST
+    // UND DAS GANZE LAEUFT SO LANGE, BIS DER COUNTER GLEICH DER ANZAHL AN SZENARIEN IST
+
+    lemon::ListGraph::EdgeMap<std::vector<bool>> second_stage_edges(g, std::vector<bool>(numberScenarios, false));      // geht das??
+
+    // --- ZUM TESTEN
+    // second_stage_edges[g.edgeFromId(1)][1] = true;
+
+    // std::cout << second_stage_edges[g.edgeFromId(0)][0] << ", " <<second_stage_edges[g.edgeFromId(0)][1] << "\n";
+    // std::cout << second_stage_edges[g.edgeFromId(1)][0] << ", " <<second_stage_edges[g.edgeFromId(1)][1] << "\n";
+    // std::cout << second_stage_edges[g.edgeFromId(2)][0] << ", " <<second_stage_edges[g.edgeFromId(2)][1] << "\n";
+
+    // std::cout << second_stage_edges[g.edgeFromId(8)][0] << ", " <<second_stage_edges[g.edgeFromId(8)][1] << "\n";
+    // std::cout << second_stage_edges[g.edgeFromId(9)][0] << ", " <<second_stage_edges[g.edgeFromId(8)][1] << "\n";
+    // std::cout << second_stage_edges[g.edgeFromId(10)][0] << ", " <<second_stage_edges[g.edgeFromId(10)][1] << "\n";
+    // --- ENDE
+
+    // hier drin speichere ich, welche szenarien schon connected sind
+    std::vector<bool> is_connected(numberScenarios, false);
+
+    // in dieser Map werden die first und second stage-Auswahlen vereinigt, um zu ueberpruefen, ob beide zusammen fuer ein scenario schon eine connected component (mindestens tree) sind
+    lemon::ListGraph::EdgeMap<bool> connected_map(g);
+
+    while(true) {
+
+        // checken, ob bereits alle szenarien connected sind
+        bool all = true;
+        for (auto b : is_connected) {
+            all = all && b;
+            if (!all) {
+                break;
+            }
+        }
+        // wenn all hier noch true ist, dann sind alle szenarien connected
+        if (all) {
+            return;
+        }
+
+        // loop ueber alle Kanten
+        for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+        
+            // 1. stage: nehme die Kante, wenn sie noch nicht genommen ist, wenn die Wahrscheinlichkeit eintritt und wenn sie kein loop erzeugt
+            if (!approx_first_stage_map[e] && dist(rng) < lp_results_map[e][0] && !edge_creates_loop(approx_first_stage_map, e)) {
+                approx_first_stage_map[e] = true;
+            }
+        
+            // 2. stage, loop ueber alle Szenarien
+            for (int i=0; i<numberScenarios; i++) {
+
+                // ueberpruefen, ob dieses szenarie bereits connected ist
+                if (is_connected[i]) {
+                    continue;
+                }
+                
+                // beschreibe die connected_map, um das loop-Kriterium ueberpruefen zu koennen und fuer den subgraph, ob der Graph jetzt connected ist
+                for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+                    connected_map[e] = approx_first_stage_map[e] || second_stage_edges[e][i];
+                }
+
+                // nehme die Kante, wenn sie noch nicht genommen ist (weder in first stage noch in diesem Szenario der 2. stage),
+                // die Wahrscheinlichkeit trifft und wenn sie zusammen mit den first stage Kanten kein loop erzeugt
+                // bei lp_results_map benutze ich i+1, weil der 0te Eintrag der der ersten Stage ist
+                if (!connected_map[e] && dist(rng) < lp_results_map[e][i+1] && !edge_creates_loop(connected_map, e)) {
+                    second_stage_edges[e][i] = true;
+
+                    // ausserdem fuege ich diese edge noch zur connected_map hinzu, um nun ueberpreufen zu koennen, ob mit der jetzt das szenario connected ist
+                    connected_map[e] = true;
+                }
+
+                // schauen, ob jetzt connected
+                lemon::SubGraph<lemon::ListGraph> subgraph(g, node_map, connected_map);
+
+                if (lemon::connected(subgraph)) {
+                    // das szenario ist connected
+                    is_connected[i] = true;
+                }
+            }
+        }
+    }
 }
 
 // konstruktor fuer TwoStageProblem

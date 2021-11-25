@@ -299,7 +299,6 @@ TEST(MethodTest, TestLoop2) {
 
     ListGraph::EdgeMap<bool> map(mst.g);
 
-    // nehme in dem Beispiel die oberen drei Knoten und davon 2 Kanten, so dass das adden der dritten ein loop erzeugen wuerde
     map[mst.edges[0]] = true;
     map[mst.edges[1]] = true;
     map[mst.edges[4]] = true;
@@ -311,3 +310,4 @@ TEST(MethodTest, TestLoop2) {
 
     ASSERT_FALSE(res);
 }
+
