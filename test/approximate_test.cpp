@@ -29,10 +29,10 @@ TEST(TrivialSuite, Test1) {
     for(int i=0; i < nodeNumber; i++) {
         nodes.push_back(g.addNode());
     }
-    cout << "HIER KOMMEN DIE IDS!!!\n"; 
-    for(int i=0; i < nodeNumber; i++) {
-        cout << g.id(nodes[i]) << endl;
-    }
+    // cout << "HIER KOMMEN DIE IDS!!!\n";              // WAR ZUM TESTEN, OB DIE REIHENFOLGE NACH DEM KOPIEREN NOCH STIMMT (siehe Tex-Notizen 'Reihenfolge Node und Edges nach Kopieren')
+    // for(int i=0; i < nodeNumber; i++) {
+    //     cout << g.id(nodes[i]) << endl;
+    // }
 
     // std::array<ListGraph::Edge, 11> edges;
     std::vector<ListGraph::Edge> edges;
@@ -49,7 +49,7 @@ TEST(TrivialSuite, Test1) {
     edges.push_back(g.addEdge(nodes[4], nodes[6]));
     edges.push_back(g.addEdge(nodes[5], nodes[6]));
 
-    std::cout << g.id(g.u(edges[0])) << " , " << g.id(g.v(edges[0])) << std::endl;
+    // std::cout << g.id(g.u(edges[0])) << " , " << g.id(g.v(edges[0])) << std::endl;
 
     std::vector<double> scenarioProbabilities {0.4, 0.6};
     std::vector<double> firstStageWeights {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};

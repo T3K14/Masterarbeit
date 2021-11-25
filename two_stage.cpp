@@ -5,6 +5,7 @@
 #include <lemon/lgf_writer.h>
 #include <lemon/kruskal.h>
 #include <array>
+#include <queue>
 
 #include <lemon/connectivity.h>
 #include <lemon/adaptors.h>
@@ -521,7 +522,7 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
             lemon::SubGraph<lemon::ListGraph> subgraph(g, node_map, connected_map);
 
             if (lemon::connected(subgraph)) {
-                // ich bin connected und breake raus, d.h. es gibt mindestens einen Baum, vermutlich sogar mehr Kanten, als eigentlich fuer einen Baum benoetigt wuerden
+                // ich bin connected und breake raus
                 // HIER UNTER UMSTAENDEN NOCH DEN COUNTER ERHOEHEN!!!
                 break;
             }
@@ -752,7 +753,7 @@ double TwoStageProblem::bruteforce() {
 
     int x,y,z;
 
-    // for every possible number of selectable edges (1,2,3,4,...,NodeCount-1) (if i select more than N-1 in the first stage, I could drop Edges and would still end up with a spanning tree)
+    // for every possible number of selectable edges (1,2,3,4,...,NodeCount-1) (if I select more than N-1 in the first stage, I could drop Edges and would still end up with a spanning tree)
     for (int i=1; i<nodes.size(); i++) {
 
         std::vector<int> p(edges.size() + 2);
@@ -884,11 +885,13 @@ UseExternGraphTwoStageMST::UseExternGraphTwoStageMST(const lemon::ListGraph & _g
     // ENDE ---
 
 
-    std::cout << "HIER KOMMEN DIE IDS intern!!!\n"; 
-    for(int i=0; i < _nodes.size(); i++) {
-        std::cout << g.id(nodes[i]) << std::endl;
-    }
-    std::cout << g.id(g.u(edges[0])) << " , " << g.id(g.v(edges[0])) << std::endl;
+    // ---  WAR ZUM TESTEN, OB DIE REIHENFOLGE NACH DEM KOPIEREN NOCH STIMMT (siehe Tex-Notizen 'Reihenfolge Node und Edges nach Kopieren')
+    // std::cout << "HIER KOMMEN DIE IDS intern!!!\n"; 
+    // for(int i=0; i < _nodes.size(); i++) {
+    //     std::cout << g.id(nodes[i]) << std::endl;
+    // }
+    // std::cout << g.id(g.u(edges[0])) << " , " << g.id(g.v(edges[0])) << std::endl;
+    // --- ENDE
 
     // jetzt noch die Gewichte uebernehmen          // KANN EIGENTLICH AUCH EINE KLEINE INTERNE FUNKTION WERDEN
     for (int i=0; i<first_stage_weights.size(); i++) {
@@ -905,3 +908,42 @@ UseExternGraphTwoStageMST::UseExternGraphTwoStageMST(const lemon::ListGraph & _g
 
 }
 
+// Methode, die true returned, falls das adden der Edge 'e' dazu fuehrt, dass es zusammen mit den edges, die in 'present_edges_map' true sind mindestens ein loop im Graphen gibt
+bool TwoStageProblem::edge_creates_loop(const lemon::ListGraph::EdgeMap<bool> & present_edges_map, const lemon::ListGraph::Edge & e) {
+
+    // mache breadth first search nach dem einen Knoten, den die Kante mit dem anderen verbinden wuerde
+
+    auto root_node = g.u(e);
+    auto goal_node = g.v(e);
+
+    std::queue<int> id_queue;
+    lemon::ListGraph::NodeMap<bool> visited_map(g, false);  // zeigt an, ob nodes in der Breitensuche schon besucht wurden
+    visited_map[root_node] = true;
+
+    while(!id_queue.empty()) {
+
+        // hole die letzte Node vom queue (einmal auslesen und danach pop, um sie von der queue zu nehmen, weil das nicht automatisch passiert)
+        auto n = g.nodeFromId(id_queue.front());
+        id_queue.pop();
+
+        // wenn die node mit goal_node uebereinstimmt bedeutet das, dass ich auch schon bisher zu der Node komme und damit ein loop bauen wuerde
+        if (n == goal_node) {
+            return true;
+        }
+
+        // jetzt die bisherigen Nachbarn der node n ermitteln
+        // nutze dafuer den IncEdgeIt, der ueber alle Edges geht, die von einer Node ausgehen
+        for (lemon::ListGraph::IncEdgeIt e(g, n); e != lemon::INVALID; ++e) {
+            // wenn die andere Node noch nicht markiert ist und die Kante in den present_edge_maps drin ist
+            // !!! HIER GEHE ICH UNNOETIG VIELE KANTEN DURCH, ABER ICH GLAUBE DASS DAS SCHNELLER IST, ALS EINEN SUBGRAPH ZU ERZEUGEN
+            if(!visited_map[g.oppositeNode(n, e)] && present_edges_map[e]) {
+                // node id zu queue adden
+                id_queue.push(g.id(n));
+                // node als besucht markieren
+                visited_map[n] = true;
+            }
+        }
+    }
+    // false, falls die goal_node nicht gefunden wurde, weil dann ist sie bisher nicht erreichbar und ich erzeuge keinen neuen Zyklus
+    return false;
+}

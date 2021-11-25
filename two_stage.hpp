@@ -194,6 +194,9 @@ public:
 
     // Funktion, die mir fuer eine gegebene bool-map die zu erwartenden Kosten ausrechnet
     double calculate_expected_from_bool_map(lemon::ListGraph::EdgeMap<bool> & bool_map);
+
+    // Methode, die true returned, falls das adden der Edge 'e' dazu fuehrt, dass es zusammen mit den edges, die in 'present_edges_map' true sind mindestens ein loop im Graphen gibt
+    bool edge_creates_loop(const lemon::ListGraph::EdgeMap<bool> & present_edges_map, const lemon::ListGraph::Edge & e);
 };
 
 class FullyConnectedTwoStageMST : public TwoStageProblem {
