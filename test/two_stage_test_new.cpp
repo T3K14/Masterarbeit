@@ -215,3 +215,99 @@ TEST(TwoStageSuite, Test7) {
     auto res = mst.bruteforce();
     ASSERT_NEAR(res, 2.9925, 0.00000001);
 }*/
+
+TEST(MethodTest, TestLoop) {
+
+    // soll die Methode edge_create_loop testen
+
+    ListGraph g;
+    const unsigned nodeNumber = 7;
+    std::vector<ListGraph::Node> nodes;
+    // std::array<ListGraph::Node, nodeNumber> nodes;
+
+    for(int i=0; i < nodeNumber; i++) {
+        nodes.push_back(g.addNode());
+    }
+
+    // std::array<ListGraph::Edge, 11> edges;
+    std::vector<ListGraph::Edge> edges;
+
+    edges.push_back(g.addEdge(nodes[0], nodes[1]));
+    edges.push_back(g.addEdge(nodes[0], nodes[3]));
+    edges.push_back(g.addEdge(nodes[1], nodes[3]));
+    edges.push_back(g.addEdge(nodes[1], nodes[2]));
+    edges.push_back(g.addEdge(nodes[1], nodes[4]));
+    edges.push_back(g.addEdge(nodes[2], nodes[4]));
+    edges.push_back(g.addEdge(nodes[3], nodes[4]));
+    edges.push_back(g.addEdge(nodes[3], nodes[5]));
+    edges.push_back(g.addEdge(nodes[4], nodes[5]));
+    edges.push_back(g.addEdge(nodes[4], nodes[6]));
+    edges.push_back(g.addEdge(nodes[5], nodes[6]));
+
+    std::vector<double> scenarioProbabilities {0.4, 0.6};
+    std::vector<double> firstStageWeights {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::vector<std::vector<double>> secondStageWeights {{{2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0}, {3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0}}};
+
+
+    UseExternGraphTwoStageMST mst(g, nodes, edges, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+    ListGraph::EdgeMap<bool> map(mst.g);
+
+    // nehme in dem Beispiel die oberen drei Knoten und davon 2 Kanten, so dass das adden der dritten ein loop erzeugen wuerde
+    map[mst.edges[0]] = true;
+    map[mst.edges[1]] = true;
+
+    bool res = mst.edge_creates_loop(map, mst.edges[2]);
+
+    ASSERT_TRUE(res);
+}
+
+TEST(MethodTest, TestLoop2) {
+
+    // soll die Methode edge_create_loop testen
+
+    ListGraph g;
+    const unsigned nodeNumber = 7;
+    std::vector<ListGraph::Node> nodes;
+    // std::array<ListGraph::Node, nodeNumber> nodes;
+
+    for(int i=0; i < nodeNumber; i++) {
+        nodes.push_back(g.addNode());
+    }
+
+    // std::array<ListGraph::Edge, 11> edges;
+    std::vector<ListGraph::Edge> edges;
+
+    edges.push_back(g.addEdge(nodes[0], nodes[1]));
+    edges.push_back(g.addEdge(nodes[0], nodes[3]));
+    edges.push_back(g.addEdge(nodes[1], nodes[3]));
+    edges.push_back(g.addEdge(nodes[1], nodes[2]));
+    edges.push_back(g.addEdge(nodes[1], nodes[4]));
+    edges.push_back(g.addEdge(nodes[2], nodes[4]));
+    edges.push_back(g.addEdge(nodes[3], nodes[4]));
+    edges.push_back(g.addEdge(nodes[3], nodes[5]));
+    edges.push_back(g.addEdge(nodes[4], nodes[5]));
+    edges.push_back(g.addEdge(nodes[4], nodes[6]));
+    edges.push_back(g.addEdge(nodes[5], nodes[6]));
+
+    std::vector<double> scenarioProbabilities {0.4, 0.6};
+    std::vector<double> firstStageWeights {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::vector<std::vector<double>> secondStageWeights {{{2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0}, {3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0}}};
+
+
+    UseExternGraphTwoStageMST mst(g, nodes, edges, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+    ListGraph::EdgeMap<bool> map(mst.g);
+
+    // nehme in dem Beispiel die oberen drei Knoten und davon 2 Kanten, so dass das adden der dritten ein loop erzeugen wuerde
+    map[mst.edges[0]] = true;
+    map[mst.edges[1]] = true;
+    map[mst.edges[4]] = true;
+    map[mst.edges[5]] = true;
+    map[mst.edges[9]] = true;
+    map[mst.edges[10]] = true;
+
+    bool res = mst.edge_creates_loop(map, mst.edges[7]);
+
+    ASSERT_FALSE(res);
+}

@@ -909,16 +909,19 @@ UseExternGraphTwoStageMST::UseExternGraphTwoStageMST(const lemon::ListGraph & _g
 }
 
 // Methode, die true returned, falls das adden der Edge 'e' dazu fuehrt, dass es zusammen mit den edges, die in 'present_edges_map' true sind mindestens ein loop im Graphen gibt
-bool TwoStageProblem::edge_creates_loop(const lemon::ListGraph::EdgeMap<bool> & present_edges_map, const lemon::ListGraph::Edge & e) {
+bool TwoStageProblem::edge_creates_loop(const lemon::ListGraph::EdgeMap<bool> & present_edges_map, const lemon::ListGraph::Edge & ed) {
 
     // mache breadth first search nach dem einen Knoten, den die Kante mit dem anderen verbinden wuerde
 
-    auto root_node = g.u(e);
-    auto goal_node = g.v(e);
+    // VLLT NOCH DEN FALL ABFANGEN, DASS DIE EDGE, DIE UEBERPRUEFT WERDEN SOLL BEREITS IN DER MAP MIT TRUE ANGEGEBEN IST
+
+    auto root_node = g.u(ed);
+    auto goal_node = g.v(ed);
 
     std::queue<int> id_queue;
     lemon::ListGraph::NodeMap<bool> visited_map(g, false);  // zeigt an, ob nodes in der Breitensuche schon besucht wurden
     visited_map[root_node] = true;
+    id_queue.push(g.id(root_node));
 
     while(!id_queue.empty()) {
 
@@ -936,11 +939,12 @@ bool TwoStageProblem::edge_creates_loop(const lemon::ListGraph::EdgeMap<bool> & 
         for (lemon::ListGraph::IncEdgeIt e(g, n); e != lemon::INVALID; ++e) {
             // wenn die andere Node noch nicht markiert ist und die Kante in den present_edge_maps drin ist
             // !!! HIER GEHE ICH UNNOETIG VIELE KANTEN DURCH, ABER ICH GLAUBE DASS DAS SCHNELLER IST, ALS EINEN SUBGRAPH ZU ERZEUGEN
-            if(!visited_map[g.oppositeNode(n, e)] && present_edges_map[e]) {
+            auto opp_node = g.oppositeNode(n, e);
+            if(!visited_map[opp_node] && present_edges_map[e]) {
                 // node id zu queue adden
-                id_queue.push(g.id(n));
+                id_queue.push(g.id(opp_node));
                 // node als besucht markieren
-                visited_map[n] = true;
+                visited_map[opp_node] = true;
             }
         }
     }
