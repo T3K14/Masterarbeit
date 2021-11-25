@@ -305,7 +305,7 @@ TEST(MethodTest, TestLoop2) {
     map[mst.edges[4]] = true;
     map[mst.edges[5]] = true;
     map[mst.edges[9]] = true;
-    map[mst.edges[10]] = true;
+    // map[mst.edges[10]] = true;
 
     bool res = mst.edge_creates_loop(map, mst.edges[7]);
 
