@@ -96,6 +96,10 @@ TEST(LPSuite, TrivialTest) {
 
         FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
+        // zum Vergleich die bruteforce Loesung
+        double opt_res = mst.bruteforce();
+        ASSERT_NEAR(.5, opt_res, 0.0000001);
+
         double res = solve_relaxed_lp(mst);
         mst.save_lp_result_map("lp_test_two_nodes");
 
@@ -145,6 +149,10 @@ TEST(LPSuite, Test2) {
 
         FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
+        // zum Vergleich die bruteforce Loesung
+        double opt_res = mst.bruteforce();
+        ASSERT_NEAR(1.5, opt_res, 0.0000001);
+
         double res = solve_relaxed_lp(mst);
         mst.save_lp_result_map("lp_test_three_nodes");
 
@@ -188,6 +196,10 @@ TEST(LPSuite, Test3) {
         std::vector<std::vector<double>> secondStageWeights {{{0.5, 1.0, 1.0}, {2.99, 1.5, 1.5}}};
 
         FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+        // zum Vergleich die bruteforce Loesung
+        double opt_res = mst.bruteforce();
+        ASSERT_NEAR(1.749, opt_res, 0.0000001);
 
         double res = solve_relaxed_lp(mst);
         mst.save_lp_result_map("lp_test_three_nodes2");
