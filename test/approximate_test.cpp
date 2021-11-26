@@ -199,7 +199,9 @@ TEST(LPSuite, Test3) {
 
         // zum Vergleich die bruteforce Loesung
         double opt_res = mst.bruteforce();
+        mst.save_bruteforce_first_stage_map("bruteforce_test_three_nodes2");
         ASSERT_NEAR(1.749, opt_res, 0.0000001);
+
 
         double res = solve_relaxed_lp(mst);
         mst.save_lp_result_map("lp_test_three_nodes2");
