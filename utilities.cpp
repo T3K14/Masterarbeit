@@ -426,3 +426,29 @@ int BinomialCoefficient(const int n, const int k) {
 
   return step1;
 }
+
+
+void update_c(std::vector<int> & c, const int & number_edges, const bool & stop) {
+
+    // falls ich einen Index hoeher als die Anzahl Kanten habe, entferne ich letzten Index und zaehle den vorherigen um 1 nach oben
+    // das ist auch unabhaengig von stop, weil das immer eine leafnode an dem tree ist
+    if (c.back() == number_edges-1) {
+        c.pop_back();
+
+        // falls c jetzt empty ist, bin ich fertig
+        if (c.empty()) {
+            return;
+        }
+
+        c.back()++;
+
+        return;
+    }
+
+    // wenn ich stop hab, dann gehe ich den subtree nicht tiefer, sondern nehme mir anstelle der letzten Kante die naechste
+    if (stop) {
+        c.back()++;
+    } else {                // wenn ich keinen stop habe, gehe ich den tree eine stufe tiefer und nehme mir die naechste Kante zusaetzlich dazu
+        c.push_back(c.back() + 1);
+    }
+}

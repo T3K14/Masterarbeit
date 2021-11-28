@@ -609,7 +609,7 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
                     continue;
                 }
                 
-                // beschreibe die connected_map, um das loop-Kriterium ueberpruefen zu koennen und fuer den subgraph, ob der Graph jetzt connected ist
+                // beschreibe die connected_map, um das loop-Kriterium ueberpruefen zu koennen und fuer den subgraph mit dem geschaut wird. ob der Graph jetzt connected ist
                 for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
                     connected_map[e] = approx_first_stage_map[e] || second_stage_edges[e][i];
                 }
@@ -947,6 +947,46 @@ double TwoStageProblem::check(const std::vector<int> & c, double & current_best,
 
     return sumEV;
 }
+
+double TwoStageProblem::bruteforce_new() {
+
+    // checke den Fall, dass ich keine Kante in der ersten Stage kaufe
+
+    // jetzt die anderen Auswahlmoeglichkeiten durchgehen
+
+    std::vector<int> c = {0};
+    int number_edges = edges.size();
+
+    // wenn nur noch die letzte Kante allein ausgewaehlt ist
+    while (c[0] != number_edges) {
+
+
+
+
+
+        // muss noch die letzte Auswahl mitnehmen
+        // also c erst hier updaten 
+        bool stop = true;
+        // c.back()++;
+        if (!stop) {
+            c.push_back(c.back() + 1);
+            // falls ich einen Index hoeher als die Anzahl Kanten habe, muss ich im Baum einen Schritt zurueck gehen
+            if (c.back() > number_edges) {
+                
+            }
+        }
+
+
+        // wenn die Stopbedingung erfuellt ist, kommt ein continue
+
+        
+    }
+    return 3.14;
+}
+
+
+
+
 
 // funktion macht nichts, muss aber ueberschrieben werden, weil die klasse sonst abstrakt bleibt
 void UseExternGraphTwoStageMST::initialise_graph() {}

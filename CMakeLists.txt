@@ -102,6 +102,9 @@ if(${Compile_Test_Code})
     add_executable(kruskal kruskal_test.cpp ${Sources} ${Headers})
     target_link_libraries(kruskal PUBLIC ${mylemon} two_stage)
 
+    add_executable(update_c_test update_c_test.cpp)
+    target_link_libraries(update_c_test PUBLIC two_stage)
+
 endif()
 
 
