@@ -950,36 +950,36 @@ double TwoStageProblem::check(const std::vector<int> & c, double & current_best,
 
 double TwoStageProblem::bruteforce_new() {
 
+    double current_min = 0.;
+
+    // used as temporary output map of the kruskal algorithm
+    lemon::ListGraph::EdgeMap<bool> output(g); 
+
     // checke den Fall, dass ich keine Kante in der ersten Stage kaufe
+    // loop over all scenarios
+    for (int i=0; i < numberScenarios; i++) {        // starte bei 0, weil ich hier nur die second_stage_vectors durchgehe und die haben die Laenge numberScenarios
+        // baue mir eine map, die fuer die Kanten nur die Kosten aus szenario i zurueck gibt
+        OneScenarioMap scenario_i_map(secondStageWeights, i);
+        auto weightedResult = secondStageProbabilities[i] * lemon::kruskal(g, scenario_i_map, output);
+        current_min += weightedResult;
+    }
 
     // jetzt die anderen Auswahlmoeglichkeiten durchgehen
 
     std::vector<int> c = {0};
     int number_edges = edges.size();
+    bool stop;
 
     // wenn nur noch die letzte Kante allein ausgewaehlt ist
     while (c[0] != number_edges) {
 
+        // check schaut sich die Edgeauswahl, die ueber c gegeben ist an, vergleicht
+        // das Ergebnis mit dem bisherigen Optimum und ersetzt das, falls diese Auswahl besser ist
+        // check gibt ausserdem zurueck, ob ich den folgenden Subtree ueberspringen kann
+        stop = check();
 
-
-
-
-        // muss noch die letzte Auswahl mitnehmen
-        // also c erst hier updaten 
-        bool stop = true;
-        // c.back()++;
-        if (!stop) {
-            c.push_back(c.back() + 1);
-            // falls ich einen Index hoeher als die Anzahl Kanten habe, muss ich im Baum einen Schritt zurueck gehen
-            if (c.back() > number_edges) {
-                
-            }
-        }
-
-
-        // wenn die Stopbedingung erfuellt ist, kommt ein continue
-
-        
+        // update c abhaengig von stop (stop=true, falls ich den subtree ueberspringen kann)
+        update_c(c, number_edges, stop);        
     }
     return 3.14;
 }
