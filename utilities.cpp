@@ -435,7 +435,7 @@ void update_c(std::vector<int> & c, const int & number_edges, const bool & stop)
     if (c.back() == number_edges-1) {
         c.pop_back();
 
-        // falls c jetzt empty ist, bin ich fertig
+        // falls c jetzt empty ist, bin ich komplett fertig
         if (c.empty()) {
             return;
         }

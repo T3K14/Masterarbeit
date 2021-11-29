@@ -951,6 +951,7 @@ double TwoStageProblem::check(const std::vector<int> & c, double & current_best,
 double TwoStageProblem::bruteforce_new() {
 
     double current_min = 0.;
+    unsigned int opt_counter;        // soll zaehlen, wenn es mehr als eine Loesung mit minimalen Kosten gibt
 
     // used as temporary output map of the kruskal algorithm
     lemon::ListGraph::EdgeMap<bool> output(g); 
@@ -976,15 +977,69 @@ double TwoStageProblem::bruteforce_new() {
         // check schaut sich die Edgeauswahl, die ueber c gegeben ist an, vergleicht
         // das Ergebnis mit dem bisherigen Optimum und ersetzt das, falls diese Auswahl besser ist
         // check gibt ausserdem zurueck, ob ich den folgenden Subtree ueberspringen kann
-        stop = check();
+        stop = check_new(c, current_min, output, opt_counter);
 
         // update c abhaengig von stop (stop=true, falls ich den subtree ueberspringen kann)
         update_c(c, number_edges, stop);        
     }
-    return 3.14;
+    return current_min;
 }
 
+bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter) {
+    
+    // teilsumme stage 1 berechnen (Hier kommt noch die andere Verbesserung dazu)
 
+    double sumEV = 0.;
+    for (int i : c) {
+        sumEV += firstStageWeights[edges[i]];
+    }
+
+    // bisher: Wenn die first stage Summe schon teurer ist, als das bisherige Optimum, kann ich den Subtree danach ueberspringen
+    if (sumEV > current_best) {
+        // true gibt an, dass ich eine Stopbedingung fuer den Subtree habe
+        return true;
+    }
+
+    // Wenn ich hierher komme, muss ich die Konfiguration komplett ueberpruefen 
+    // ausrechnen, welche Kosten diese Edgeauswahl in den szenarien im Mittel zur Folge hat
+    for(int i=0; i<numberScenarios; i++) {               
+        // erstmal map fuer nur das szenario
+        OneScenarioMap scenario_i_map(secondStageWeights, i);
+        
+        //setze die kosten von diesen Kanten in der map fuer phase 2 auf 0
+        SecondStageMap<OneScenarioMap> secondStageMap(scenario_i_map, edges, c);
+
+        // optimalen mst ausrechnen
+        double mst = lemon::kruskal(g, secondStageMap, output);
+
+        // Ergebnis mit Wahrscheinlichkeit gewichten und auf Teilsumme der ersten Stage aufaddieren
+        sumEV += secondStageProbabilities[i] * mst;
+    }
+
+    // Ergebnis mit bisherigem Optimum speichern, gegebenefalls counter erhoehen und neues bessere Ergebnis speichern, 
+
+    // ZU EPSILONVERGLEICH AENDERN
+    if (sumEV == current_best) {
+        opt_counter++;
+    } else if (sumEV < current_best) {
+        current_best = sumEV;
+        opt_counter = 1;
+        // gehe ueber alle Kanten und setze die auf 1, die in c drin stehen
+        for (auto & e : edges) {
+            bruteforce_first_stage_map[e] = false;
+        }
+
+        // ich will die Kanten, DEREN INDEX IN C DRIN STEHT UND NICHT DIE ERSTEN c KANTEN AUS edges
+        for (int j: c) {
+
+            bruteforce_first_stage_map[edges[j]] = true;
+        }
+    }
+
+    // wenn ich bis hier komme (egal, ob neues Optimum oder nicht), bedeutet das, dass meine Stopbedingung nicht erfuellt wurde
+    // und ich returne false, damit im Subtree weiter gesucht werden kann
+    return false;
+}
 
 
 

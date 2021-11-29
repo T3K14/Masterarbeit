@@ -40,7 +40,7 @@ TEST(TwoStageSuite, Test2) {
 
     UseExternGraphTwoStageMST mst(g, nodes, edges, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-    auto res = mst.bruteforce();
+    auto res = mst.bruteforce(); //_new
 
     // convert to int
     res = res + 0.5;
