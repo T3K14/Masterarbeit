@@ -40,7 +40,7 @@ TEST(TwoStageSuite, Test2) {
 
     UseExternGraphTwoStageMST mst(g, nodes, edges, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-    auto res = mst.bruteforce(); //_new
+    auto res = mst.bruteforce_new(); //_new
 
     // convert to int
     res = res + 0.5;
@@ -80,7 +80,7 @@ TEST(TwoStageSuite, Test3) {
     std::vector<std::vector<double>> secondStageWeights {{{.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5}, {.4, .4, .4, .4, .4, .4, .4, .4, .4, .4, .4}}};
 
     UseExternGraphTwoStageMST mst(g, nodes, edges, firstStageWeights, secondStageWeights, scenarioProbabilities);
-    auto res = mst.bruteforce();
+    auto res = mst.bruteforce_new();
     ASSERT_NEAR(res, 2.64, 0.00000001);
 }
 
@@ -115,7 +115,7 @@ TEST(TwoStageSuite, Test4) {
     std::vector<std::vector<double>> secondStageWeights {{{.8, 1.5, 3.5, .5, .4, 2.8, 1.5, .8, 17.5, 8.5, 2.7}, {10.4, 8.0, .4, .4, 3.4, 14.4, 2.7, .2, 1.4, 2.4, 3.4}}};
 
     UseExternGraphTwoStageMST mst(g, nodes, edges, firstStageWeights, secondStageWeights, scenarioProbabilities);
-    auto res = mst.bruteforce();
+    auto res = mst.bruteforce_new();
     ASSERT_NEAR(res, 2.8, 0.00000001);
 }
 
@@ -144,7 +144,7 @@ TEST(TwoStageSuite, Test5) {
     std::vector<std::vector<double>> secondStageWeights {{{1.5, 1.5, 1.5, 1.5, 1.5, 1.5}, {1.5, 1.5, 1., 2., 1.5, 1.5}}};
 
     UseExternGraphTwoStageMST mst(g, nodes, edges, firstStageWeights, secondStageWeights, scenarioProbabilities);
-    auto res = mst.bruteforce();
+    auto res = mst.bruteforce_new();
     ASSERT_NEAR(res, 3, 0.00000001);
 }
 
@@ -160,7 +160,7 @@ TEST(TwoStageSuite, Test5b) {
 
     FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-    auto res = mst.bruteforce();
+    auto res = mst.bruteforce_new();
     ASSERT_NEAR(res, 3, 0.00000001);
 }
 
@@ -175,7 +175,7 @@ TEST(TwoStageSuite, Test6) {
 
     FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-    auto res = mst.bruteforce();
+    auto res = mst.bruteforce_new();
     ASSERT_NEAR(res, 2.2, 0.00000001);
     auto res2 = mst.calculate_expected_from_bool_map(mst.bruteforce_first_stage_map);
     std::cout << "die calculate_expected_from_bool_map-methode gibt das zurueck: " << res2 << std::endl;
@@ -192,7 +192,7 @@ TEST(TwoStageSuite, Test7) {
 
     FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-    auto res = mst.bruteforce();
+    auto res = mst.bruteforce_new();
     ASSERT_NEAR(res, 2.9925, 0.00000001);
 
     // teste hier mal noch die calculate_expected_from_bool_map-Funktion
@@ -312,6 +312,7 @@ TEST(MethodTest, TestLoop2) {
 }
 
 TEST(TwoStageSuite, Test_NEW) {
+    // ist der selbe Test, wie Test7
 
     unsigned int numberNodes = 4;
 
