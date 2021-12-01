@@ -428,7 +428,9 @@ int BinomialCoefficient(const int n, const int k) {
 }
 
 
-void update_c(std::vector<int> & c, const int & number_edges, const bool & stop) {
+void update_c(std::vector<int> & c, const int & number_edges, const int & number_nodes, const bool & stop) {
+    // update_c wird am Ende des loops ausgefuert, also ist es so, dass wenn diese Funktion aufgerufen wird, das c, was hier uebergeben wird bereits gecheckt wurde 
+    // und nun das naechste ausgerechnen werden muss
 
     // falls ich einen Index hoeher als die Anzahl Kanten habe, entferne ich letzten Index und zaehle den vorherigen um 1 nach oben
     // das ist auch unabhaengig von stop, weil das immer eine leafnode an dem tree ist
@@ -442,6 +444,13 @@ void update_c(std::vector<int> & c, const int & number_edges, const bool & stop)
 
         c.back()++;
 
+        return;
+    }
+
+    // wenn ich hierher komme und die Laenge von c = N-1 ist, dann weiss ich, das hinten noch nicht der letzte Kantenindex steht und kann einfach den letzten Index in c
+    // nach oben zaehlen und returnen, weil ich unabhaengig von stop eine leaf node im Suchbaum erreicht habe
+    if (c.size() == number_nodes - 1) {
+        c.back()++;
         return;
     }
 

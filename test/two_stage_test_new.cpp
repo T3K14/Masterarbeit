@@ -311,3 +311,16 @@ TEST(MethodTest, TestLoop2) {
     ASSERT_FALSE(res);
 }
 
+TEST(TwoStageSuite, Test_NEW) {
+
+    unsigned int numberNodes = 4;
+
+    std::vector<double> scenarioProbabilities {0.397, 0.039, 0.564};
+    std::vector<double> firstStageWeights {1.7, .9, 8.4, 4.1, 5.8, 4.1};
+    std::vector<std::vector<double>> secondStageWeights {{{3.7, 2.9, 3., 2., .4, 2.1}, {7.3, 5.6, 5.9, 10., 3.1, 7.8}, {9.4, 5.1, 7.6, 6.7, .2, 4.6}}};
+
+    FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+    auto res = mst.bruteforce_new();
+    ASSERT_NEAR(res, 2.9925, 0.00000001);
+}

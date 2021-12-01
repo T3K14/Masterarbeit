@@ -969,10 +969,11 @@ double TwoStageProblem::bruteforce_new() {
 
     std::vector<int> c = {0};
     int number_edges = edges.size();
+    int number_nodes = nodes.size();
     bool stop;
 
     // wenn nur noch die letzte Kante allein ausgewaehlt ist
-    while (c[0] != number_edges) {
+    while (!c.empty()) {
 
         // check schaut sich die Edgeauswahl, die ueber c gegeben ist an, vergleicht
         // das Ergebnis mit dem bisherigen Optimum und ersetzt das, falls diese Auswahl besser ist
@@ -980,7 +981,7 @@ double TwoStageProblem::bruteforce_new() {
         stop = check_new(c, current_min, output, opt_counter);
 
         // update c abhaengig von stop (stop=true, falls ich den subtree ueberspringen kann)
-        update_c(c, number_edges, stop);        
+        update_c(c, number_edges, number_nodes, stop);        
     }
     return current_min;
 }
