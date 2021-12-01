@@ -42,7 +42,7 @@ int main() {
         secondStageWeights.push_back(v);
     } 
 
-    FullyConnectedTwoStageMST mst(50, firstStageWeights, secondStageWeights, scenarioProbabilities);
+    FullyConnectedTwoStageMST mst(20, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
     // auto res = bruteForceEnumeration(mst.g, mst.firstStageWeights, mst.secondStageProbabilities, mst.secondStageWeights);
     auto res = mst.bruteforce_new();
