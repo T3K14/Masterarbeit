@@ -2,6 +2,8 @@
 #include <random>
 #include <vector>
 #include <lemon/list_graph.h>
+
+// berechnet mir fuer n gegebene Szenarien Wahrscheinlichkeiten, die sich (fast exakt) zu 1 auf addieren
 std::vector<double> calcScenarioProbabilities(size_t n, std::mt19937 & rng);
 
 // void writeGraphToLGF(const lemon::ListGraph & g);    // brauche ich gar nicht unbedingt, da ich die maps auch uebergeben muesste und das nicht wirklich Schreibaufwand spart
