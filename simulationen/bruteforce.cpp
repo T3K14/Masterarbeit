@@ -22,27 +22,31 @@ int main() {
     // FullyConnectedTwoStageMST mst(10, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
 
-    // --- vierte Simulation: 20 Knoten fully connected (entspricht 190 Kanten) mit 10 Szenarien und Kantenggewichten random zwischen 0 und 10
+    // --- vierte Simulation: 12 Knoten fully connected (entspricht 66 Kanten) mit 5 Szenarien und Kantenggewichten random zwischen 0 und 10
 
-    auto scenarioProbabilities = calcScenarioProbabilities(10, rng);
+    int number_nodes = 12;
+    int number_edges = 66;
+    int number_scenarios = 5;
+
+    auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
     std::uniform_real_distribution<double> dist(0., 10.);                
 
     std::vector<double> firstStageWeights;
 
-    for (int i=0; i<190; i++) {
+    for (int i=0; i<number_edges; i++) {
         firstStageWeights.push_back(dist(rng));
     }
 
     std::vector<std::vector<double>> secondStageWeights;
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<number_scenarios; i++) {
         std::vector<double> v;
-        for (int j=0; j<190; j++) {
+        for (int j=0; j<number_edges; j++) {
             v.push_back(dist(rng));
         }
         secondStageWeights.push_back(v);
     } 
 
-    FullyConnectedTwoStageMST mst(20, firstStageWeights, secondStageWeights, scenarioProbabilities);
+    FullyConnectedTwoStageMST mst(number_nodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
     // auto res = bruteForceEnumeration(mst.g, mst.firstStageWeights, mst.secondStageProbabilities, mst.secondStageWeights);
     auto res = mst.bruteforce_new();
