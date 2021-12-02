@@ -24,17 +24,47 @@ int main() {
 
     // --- vierte Simulation: 12 Knoten fully connected (entspricht 66 Kanten) mit 5 Szenarien und Kantenggewichten random zwischen 0 und 10
 
-    int number_nodes = 15;
-    int number_edges = 105;
+    // int number_nodes = 15;
+    // int number_edges = 105;
+    // int number_scenarios = 5;
+
+    // auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
+    // std::uniform_real_distribution<double> dist(0., 10.);                
+
+    // std::vector<double> firstStageWeights;
+
+    // for (int i=0; i<number_edges; i++) {
+    //     firstStageWeights.push_back(dist(rng));
+    // }
+
+    // std::vector<std::vector<double>> secondStageWeights;
+    // for (int i=0; i<number_scenarios; i++) {
+    //     std::vector<double> v;
+    //     for (int j=0; j<number_edges; j++) {
+    //         v.push_back(dist(rng));
+    //     }
+    //     secondStageWeights.push_back(v);
+    // } 
+
+    // FullyConnectedTwoStageMST mst(number_nodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+    // --- fuenfte Simulation 100 Knoten, fully connected (4950 Kanten) mit 5 Szenarien mit Kantengewichten random zwischen 2 und 10, ABER: DIE ERSTEN KANTEN SIND IN STAGE 1 billger als alle anderen
+
+    int number_nodes = 100;
+    int number_edges = 4950;
     int number_scenarios = 5;
 
     auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
-    std::uniform_real_distribution<double> dist(0., 10.);                
+    std::uniform_real_distribution<double> dist(2., 10.);                
 
     std::vector<double> firstStageWeights;
 
     for (int i=0; i<number_edges; i++) {
         firstStageWeights.push_back(dist(rng));
+    }
+
+    for (int i=0; i<10; i++) {
+        firstStageWeights[i] = 0.1;
     }
 
     std::vector<std::vector<double>> secondStageWeights;
@@ -50,7 +80,7 @@ int main() {
 
     // auto res = bruteForceEnumeration(mst.g, mst.firstStageWeights, mst.secondStageProbabilities, mst.secondStageWeights);
     auto res = mst.bruteforce_new();
-    mst.save_bruteforce_first_stage_map("bruteforce_vierte_simulation");
+    mst.save_bruteforce_first_stage_map("bruteforce_fuenfte_simulation");
 
     double expected_costs = mst.calculate_expected_from_bool_map(mst.bruteforce_first_stage_map);
     std::cout << "Mit dieser Auswahl hat man Gesamterwartungskosten von : " << expected_costs << std::endl;
