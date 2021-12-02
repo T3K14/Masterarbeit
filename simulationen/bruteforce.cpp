@@ -24,8 +24,8 @@ int main() {
 
     // --- vierte Simulation: 12 Knoten fully connected (entspricht 66 Kanten) mit 5 Szenarien und Kantenggewichten random zwischen 0 und 10
 
-    int number_nodes = 12;
-    int number_edges = 66;
+    int number_nodes = 15;
+    int number_edges = 105;
     int number_scenarios = 5;
 
     auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);

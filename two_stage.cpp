@@ -1002,18 +1002,18 @@ bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_bes
     }
 
     // jetzt schau ich nach, ob die neuste Kante einen zyklus verursacht
-    // if (c.size() > 2) {
-    //     lemon::ListGraph::EdgeMap<bool> m(g, false);
-    //     for (const int & i : c) {
-    //         m[edges[i]] = true;
-    //     }
-    //     // letze edge wieder false setzen, weil ich ja schauen, will, ob diese edge zu einem zyklus fuehrt
-    //     m[edges[c.back()]] = false;
+    if (c.size() > 2) {
+        lemon::ListGraph::EdgeMap<bool> m(g, false);
+        for (const int & i : c) {
+            m[edges[i]] = true;
+        }
+        // letze edge wieder false setzen, weil ich ja schauen, will, ob diese edge zu einem zyklus fuehrt
+        m[edges[c.back()]] = false;
 
-    //     if (edge_creates_loop(m, edges[c.back()])) {
-    //         return true;
-    //     }
-    // }
+        if (edge_creates_loop(m, edges[c.back()])) {
+            return true;
+        }
+    }
 
     // Wenn ich hierher komme, muss ich die Konfiguration komplett ueberpruefen 
     // ausrechnen, welche Kosten diese Edgeauswahl in den szenarien im Mittel zur Folge hat
