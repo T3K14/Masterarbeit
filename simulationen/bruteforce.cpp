@@ -55,7 +55,7 @@ int main() {
     int number_scenarios = 5;
 
     auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
-    std::uniform_real_distribution<double> dist(2., 10.);                
+    std::uniform_real_distribution<double> dist(90., 100.);                
 
     std::vector<double> firstStageWeights;
 
@@ -63,7 +63,7 @@ int main() {
         firstStageWeights.push_back(dist(rng));
     }
 
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<50; i++) {
         firstStageWeights[i] = 0.1;
     }
 
@@ -80,7 +80,7 @@ int main() {
 
     // auto res = bruteForceEnumeration(mst.g, mst.firstStageWeights, mst.secondStageProbabilities, mst.secondStageWeights);
     auto res = mst.bruteforce_new();
-    mst.save_bruteforce_first_stage_map("bruteforce_fuenfte_simulation");
+    mst.save_bruteforce_first_stage_map("bruteforce_fuenfte_simulation2");
 
     double expected_costs = mst.calculate_expected_from_bool_map(mst.bruteforce_first_stage_map);
     std::cout << "Mit dieser Auswahl hat man Gesamterwartungskosten von : " << expected_costs << std::endl;
