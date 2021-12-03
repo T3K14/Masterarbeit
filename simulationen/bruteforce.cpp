@@ -60,7 +60,7 @@ int main() {
     std::vector<double> firstStageWeights;
 
     for (int i=0; i<number_edges; i++) {
-        firstStageWeights.push_back(dist(rng));
+        firstStageWeights.push_back(dist(rng) + 50);
     }
 
     for (int i=0; i<50; i++) {
