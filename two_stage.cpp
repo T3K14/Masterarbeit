@@ -7,6 +7,9 @@
 #include <array>
 #include <queue>
 
+#include <iostream>
+#include <fstream>
+
 #include <lemon/connectivity.h>
 #include <lemon/adaptors.h>
 #include <lemon/core.h>
@@ -1049,6 +1052,21 @@ bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_bes
 
             bruteforce_first_stage_map[edges[j]] = true;
         }
+
+        // --- zum Testen soll hier eine Ausgabe der besten Loesungen stattfinden
+
+        std::string filepath = R"(/gss/work/xees8992/output_bruteforce.txt)";
+        std::ofstream outFile(filepath, std::ios_base::app);
+
+        if (outFile.is_open()) {
+            outFile << current_best << "\n";
+            outFile.close();
+        }
+        else {
+            std::cout << "Error beim Fileoeffnen\n";
+        }
+        // ENDE ---
+
     }
 
     // wenn ich bis hier komme (egal, ob neues Optimum oder nicht), bedeutet das, dass meine Stopbedingung nicht erfuellt wurde

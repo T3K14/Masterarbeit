@@ -55,7 +55,7 @@ int main() {
     int number_scenarios = 5;
 
     auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
-    std::uniform_real_distribution<double> dist(90., 100.);                
+    std::uniform_real_distribution<double> dist(1., 2.);                
 
     std::vector<double> firstStageWeights;
 
