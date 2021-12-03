@@ -998,11 +998,15 @@ bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_bes
         sumEV += firstStageWeights[edges[i]];
     }
 
+    /*
+
     // bisher: Wenn die first stage Summe schon teurer ist, als das bisherige Optimum, kann ich den Subtree danach ueberspringen
     if (sumEV > current_best) {
         // true gibt an, dass ich eine Stopbedingung fuer den Subtree habe
         return true;
     }
+
+    */
 
     // jetzt schau ich nach, ob die neuste Kante einen zyklus verursacht
     if (c.size() > 2) {
@@ -1055,16 +1059,16 @@ bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_bes
 
         // --- zum Testen soll hier eine Ausgabe der besten Loesungen stattfinden
 
-        std::string filepath = R"(/gss/work/xees8992/output_bruteforce.txt)";
-        std::ofstream outFile(filepath, std::ios_base::app);
+        // std::string filepath = R"(/gss/work/xees8992/output_bruteforce.txt)";
+        // std::ofstream outFile(filepath, std::ios_base::app);
 
-        if (outFile.is_open()) {
-            outFile << current_best << "\n";
-            outFile.close();
-        }
-        else {
-            std::cout << "Error beim Fileoeffnen\n";
-        }
+        // if (outFile.is_open()) {
+        //     outFile << current_best << "\n";
+        //     outFile.close();
+        // }
+        // else {
+        //     std::cout << "Error beim Fileoeffnen\n";
+        // }
         // ENDE ---
 
     }
