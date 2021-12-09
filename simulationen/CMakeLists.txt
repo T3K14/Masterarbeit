@@ -9,6 +9,15 @@ target_link_libraries(erste_approx PUBLIC
     gurobi_c++	
     gurobi91
 )
+
+add_executable(approx_long approx+long.cpp)
+target_link_libraries(approx_long PUBLIC
+    two_stage
+    two_stage_gurobi
+    gurobi_c++	
+    gurobi91
+)
+
 endif()
 
 add_executable(erste_bruteforce bruteforce.cpp)
