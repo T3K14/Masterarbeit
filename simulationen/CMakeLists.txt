@@ -10,7 +10,7 @@ target_link_libraries(erste_approx PUBLIC
     gurobi91
 )
 
-add_executable(approx_long approx+long.cpp)
+add_executable(approx_long approx_long.cpp)
 target_link_libraries(approx_long PUBLIC
     two_stage
     two_stage_gurobi
