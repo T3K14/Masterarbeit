@@ -998,16 +998,13 @@ bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_bes
         sumEV += firstStageWeights[edges[i]];
     }
 
-    /*
-
     // bisher: Wenn die first stage Summe schon teurer ist, als das bisherige Optimum, kann ich den Subtree danach ueberspringen
     if (sumEV > current_best) {
         // true gibt an, dass ich eine Stopbedingung fuer den Subtree habe
         return true;
     }
 
-    */
-
+    /* DAS HAT MEHR ZEIT GEBRAUCHT, ALS ES ERSPART HAT, ZUMINDEST BEI FULLY CONNECTED MIT 10 KNOTEN
     // jetzt schau ich nach, ob die neuste Kante einen zyklus verursacht
     if (c.size() > 2) {
         lemon::ListGraph::EdgeMap<bool> m(g, false);
@@ -1021,6 +1018,7 @@ bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_bes
             return true;
         }
     }
+    */
 
     // Wenn ich hierher komme, muss ich die Konfiguration komplett ueberpruefen 
     // ausrechnen, welche Kosten diese Edgeauswahl in den szenarien im Mittel zur Folge hat
