@@ -38,13 +38,15 @@ int main() {
         FullyConnectedTwoStageMST mst(number_nodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
         double res = solve_relaxed_lp(mst);
-        mst.save_lp_result_map("lp_long");
+        // mst.save_lp_result_map("lp_long");
+
+        std::cout << "Ich komme bis zur Ausgabe des Ergebnisses des LP-Algorithmus\n" << std::endl;
 
         mst.approximate(rng);
-        mst.save_approx_result_map("approx_long");
+        // mst.save_approx_result_map("approx_long");
 
-        double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
-        std::cout << "Mit dieser Auswahl hat man Gesamterwartungskosten von : " << expected_costs << std::endl;
+        // double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
+        // std::cout << "Mit dieser Auswahl hat man Gesamterwartungskosten von : " << expected_costs << std::endl;
 
         // //output, zum Vergleichen
         // std::cout << expected_costs << std::endl;

@@ -7,8 +7,6 @@
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
 double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
-
-
     // DEBUG
 
     // std::cout << "pkt 1 in Funktion\n";
@@ -24,7 +22,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
 
     GRBModel model = GRBModel(env);
 
-    // jeder Kante wird ein Array von doubles zugeordnet
+    // jeder Kante wird ein Array von GurobiVariablen zugeordnet
     lemon::ListGraph::EdgeMap<GRBVar *> gurobi_variables_map(two_stage_problem.g);
 
     // das wird die objective function 
@@ -33,7 +31,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     // ich tue so, als haette ich die edges nicht zwangsweise selbst in einem array sondern nutze den lemon edge iterator
     for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
         
-        // jede Kante bekommt array mit Variablen fuer alle Szenarios (+1 fuer die erste Stage)
+        // jede Kante bekommt array mit Variablen fuer alle Szenarien (+1 fuer die erste Stage)
         gurobi_variables_map[e] = model.addVars(two_stage_problem.numberScenarios + 1, GRB_CONTINUOUS);               // werden unten gefreet
 
         // und ich kann gleich schon die objektive function mit aufbauen
@@ -74,7 +72,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
         // map der capacities (wird fuer jedes szenario neu beschrieben), brauche ich fuer den HaoOrlin-Algorithmus
         lemon::ListGraph::EdgeMap<double> capacity_map(two_stage_problem.g);
 
-        // map in der angegeben wird, welche Knoten in dereinen MinCut-Teilmenge drin sind, output des HaoOrlin-Algorithmus, aus dem ich dann die Kanten bestimmen kann, die die Cut-
+        // map in der angegeben wird, welche Knoten in der einen MinCut-Teilmenge drin sind, output des HaoOrlin-Algorithmus, aus dem ich dann die Kanten bestimmen kann, die die Cut-
         // Teilmengen verbinden
         lemon::ListGraph::NodeMap<bool> min_cut_result_map(two_stage_problem.g);
 
@@ -123,6 +121,8 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
             } 
 
         }
+        // hier hab ich entweder alle szenarien durch und nicht gebreakt, was bedeutet, dass alle min-cut-values >= 1 sind oder ich bin entweder aus dem for-loop rausgebreakt, also
+        // muss ich nochmal checken, ob auch der letzte Wert >= 1 ist, weil wenn nicht, muss ich neu mit der neuen Bed. optimieren
 
         // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
         if(min_cut_value >= 1) {
@@ -138,12 +138,12 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     // std::cout<< a[0] << std::endl;
     // std::cout << a[1] << std::endl;
     // std::cout << "Anzahl an Szenarios hier:" << std::endl;
-
     // ENDE DEBUGGING!!
+
     double res = model.get(GRB_DoubleAttr_ObjVal);              // res ist der Wert der objective function
     //double res = obj.getValue();
     
-// ich schreibe nun in die uebergebene EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
+    // ich schreibe nun in die uebergebene EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
     for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
 
         // std::copy_n(model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), two_stage_problem.lp_results_map[e].size(), two_stage_problem.lp_results_map[e].begin());
@@ -165,6 +165,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
     //vielleicht brauche ich auch gar nicht die Variablen zurueckgeben, sondern nur deren Werte
 
     // return gurobi_variables_map;
+
     return res;
 }
 
