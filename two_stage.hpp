@@ -137,7 +137,7 @@ public:
 // von der Klasse koennen spaeter subclasses erben, bei denen klar ist, wie der Graph und die Maps dazu intern erstellt werden sollen
 class TwoStageProblem {
 
-    virtual void initialise_graph() = 0;
+    virtual void initialise_graph();
 
 // sollte spaeter lieber protected sein
 public:
@@ -165,9 +165,17 @@ public:
     lemon::ListGraph::EdgeMap<bool> bruteforce_first_stage_map;
 
 public:
+
+
+
     // constructor (ist da, damit ich die ganzen member bekomme?)
     TwoStageProblem(std::vector<double> & second_stage_probabilites);
-    // TwoStageProblem() = delete;    
+    
+    // den default constructor ueberlade ich so, dass er den ersten constructor mit vec<double> & aufruft, mit einem leeren Vektor
+    TwoStageProblem();    
+    
+    
+    
     virtual ~TwoStageProblem() = default;
 
     // formuliert das relaxed LP Problem, loesst es und speichert die Ergebnisse in 'result_optimized_values_map'

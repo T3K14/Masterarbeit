@@ -646,6 +646,12 @@ TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites
 
     }
 
+// --- hier schreibe ich jetzt so an der Klasse rum, dass ich sie default constructen kann, damit sie als Member in der Ensemble Klasse konstruiert werden kann.
+TwoStageProblem::TwoStageProblem() : TwoStageProblem(std::vector<double>()) {}
+
+void TwoStageProblem::initialise_graph() {};
+// ENDE ---
+
 void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluster, bool work) {
     if (on_cluster) {
 
