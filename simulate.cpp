@@ -9,7 +9,7 @@
 // zum testen
 #include <chrono>
 #include <thread>
-using namespace std::chrono_literals;
+// using namespace std::chrono_literals;
 
 using namespace lemon;
 
@@ -187,7 +187,7 @@ int main() {
     tree.save_current_graph("tree");
 
 
-    std::this_thread::sleep_for(2000ms);
+    // std::this_thread::sleep_for(2000ms);
 
 
     auto t2 = std::chrono::high_resolution_clock::now();
