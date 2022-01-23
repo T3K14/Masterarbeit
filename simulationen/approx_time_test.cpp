@@ -29,7 +29,7 @@ int main(int argc, char * argv[]) {
 
     int number_edges = BinomialCoefficient(number_nodes, 2);
 
-    std::string directory = argv[3];
+    std::string directory(argv[3]);
 
     // hier drin speichere ich pro run die Anzahl der hinzugefuegten Bedingungen
     std::vector<unsigned long> counters;
