@@ -21,6 +21,9 @@ target_link_libraries(approx_long PUBLIC
 add_executable(approx_test approx_time_test.cpp)
 target_link_libraries(approx_test PUBLIC
 two_stage
+two_stage_gurobi
+gurobi_c++	
+gurobi91
 )
 
 endif()
