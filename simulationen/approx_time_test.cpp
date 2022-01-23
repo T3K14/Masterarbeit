@@ -4,6 +4,9 @@
 #include "../two_stage.hpp"
 #include "../utilities.hpp"
 
+#include <iostream>
+#include <fstream>
+
 using namespace std;
 
 int main(int argc, char * argv[]) {
@@ -44,6 +47,9 @@ int main(int argc, char * argv[]) {
         for (int i=0; i<iterations; i++) {
         
             unsigned long counter = 0;
+            std::chrono::seconds setup_zeit;
+            std::chrono::seconds loop_zeit;
+
             std::vector<std::chrono::milliseconds> opt_times;
 
             // std::vector<double> scenarioProbabilities {0.2, 0.3, 0.5};
@@ -87,6 +93,10 @@ int main(int argc, char * argv[]) {
 
             // //output, zum Vergleichen
             // std::cout << expected_costs << std::endl;
+
+
+            // alles abspeichern
+            std::cout << "Es gab im ersten Run so viele Bedingungen: " << counters[0] << "\n";
 
         }
 
