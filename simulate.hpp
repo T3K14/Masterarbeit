@@ -29,12 +29,15 @@ public:
     Ensemble(unsigned int number_nodes);
 
     // soll das Ensemble neu aufsetzen, zB. einen neuen Baum erzeugen und neue Kosten
-    virtual void recreate() = 0;        // erstmal 0, weil ich ein ensemble nicht selbst initialisiern koennen moechte, nur trees, fully connected etc
+    // virtual void recreate() = 0;        // mache ich in den childklassen individuell
 
     double approx();
     double bruteforce();
     double do4b();
     double greedy();
+
+    // speichert mir den aktuellen graphen des twostageproblems
+    virtual void save_current_graph(std::string name);
 
 };
 
@@ -53,7 +56,7 @@ class NewEdgeCostCreator {
 class Tree : public Ensemble {
 
 public:
-    Tree(unsigned int number_nodes,std::mt19937 & rng);
+    Tree(unsigned int number_nodes, std::mt19937 & rng);
 
     virtual ~Tree() = default;
     // virtual void recreate() override;               // was passiert mit dieser methode???, wird die versteckt?
@@ -68,7 +71,7 @@ class FullyConnected : public Ensemble {
     public:
     FullyConnected(unsigned int number_nodes);
     virtual ~FullyConnected() = default;
-    virtual void recreate() override;
+    virtual void recreate();
 
 };
 

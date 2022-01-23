@@ -182,6 +182,11 @@ public:
     //friend void solve_relaxed_lp(lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map);
     friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem); //, lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map);
 
+    // nur zum zeit testen:
+    friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem); //, lemon::ListGraph::EdgeMap<std::vector<double>> & result_optimized_values_map);
+
+
+
     // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer 
     // in der ersten Stage zu kaufende Kanten speichert
     // void approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????

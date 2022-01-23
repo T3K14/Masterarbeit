@@ -4,20 +4,24 @@
 #include <algorithm>
 #include <iostream>
 
+#include <chrono>
+
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
-double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
+double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<std::chrono::milliseconds> & opti_times) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
-    // DEBUG
+    auto t_start_setup = std::chrono::high_resolution_clock::now();
 
+
+    /* DEBUG
     // std::cout << "pkt 1 in Funktion\n";
     // auto eddy = two_stage_problem.g.edgeFromId(0);
 
     // std::cout << "prob:" << two_stage_problem.secondStageProbabilities[0] << "\n";
     // std::cout << "first:" << two_stage_problem.firstStageWeights[eddy] << "\n";
     // std::cout << "second:" << two_stage_problem.secondStageWeights[eddy][0] << "\n";
+    ENDE DEBUG */
 
-    // ENDE DEBUG
-
+    // Setup: jede Kante bekommt ein Array von Gurobi-Variablen, eine fuer Stage 1 und jeweils eine fuer jedes Szenario in Stage 2
     GRBEnv env = GRBEnv();
 
     GRBModel model = GRBModel(env);
@@ -45,19 +49,55 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
         }
     }
 
-    // DEBUG
+    /* DEBUG
     // std::cout << "Pkt 2 in Funktion\n";
     // std::cout << obj.size() << std::endl; 
     // std::cout << obj.getCoeff(0) << ", und " << obj.getCoeff(1) << std::endl;
-
-    // ENDE DEBUG
+    ENDE DEBUG */
 
     model.setObjective(obj, GRB_MINIMIZE);
+
+
+    // Ende vom Setup
+
+    // TIMER bis hierhin und ab hier timen und Iterationen zaehlen
+
+    auto t_end_setup = std::chrono::high_resolution_clock::now();
+    setup_zeit = std::chrono::duration_cast<std::chrono::seconds>(t_end_setup - t_start_setup);
+
+    //std::cout << "Setup-Zeit: " << setup_int.count() << "s\n";
+
+    auto t_start_loop = std::chrono::high_resolution_clock::now();
+
+
+    // unsigned long counter = 0;
+
+    // vector, in den ich die Zeiten reinpacke, wie lange es gedauert hat, einmal zu optimieren.
+    //std::vector<std::chrono::milliseconds> opti_times;
+
+    // ENDE TIMER
 
     // jetzt so lange Cut-Constraints hinzufuegen, bis die Bedingungen immer erfuellt sind 
     while(true) {
 
+        // COUNTER zum zaehlen, wie viele Iterationen hier benoetigt werden
+        counter++;
+        // wenn der counter zu groess wird, dann muss ich aufpassen, dass kein overvlow stattfindet
+
+        if (counter > 18446744073709551613) {       // diese Zahl +2 ist die obere Grenze vom 8 byte unsigned long
+            std::cout << "ACHTUNG: integer Overflow findet statt!\n";
+        }
+        // ENDE COUNTER
+
+
+        // will auch tracken, wie lange die optimierungsschritte dauern
+        auto t_start_opt = std::chrono::high_resolution_clock::now();
+
         model.optimize();
+
+        // die folgenden zwei zeilen gehoeren auch noch dazu
+        auto t_end_opt = std::chrono::high_resolution_clock::now();
+        opt_times.push_back(std::chrono::duration_cast<std::chrono::seconds>(t_end_setup - t_start_setup));
 
         // DEBUG
         // std::cout << "\n\n Hier nach einem optimierungsvorgang\n";
@@ -130,6 +170,16 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) { //, lemon::ListGr
         }
         // ansonsten optimiere erneut
     }
+
+
+    // TIMER
+    auto t_end_loop = std::chrono::high_resolution_clock::now();
+    loop_zeit = std::chrono::duration_cast<std::chrono::seconds>(t_end_loop - t_start_loop);
+
+    //std::cout << "Loop-Zeit: " << loop_int.count() << "s\n";
+
+    //std::cout << "Anzahl an Iterationen im Loop: " << counter << "\n";
+    // ENDE TIMER
 
     // DEBUGGING::
     // std::cout << "DEBUGGING" << std::endl;

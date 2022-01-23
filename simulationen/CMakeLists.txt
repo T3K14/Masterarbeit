@@ -18,9 +18,15 @@ target_link_libraries(approx_long PUBLIC
     gurobi91
 )
 
+add_executable(approx_test approx_time_test.cpp)
+target_link_libraries(approx_test PUBLIC
+two_stage
+)
+
 endif()
 
 add_executable(erste_bruteforce bruteforce.cpp)
 target_link_libraries(erste_bruteforce PUBLIC
 two_stage
 )
+

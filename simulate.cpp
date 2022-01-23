@@ -4,6 +4,13 @@
 #include <iostream>
 #include <vector>
 
+#include <lemon/lgf_writer.h>
+
+// zum testen
+#include <chrono>
+#include <thread>
+using namespace std::chrono_literals;
+
 using namespace lemon;
 
 // Ensemble::Ensemble() {}
@@ -132,6 +139,19 @@ void Tree::recreate(std::mt19937 & rng) {
     add_edges(rng);
 }
 
+void Ensemble::save_current_graph(std::string name) {
+
+    std::string path = R"(D:\Uni\Masterarbeit\Code\output\)";
+    path += name;
+    path += R"(.lgf)";
+
+    lemon::GraphWriter<lemon::ListGraph> writer(two_stage_problem.g, path); 
+
+    writer.run();
+
+}
+
+
 int main() {
 
     /*
@@ -160,8 +180,19 @@ int main() {
 
     // -----------------------------
 
-    Tree tree(10, rng);
+    auto t1 = std::chrono::high_resolution_clock::now();
 
+
+    Tree tree(100, rng);
+    tree.save_current_graph("tree");
+
+
+    std::this_thread::sleep_for(2000ms);
+
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto s_int = std::chrono::duration_cast<std::chrono::seconds>(t2-t1);
+    std::cout << "duration: " << s_int.count() << "s\n";
 
     return 0;
 }

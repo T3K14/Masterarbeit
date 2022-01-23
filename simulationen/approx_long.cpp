@@ -43,7 +43,7 @@ int main() {
 
         std::cout << "Ich komme bis zur Ausgabe des Ergebnisses des LP-Algorithmus\n" << std::endl;
 
-        mst.approximate(rng);
+        // mst.approximate(rng);
         // mst.save_approx_result_map("approx_long");
 
         // double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
