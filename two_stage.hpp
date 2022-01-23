@@ -169,7 +169,7 @@ public:
 
 
     // constructor (ist da, damit ich die ganzen member bekomme?)
-    TwoStageProblem(std::vector<double> & second_stage_probabilites);
+    TwoStageProblem(const std::vector<double> & second_stage_probabilites);
     
     // den default constructor ueberlade ich so, dass er den ersten constructor mit vec<double> & aufruft, mit einem leeren Vektor
     TwoStageProblem();    

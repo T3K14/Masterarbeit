@@ -641,7 +641,7 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
 
 // konstruktor fuer TwoStageProblem
 // die number_scenarios lese ich dabei aus dem Vector ab
-TwoStageProblem::TwoStageProblem(std::vector<double> & second_stage_probabilites) 
+TwoStageProblem::TwoStageProblem(const std::vector<double> & second_stage_probabilites) 
     : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g), approx_first_stage_map(g, false), bruteforce_first_stage_map(g, false) {
 
     }
