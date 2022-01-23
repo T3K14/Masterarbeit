@@ -151,7 +151,7 @@ int main(int argc, char * argv[]) {
 
         for (int i=0; i<iterations; i++) {
 
-            opt_file.open(opt_path + std::to_string(i)) + "_ms.txt";
+            opt_file.open(opt_path + std::to_string(i) + "_ms.txt");
 
             for (auto t : optimierungs_zeiten[i]) {
                 opt_file << t.count() << "\n";
