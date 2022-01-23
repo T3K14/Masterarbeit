@@ -6,6 +6,8 @@
 
 #include <chrono>
 
+double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {}
+
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
 double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<std::chrono::milliseconds> & opti_times) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
