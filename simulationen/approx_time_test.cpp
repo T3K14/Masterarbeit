@@ -110,7 +110,7 @@ int main(int argc, char * argv[]) {
 
         // counter
         ofstream counter_file;
-        counter_path = outputPath + "/counters.txt";
+        std::string counter_path = outputPath + "/counters.txt";
 
         counter_file.open (counter_path);
 
@@ -120,7 +120,7 @@ int main(int argc, char * argv[]) {
         counter_file.close();
 
 
-        outputPath += "/nodes_"
+        outputPath += "/nodes_";
 
         outputPath += std::to_string(number_nodes);
         outputPath += "_iterations_";
