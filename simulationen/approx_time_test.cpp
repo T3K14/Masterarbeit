@@ -146,7 +146,7 @@ int main(int argc, char * argv[]) {
 
 
         // die optimierungszeiten
-        std::string opt_path = outputPath + "opt/";
+        std::string opt_path = outputPath + "/opt/";
 
         for (int i=0; i<iterations; i++) {
             ofstream opt_file;
