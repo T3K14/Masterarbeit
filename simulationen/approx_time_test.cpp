@@ -31,6 +31,9 @@ int main(int argc, char * argv[]) {
 
     std::string directory(argv[3]);
 
+    std::string outputPath = R"(/gss/work/xees8992/)";
+    outputPath += directory;
+
     // hier drin speichere ich pro run die Anzahl der hinzugefuegten Bedingungen
     std::vector<unsigned long> counters;
 
@@ -101,22 +104,30 @@ int main(int argc, char * argv[]) {
             // std::cout << expected_costs << std::endl;
 
 
-            // alles abspeichern
-            std::cout << "Es gab im ersten Run so viele Bedingungen: " << counters[0] << "\n";
-
-            std::cout << directory << "\n";
-
-            std::string outputPath = R"(/gss/work/xees8992/nodes_)";
-
-            outputPath += std::to_string(number_nodes);
-            outputPath += "_iterations_";
-            outputPath += std::to_string(iterations);
-            outputPath += ".lgf";
-
-            std::cout << outputPath << std::endl;
-
+            
         }
+        // alles abspeichern
 
+        // counter
+        ofstream counter_file;
+        counter_path = outputPath + "/counters.txt";
+
+        counter_file.open (counter_path);
+
+        for (auto c : counters) {
+            counter_file << c << "\n";
+        }
+        counter_file.close();
+
+
+        outputPath += "/nodes_"
+
+        outputPath += std::to_string(number_nodes);
+        outputPath += "_iterations_";
+        outputPath += std::to_string(iterations);
+        outputPath += ".lgf";
+
+        std::cout << outputPath << std::endl;
         
     }
     // catch(GRBException e) {
