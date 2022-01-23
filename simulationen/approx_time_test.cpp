@@ -103,14 +103,14 @@ int main(int argc, char * argv[]) {
             // //output, zum Vergleichen
             // std::cout << expected_costs << std::endl;
 
-
-            
         }
         // alles abspeichern
 
         // counter
         ofstream counter_file;
         std::string counter_path = outputPath + "/counters.txt";
+
+        std::cout << counter_path << "\n";
 
         counter_file.open (counter_path);
 
@@ -127,7 +127,7 @@ int main(int argc, char * argv[]) {
         outputPath += std::to_string(iterations);
         outputPath += ".lgf";
 
-        std::cout << outputPath << std::endl;
+        // std::cout << outputPath << std::endl;
         
     }
     // catch(GRBException e) {
