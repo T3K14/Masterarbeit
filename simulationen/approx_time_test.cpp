@@ -129,7 +129,7 @@ int main(int argc, char * argv[]) {
         setup_file.open (setup_path);
 
         for (auto t : setup_zeiten) {
-            setup_file << t << "\n";
+            setup_file << t.count() << "\n";
         }
         setup_file.close();
 
@@ -140,7 +140,7 @@ int main(int argc, char * argv[]) {
         loop_file.open (loop_path);
 
         for (auto t : loop_zeiten) {
-            loop_file << t << "\n";
+            loop_file << t.count() << "\n";
         }
         loop_file.close();
 
@@ -154,7 +154,7 @@ int main(int argc, char * argv[]) {
             opt_file.open(opt_path + std::to_string(i)) + "_ms.txt";
 
             for (auto t : optimierungs_zeiten[i]) {
-                opt_file << t << "\n";
+                opt_file << t.count() << "\n";
             }
 
             opt_file.close();
