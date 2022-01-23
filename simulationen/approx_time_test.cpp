@@ -90,6 +90,8 @@ int main(int argc, char * argv[]) {
             // Ergebnisse abspeichern:
             counters.push_back(counter);
             optimierungs_zeiten.push_back(opt_times);
+            setup_zeiten.push_back(setup_zeit);
+            loop_zeiten.push_back(loop_zeit);
 
             //std::cout << "Ich komme bis zur Ausgabe des Ergebnisses des LP-Algorithmus\n" << std::endl;
 
@@ -120,14 +122,43 @@ int main(int argc, char * argv[]) {
         counter_file.close();
 
 
-        outputPath += "/nodes_";
+        // setup zeit
+        ofstream setup_file;
+        std::string setup_path = outputPath + "/setup_zeiten_s.txt";
 
-        outputPath += std::to_string(number_nodes);
-        outputPath += "_iterations_";
-        outputPath += std::to_string(iterations);
-        outputPath += ".lgf";
+        setup_file.open (setup_path);
 
-        // std::cout << outputPath << std::endl;
+        for (auto t : setup_zeiten) {
+            setup_file << t << "\n";
+        }
+        setup_file.close();
+
+        // loop zeit
+        ofstream loop_file;
+        std::string loop_path = outputPath + "/loop_zeiten_s.txt";
+
+        loop_file.open (loop_path);
+
+        for (auto t : loop_zeiten) {
+            loop_file << t << "\n";
+        }
+        loop_file.close();
+
+
+        // die optimierungszeiten
+        ofstream opt_file;
+        std::string opt_path = outputPath + "opt/";\
+
+        for (int i=0; i<iterations; i++) {
+
+            opt_file.open(opt_path + std::to_string(i)) + "_ms.txt";
+
+            for (auto t : optimierungs_zeiten[i]) {
+                opt_file << t << "\n";
+            }
+
+            opt_file.close();
+        }
         
     }
     // catch(GRBException e) {
