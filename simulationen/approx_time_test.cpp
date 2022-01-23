@@ -108,8 +108,8 @@ int main(int argc, char * argv[]) {
 
             std::string outputPath = R"(/gss/work/xees8992/nodes_)";
 
-            outputPath += std::to_sting(number_nodes);
-            outputPath += "_iterations_"
+            outputPath += std::to_string(number_nodes);
+            outputPath += "_iterations_";
             outputPath += std::to_string(iterations);
             outputPath += ".lgf";
 
