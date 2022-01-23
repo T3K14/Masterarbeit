@@ -146,11 +146,10 @@ int main(int argc, char * argv[]) {
 
 
         // die optimierungszeiten
-        ofstream opt_file;
         std::string opt_path = outputPath + "opt/";\
 
         for (int i=0; i<iterations; i++) {
-
+            ofstream opt_file;
             opt_file.open(opt_path + std::to_string(i) + "_ms.txt");
 
             for (auto t : optimierungs_zeiten[i]) {
