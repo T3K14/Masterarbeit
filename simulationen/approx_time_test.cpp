@@ -152,6 +152,8 @@ int main(int argc, char * argv[]) {
             ofstream opt_file;
             opt_file.open(opt_path + std::to_string(i) + "_ms.txt");
 
+            std::cout << opt_path + std::to_string(i) + "_ms.txt" << "\n";
+
             for (auto t : optimierungs_zeiten[i]) {
                 opt_file << t.count() << "\n";
             }
