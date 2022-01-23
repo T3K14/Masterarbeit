@@ -9,6 +9,10 @@
 
 using namespace std;
 
+/* 
+Dieses Skript ist dazu da, um zu testen, wieso der LP Alg so langsam war (exponentiell langsamer wurde)
+*/
+
 int main(int argc, char * argv[]) {
 
     // lass ich erstmal auf 3 und schau dann, was das fuer eine Aenderung bewirkt
@@ -24,6 +28,8 @@ int main(int argc, char * argv[]) {
 
 
     int number_edges = BinomialCoefficient(number_nodes, 2);
+
+    std::string directory = argv[3];
 
     // hier drin speichere ich pro run die Anzahl der hinzugefuegten Bedingungen
     std::vector<unsigned long> counters;
@@ -97,6 +103,17 @@ int main(int argc, char * argv[]) {
 
             // alles abspeichern
             std::cout << "Es gab im ersten Run so viele Bedingungen: " << counters[0] << "\n";
+
+            std::cout << directory << "\n";
+
+            std::string outputPath = R"(/gss/work/xees8992/nodes_)";
+
+            outputPath += std::to_sting(number_nodes);
+            outputPath += "_iterations_"
+            outputPath += std::to_string(iterations);
+            outputPath += ".lgf";
+
+            std::cout << outputPath << std::endl;
 
         }
 
