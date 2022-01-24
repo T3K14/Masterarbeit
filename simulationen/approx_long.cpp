@@ -15,6 +15,8 @@ int main() {
         unsigned int number_nodes = 50;
         int number_edges = 1225;
 
+        std::cout << "Hihihih\n";
+
         // std::vector<double> scenarioProbabilities {0.2, 0.3, 0.5};
 
         auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
