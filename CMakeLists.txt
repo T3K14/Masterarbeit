@@ -93,8 +93,8 @@ target_link_libraries(second PUBLIC ${mylemon} two_stage)
 add_executable(4avs4b 4avs4b.cpp ${Source} ${Headers})
 target_link_libraries(4avs4b PUBLIC ${mylemon} two_stage)
 
-add_executable(simulate simulate.cpp ${Sources} ${Headers})
-target_link_libraries(simulate PUBLIC ${mylemon} two_stage)
+#add_executable(simulate simulate.cpp ${Sources} ${Headers})
+#target_link_libraries(simulate PUBLIC ${mylemon} two_stage)
 
 if(${Compile_Test_Code})
 

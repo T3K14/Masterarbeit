@@ -151,10 +151,10 @@ void Ensemble::save_current_graph(std::string name) {
 
 }
 
-
+/*
 int main() {
 
-    /*
+    /
     ListGraph g;
     const unsigned nodeNumber = 3;
     std::vector<ListGraph::Node> nodes;
@@ -176,7 +176,7 @@ int main() {
     }
 
     std::cout << countEdges(g) << "\n";
-    */
+    /
 
     // -----------------------------
 
@@ -196,3 +196,4 @@ int main() {
 
     return 0;
 }
+*/
