@@ -13,7 +13,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
     GRBEnv env = GRBEnv();
 
     GRBModel model = GRBModel(env);
-    m.set(GRB_IntParam_OutputFlag, 0);
+    model.set(GRB_IntParam_OutputFlag, 0);
 
     // jeder Kante wird ein Array von GurobiVariablen zugeordnet
     lemon::ListGraph::EdgeMap<GRBVar *> gurobi_variables_map(two_stage_problem.g);
