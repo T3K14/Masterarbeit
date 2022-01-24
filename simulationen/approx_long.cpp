@@ -12,8 +12,8 @@ int main() {
         // sehr grosses Problem mit 10000 Knoten, fully connected (fast 50 Millionen Kanten) mit random kantengewichten aus (0, 10), braucht mehr als 15GB speicher, daher erstmal:
         // 1000 Knoten mit 499500 Kanten
         unsigned int number_scenarios = 3;
-        unsigned int number_nodes = 1000;
-        int number_edges = 499500;
+        unsigned int number_nodes = 8;
+        int number_edges = 28;
 
         // std::vector<double> scenarioProbabilities {0.2, 0.3, 0.5};
 
