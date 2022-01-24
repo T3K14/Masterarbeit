@@ -12,8 +12,8 @@ int main() {
         // sehr grosses Problem mit 10000 Knoten, fully connected (fast 50 Millionen Kanten) mit random kantengewichten aus (0, 10), braucht mehr als 15GB speicher, daher erstmal:
         // 1000 Knoten mit 499500 Kanten
         unsigned int number_scenarios = 3;
-        unsigned int number_nodes = 1000;
-        int number_edges = 499500;
+        unsigned int number_nodes = 10;
+        int number_edges = 45;
 
         // std::vector<double> scenarioProbabilities {0.2, 0.3, 0.5};
 
@@ -41,7 +41,7 @@ int main() {
         std::cout << "SETUP VORBEI!\n";
 
         double res = solve_relaxed_lp(mst);
-        // mst.save_lp_result_map("lp_long");
+        mst.save_lp_result_map("lp_long_testtest");
 
         std::cout << "Ich komme bis zur Ausgabe des Ergebnisses des LP-Algorithmus\n" << std::endl;
 
