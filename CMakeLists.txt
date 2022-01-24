@@ -65,11 +65,13 @@ endif()
 set (Sources
     two_stage.cpp
     utilities.cpp
+    simulate.cpp
 )
 
 set (Headers
     two_stage.hpp
     utilities.hpp
+    simulate.hpp
 )
 
 option(Compile_Test_Code "Decide if code that is only used for testing functionality ist compiled." ON)

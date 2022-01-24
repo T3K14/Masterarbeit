@@ -3,6 +3,7 @@
 #include "../two_stage_gurobi.hpp"
 #include "../two_stage.hpp"
 #include "../utilities.hpp"
+#include "../simulate.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -15,9 +16,10 @@ Dieses Skript ist dazu da, um zu testen, wieso der LP Alg so langsam war (expone
 
 int main(int argc, char * argv[]) {
 
+    Tree t(10, rng);
+
     // lass ich erstmal auf 3 und schau dann, was das fuer eine Aenderung bewirkt
     unsigned int number_scenarios = 3;
-
 
     int number_nodes = stoi(argv[1]);
     int iterations = stoi(argv[2]);
@@ -25,7 +27,6 @@ int main(int argc, char * argv[]) {
     if (number_nodes < 1 || iterations < 1) {
         throw std::invalid_argument( "Anzahl Knoten und Anzahl Iterationen muessen >1 sein!\n" );
     }
-
 
     int number_edges = BinomialCoefficient(number_nodes, 2);
 
