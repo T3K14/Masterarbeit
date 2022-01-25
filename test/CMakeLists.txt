@@ -49,3 +49,16 @@ add_test(
     NAME two_stage_test_neu
     COMMAND tests2
 )
+
+
+add_executable(simulate simulate_test.cpp)
+target_link_libraries(simulate PUBLIC
+    gtest_main
+    two_stage
+    gtest
+)
+
+add_test(
+    NAME simulate_test
+    COMMAND simulate
+)

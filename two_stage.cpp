@@ -652,6 +652,10 @@ TwoStageProblem::TwoStageProblem() : TwoStageProblem(std::vector<double>()) {}
 void TwoStageProblem::initialise_graph() {};
 // ENDE ---
 
+unsigned int TwoStageProblem::get_number_edges() {
+    return edges.size();
+}
+
 void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluster, bool work) {
     if (on_cluster) {
 

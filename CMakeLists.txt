@@ -111,4 +111,5 @@ if(${Compile_Test_Code})
 
 endif()
 
-
+add_executable(simulate2 simulate_test.cpp)
+target_link_libraries(simulate2 PUBLIC two_stage)

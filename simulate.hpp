@@ -2,19 +2,54 @@
 
 // #include "two_stage_gurobi.hpp"
 #include "two_stage.hpp"
+#include "utilities.hpp"
+#include <random>
 
 enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
 
 template <typename... Tn>
 void simulate(int i, Tn..., double d);
 
+class NewEdgeCostCreator {
+
+    private:
+        // RNG & rng;
+        // std::uniform_real_distribution<double> uniformDist;
+
+    public:
+        virtual ~NewEdgeCostCreator() = default;
+        virtual void create_costs(TwoStageProblem & tsp) = 0;
+
+        // virtual void delete_costs(); // ?? brauche ich vllt, um die alten Maps zu leeren
+    protected:
+        void override_costs(TwoStageProblem & tsp, std::vector<double> & first_stage_costs, std::vector<std::vector<double>> & second_stage_costs);
+
+};
+
+class RandomTestCreator : public NewEdgeCostCreator {
+
+    double low;
+    double high;
+    std::mt19937 & rng;
+
+    public:
+
+        virtual ~RandomTestCreator() = default;
+
+        RandomTestCreator(double _low, double _high, std::mt19937 & _rng);
+
+        virtual void create_costs(TwoStageProblem & tsp) override;
+
+};
 
 // vllt ist ensemble auch falsche Bezeichnung
 class Ensemble {
 
-protected:
+// protected:
+public:
     unsigned int number_nodes;
     TwoStageProblem two_stage_problem;
+    NewEdgeCostCreator & edge_cost_creator;
 
     virtual void erase_all_edges();
     // virtual void add_edges() = 0;        Das mache ich in allen Childklassen individuell
@@ -26,7 +61,7 @@ public:
     virtual ~Ensemble() = default;
 
     // constructor
-    Ensemble(unsigned int number_nodes);
+    Ensemble(unsigned int number_nodes, NewEdgeCostCreator & _edge_cost_creator);
 
     // soll das Ensemble neu aufsetzen, zB. einen neuen Baum erzeugen und neue Kosten
     // virtual void recreate() = 0;        // mache ich in den childklassen individuell
@@ -42,21 +77,10 @@ public:
 };
 
 
-class NewEdgeCostCreator {
-
-    private:
-        // RNG & rng;
-        // std::uniform_real_distribution<double> uniformDist;
-
-    public:
-        virtual ~NewEdgeCostCreator() = default;
-
-};
-
 class Tree : public Ensemble {
 
 public:
-    Tree(unsigned int number_nodes, std::mt19937 & rng);
+    Tree(unsigned int number_nodes, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & rng);
 
     virtual ~Tree() = default;
     // virtual void recreate() override;               // was passiert mit dieser methode???, wird die versteckt?
@@ -75,4 +99,7 @@ class FullyConnected : public Ensemble {
 
 };
 
+
+
 void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich);
+

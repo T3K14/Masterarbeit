@@ -8,7 +8,13 @@ using namespace lemon;
 
 TEST(SimulateSuite, Test1) {
 
-    Tree tree();
+    // Tree tree(10, rng);
 
-    simulate(1000, tree, "4bvsApprox");
+    // for (ListGraph::EdgeIt e(tree.two_stage_problem.g); e!=INVALID; ++e) {
+    //     std::cout << tree.two_stage_problem.firstStageWeights[e] << "\n";
+
+    // }
+
+    
+    // simulate(1000, tree, "4bvsApprox");
 }

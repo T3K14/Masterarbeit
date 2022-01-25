@@ -51,7 +51,65 @@ void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich) {
 }
 */
 
-Ensemble::Ensemble(unsigned int _number_nodes) : number_nodes(_number_nodes) {
+RandomTestCreator::RandomTestCreator(double _low, double _high, std::mt19937 & _rng) : low(_low), high(_high), rng(_rng) {
+
+}
+
+// nimmt die gegebenen neuen Gewichte an und schreibt sie unter ANNAHME, DASS ERSTER EINTRAG IN DEN VEKTOREN SICH AUCH AUF DIE ERSTE KANTE in edges (vektor) bezieht BEZIEHT in das two stage problem
+void NewEdgeCostCreator::override_costs(TwoStageProblem & tsp, std::vector<double> & first_stage_costs, std::vector<std::vector<double>> & second_stage_costs) {
+
+    // ERSTMAL ZUM TESTEN:          WENN ICH DAS AENDERE, DANN AUCH IN RandomTestCreator::create_costs!!!!
+    tsp.numberScenarios = 3;
+    // ENDE
+
+    // uebertrage die neuen Kosten in das two stage problem 
+  
+    for (int i=0; i<tsp.edges.size(); i++) {
+        tsp.firstStageWeights[tsp.edges[i]] = first_stage_costs[i]; 
+    }
+
+    // jetzt second stage weights in die map mit dem vector uebertragen
+    // gehe ueber alle szenarien und dann ueber alle Kanten und uebetrage pro scenario das gewicht in den vector
+    for (int s=0; s<tsp.numberScenarios; s++) {
+        for(int i=0; i<tsp.edges.size(); i++) {
+            tsp.secondStageWeights[tsp.edges[i]].push_back(second_stage_costs[s][i]);
+        }
+    }
+}
+
+// erzeugt zu den Kanten des twostageproblems random Kosten fuer alle Phasen und Szenarien im Intervall [low, high)
+void RandomTestCreator::create_costs(TwoStageProblem & tsp) {
+
+    // ERSTMAL ZUM TESTEN:          WENN ICH DAS HIER AENDERE, DANN AUCH IN nEWeDGEcOSTcREATOR::override_costs!!!!
+    size_t number_scenarios = 3;
+    // ENDE
+
+    size_t number_edges = tsp.get_number_edges();
+
+    auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
+    std::uniform_real_distribution<double> dist(0., 10.);                
+
+    std::vector<double> first_stage_costs;
+
+    for (size_t i=0; i<number_edges; i++) {
+        first_stage_costs.push_back(dist(rng));
+    }
+
+    std::vector<std::vector<double>> second_stage_costs;
+    for (size_t i=0; i<number_scenarios; i++) {
+        std::vector<double> v;
+        for (size_t j=0; j<number_edges; j++) {
+            v.push_back(dist(rng));
+        }
+        second_stage_costs.push_back(v);
+    } 
+
+    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
+    override_costs(tsp, first_stage_costs, second_stage_costs);
+}
+
+
+Ensemble::Ensemble(unsigned int _number_nodes, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), edge_cost_creator(_edge_cost_creator) {
 
     // baue schon die Knoten in den Graphen, weil die bleiben erstmal fuer eien Mittelung immer konstant
     for (int i=0; i<number_nodes; i++) {
@@ -66,17 +124,16 @@ void Ensemble::erase_all_edges() {
         
     }
     // ausserdem leere ich den edges vector vom two_stage_problem
-
-    // ist der Vector vllt schon leer??????? Ich glaube nicht, weil im Vector direkt Edges gespeichert werden und nicht Referenzen
-    std::cout << two_stage_problem.edges.size() << "\n";
-
     two_stage_problem.edges.clear();
 }
 
-Tree::Tree(unsigned int number_nodes,std::mt19937 & rng) : Ensemble(number_nodes) {
+Tree::Tree(unsigned int number_nodes, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & rng) : Ensemble(number_nodes, _edge_cost_creator) {
     // delegiere zum Ensemble constructor, der die Knoten erzeugt
     // jetzt kommen noch so viele Kanten dazu, dass das ganze einen Tree ergibt (dieser Vorgang wird dann bei einem recreate-call wiederholt)
     add_edges(rng);
+
+    //fuege Kantengewichte entsprechend des uebergebenen Edgecoscreators hinzu
+    edge_cost_creator.create_costs(two_stage_problem);
 }
 
 void Tree::add_edges(std::mt19937 & rng) {
@@ -137,6 +194,9 @@ void Tree::recreate(std::mt19937 & rng) {
     erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
     // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe
     add_edges(rng);
+
+    //fuege neue Gewichte enrsprechend des uebergebenen edgecostCreators hinzu
+    edge_cost_creator.create_costs(two_stage_problem);
 }
 
 void Ensemble::save_current_graph(std::string name) {
