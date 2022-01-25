@@ -207,7 +207,8 @@ public:
     double bruteforce_new();
 
     unsigned int get_number_edges();
-    
+    unsigned int get_number_scenarios();
+
 private:
     // schaut sich fuer eine Edgeauswahl an, was dabei herauskommen wuerde und vergleicht das mit dem bisherigen Optimum und ersetzt es, falls das besser ist
     double check(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter);

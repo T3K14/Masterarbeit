@@ -79,6 +79,7 @@ public:
     unsigned int number_nodes;
     TwoStageProblem two_stage_problem;
     NewEdgeCostCreator & edge_cost_creator;
+    ScenarioCreator & secenario_creator;
 
     virtual void erase_all_edges();
     // virtual void add_edges() = 0;        Das mache ich in allen Childklassen individuell
@@ -90,7 +91,7 @@ public:
     virtual ~Ensemble() = default;
 
     // constructor
-    Ensemble(unsigned int number_nodes, NewEdgeCostCreator & _edge_cost_creator);
+    Ensemble(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator);
 
     // soll das Ensemble neu aufsetzen, zB. einen neuen Baum erzeugen und neue Kosten
     // virtual void recreate() = 0;        // mache ich in den childklassen individuell
@@ -109,7 +110,7 @@ public:
 class Tree : public Ensemble {
 
 public:
-    Tree(unsigned int number_nodes, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & rng);
+    Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & rng);
 
     virtual ~Tree() = default;
     // virtual void recreate() override;               // was passiert mit dieser methode???, wird die versteckt?

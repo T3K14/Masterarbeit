@@ -655,6 +655,9 @@ void TwoStageProblem::initialise_graph() {};
 unsigned int TwoStageProblem::get_number_edges() {
     return edges.size();
 }
+unsigned int TwoStageProblem::get_number_scenarios() {
+    return numberScenarios;
+}
 
 void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluster, bool work) {
     if (on_cluster) {

@@ -74,9 +74,9 @@ RandomTestCreator::RandomTestCreator(double _low, double _high, std::mt19937 & _
 // nimmt die gegebenen neuen Gewichte an und schreibt sie unter ANNAHME, DASS ERSTER EINTRAG IN DEN VEKTOREN SICH AUCH AUF DIE ERSTE KANTE in edges (vektor) bezieht BEZIEHT in das two stage problem
 void NewEdgeCostCreator::override_costs(TwoStageProblem & tsp, std::vector<double> & first_stage_costs, std::vector<std::vector<double>> & second_stage_costs) {
 
-    // ERSTMAL ZUM TESTEN:          WENN ICH DAS AENDERE, DANN AUCH IN RandomTestCreator::create_costs!!!!
-    tsp.numberScenarios = 3;
-    // ENDE
+    // // ERSTMAL ZUM TESTEN:          WENN ICH DAS AENDERE, DANN AUCH IN RandomTestCreator::create_costs!!!!
+    // tsp.numberScenarios = 3;
+    // // ENDE
 
     // uebertrage die neuen Kosten in das two stage problem 
   
@@ -96,11 +96,12 @@ void NewEdgeCostCreator::override_costs(TwoStageProblem & tsp, std::vector<doubl
 // erzeugt zu den Kanten des twostageproblems random Kosten fuer alle Phasen und Szenarien im Intervall [low, high)
 void RandomTestCreator::create_costs(TwoStageProblem & tsp) {
 
-    // ERSTMAL ZUM TESTEN:          WENN ICH DAS HIER AENDERE, DANN AUCH IN nEWeDGEcOSTcREATOR::override_costs!!!!
-    size_t number_scenarios = 3;
-    // ENDE
+    // // ERSTMAL ZUM TESTEN:          WENN ICH DAS HIER AENDERE, DANN AUCH IN nEWeDGEcOSTcREATOR::override_costs!!!!
+    // size_t number_scenarios = 3;
+    // // ENDE
 
     size_t number_edges = tsp.get_number_edges();
+    size_t number_scenarios = tsp.get_number_scenarios();
 
     auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
     std::uniform_real_distribution<double> dist(0., 10.);                
@@ -125,7 +126,7 @@ void RandomTestCreator::create_costs(TwoStageProblem & tsp) {
 }
 
 
-Ensemble::Ensemble(unsigned int _number_nodes, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), edge_cost_creator(_edge_cost_creator) {
+Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), secenario_creator(_scenario_creator), edge_cost_creator(_edge_cost_creator) {
 
     // baue schon die Knoten in den Graphen, weil die bleiben erstmal fuer eien Mittelung immer konstant
     for (int i=0; i<number_nodes; i++) {
@@ -143,10 +144,13 @@ void Ensemble::erase_all_edges() {
     two_stage_problem.edges.clear();
 }
 
-Tree::Tree(unsigned int number_nodes, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & rng) : Ensemble(number_nodes, _edge_cost_creator) {
+Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & rng) : Ensemble(number_nodes, _scenario_creator, _edge_cost_creator) {
     // delegiere zum Ensemble constructor, der die Knoten erzeugt
     // jetzt kommen noch so viele Kanten dazu, dass das ganze einen Tree ergibt (dieser Vorgang wird dann bei einem recreate-call wiederholt)
     add_edges(rng);
+
+    // fuege die Scenariowahrscheinlichkeiten hinzu ensprechend des uebergebenen Scenariocreators
+    secenario_creator.create_scenarios(two_stage_problem);
 
     //fuege Kantengewichte entsprechend des uebergebenen Edgecoscreators hinzu
     edge_cost_creator.create_costs(two_stage_problem);
@@ -211,7 +215,10 @@ void Tree::recreate(std::mt19937 & rng) {
     // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe
     add_edges(rng);
 
-    //fuege neue Gewichte enrsprechend des uebergebenen edgecostCreators hinzu
+    // fuege neue Scenariowahrscheinlichkeiten hinzu (ensprechend des uebergebenen Scenariocreators)
+    secenario_creator.create_scenarios(two_stage_problem);
+
+    //fuege neue Gewichte entsprechend des uebergebenen edgecostCreators hinzu
     edge_cost_creator.create_costs(two_stage_problem);
 }
 

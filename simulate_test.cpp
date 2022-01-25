@@ -8,10 +8,10 @@ using namespace lemon;
 
 int main() {
 
-    
+    NRandomScenarioCreator s(3, rng);    
     RandomTestCreator n(0., 10., rng);
 
-    Tree tree(10, n, rng);
+    Tree tree(10, s, n, rng);
 
     // teste RandomTestCreator::create_costs()
     tree.recreate(rng);
