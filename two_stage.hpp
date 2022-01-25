@@ -14,8 +14,9 @@
 
 extern std::mt19937 rng;
 
-//
+// forward declaration
 class NewEdgeCostCreator;
+class ScenarioCreator;
 // class NewEdgeCostCreator::override_costs(TwoStageProblem & tsp, std::vector<double> & first_stage_costs, std::vector<std::vector<double>> & second_stage_costs);
 
 class EdgeCostCreator {
@@ -188,6 +189,7 @@ public:
 
     // friend void NewEdgeCostCreator::override_costs(TwoStageProblem & tsp, std::vector<double> & first_stage_costs, std::vector<std::vector<double>> & second_stage_costs);
     friend NewEdgeCostCreator;
+    friend ScenarioCreator;
 
     // nur zum zeit testen:
     double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<std::chrono::milliseconds> & opti_times);

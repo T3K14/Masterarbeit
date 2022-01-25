@@ -51,6 +51,22 @@ void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich) {
 }
 */
 
+// ueberschreibe die scenario wahrscheinlichkeiten im two_stage_problem
+void ScenarioCreator::override_scenarios(TwoStageProblem & tsp, std::vector<double> & scenario_probabilites) {
+    tsp.numberScenarios = scenario_probabilites.size();
+    tsp.secondStageProbabilities = scenario_probabilites;
+}
+
+NRandomScenarioCreator::NRandomScenarioCreator(unsigned int _number_scenarios, std::mt19937 & _rng) : number_scenarios(_number_scenarios), rng(_rng) {}
+
+void NRandomScenarioCreator::create_scenarios(TwoStageProblem & tsp) {
+
+    auto probs = calcScenarioProbabilities(number_scenarios, rng);
+
+    // jetzt ueberschreiben
+    override_scenarios(tsp, probs);
+}
+
 RandomTestCreator::RandomTestCreator(double _low, double _high, std::mt19937 & _rng) : low(_low), high(_high), rng(_rng) {
 
 }

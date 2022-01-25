@@ -10,6 +10,35 @@ enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
 template <typename... Tn>
 void simulate(int i, Tn..., double d);
 
+class ScenarioCreator {
+
+    private:
+
+    public:
+        virtual ~ScenarioCreator() = default;
+        virtual void create_scenarios(TwoStageProblem & tsp) = 0;
+
+    protected:
+        void override_scenarios(TwoStageProblem & tsp, std::vector<double> & scenario_probabilites);
+    
+};
+
+class NRandomScenarioCreator : public ScenarioCreator {
+
+    private:
+        unsigned int number_scenarios;
+        std::mt19937 & rng;
+
+    public:
+
+        virtual ~NRandomScenarioCreator() = default;
+
+        NRandomScenarioCreator(unsigned int _number_scenarios, std::mt19937 & _rng);
+
+        virtual void create_scenarios(TwoStageProblem & tsp) override;
+
+};
+
 class NewEdgeCostCreator {
 
     private:
