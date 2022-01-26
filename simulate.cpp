@@ -150,9 +150,9 @@ void Ensemble::recreate() {
 }
 
 // soll dann eigentlich pure virtual sein!!!!!!!!!!!
-void Ensemble::add_edges() {
-    std::cout << "Ensemble::add_edges\n";
-}
+// void Ensemble::add_edges() {
+//     std::cout << "Ensemble::add_edges\n";
+// }
 
 // loesche alle Edges aus dem Graphen raus
 void Ensemble::erase_all_edges() {

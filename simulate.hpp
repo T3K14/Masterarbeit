@@ -95,7 +95,7 @@ public:
 
     // soll das Ensemble neu aufsetzen, zB. einen neuen Baum erzeugen und neue Kosten
     virtual void recreate();// = 0;      
-    virtual void add_edges(); //=0;
+    virtual void add_edges() = 0;                    
 
     double approx();
     double bruteforce();
