@@ -8,13 +8,16 @@ using namespace lemon;
 
 int main() {
 
+    // will schauen, ob Vererbung klappt
+
     NRandomScenarioCreator s(3, rng);    
     RandomTestCreator n(0., 10., rng);
 
     Tree tree(10, s, n, rng);
+    tree.recreate();
 
-    // teste RandomTestCreator::create_costs()
-    tree.recreate(rng);
+    // // teste RandomTestCreator::create_costs()
+    // tree.recreate(rng);
 
     // int counter = 0;
     // for (ListGraph::EdgeIt e(tree.two_stage_problem.g); e!=INVALID; ++e) {

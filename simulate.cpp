@@ -134,6 +134,26 @@ Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creat
     }
 }
 
+void Ensemble::recreate() {
+    std::cout << "Ensemble::recreate\n";
+
+     // loesche die bisherigen Kanten
+    erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
+    // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe
+    add_edges();        // DAS SOLL DANN DIE JEWEILIGE UEBERSCHRIEBENE add_edges METHODE SEIN!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    // fuege neue Scenariowahrscheinlichkeiten hinzu (ensprechend des uebergebenen Scenariocreators)
+    secenario_creator.create_scenarios(two_stage_problem);
+
+    //fuege neue Gewichte entsprechend des uebergebenen edgecostCreators hinzu
+    edge_cost_creator.create_costs(two_stage_problem);
+}
+
+// soll dann eigentlich pure virtual sein!!!!!!!!!!!
+void Ensemble::add_edges() {
+    std::cout << "Ensemble::add_edges\n";
+}
+
 // loesche alle Edges aus dem Graphen raus
 void Ensemble::erase_all_edges() {
     for (ListGraph::EdgeIt e(two_stage_problem.g); e != INVALID; ++e) {
@@ -144,10 +164,11 @@ void Ensemble::erase_all_edges() {
     two_stage_problem.edges.clear();
 }
 
-Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & rng) : Ensemble(number_nodes, _scenario_creator, _edge_cost_creator) {
+// kann ich den auch noch umschreiben, dass ich nur an den ensemble constructor delegieren muss??? wird dann auch die richtige add_edges methode genommen?
+Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng) : Ensemble(number_nodes, _scenario_creator, _edge_cost_creator), rng(_rng) {
     // delegiere zum Ensemble constructor, der die Knoten erzeugt
     // jetzt kommen noch so viele Kanten dazu, dass das ganze einen Tree ergibt (dieser Vorgang wird dann bei einem recreate-call wiederholt)
-    add_edges(rng);
+    add_edges();
 
     // fuege die Scenariowahrscheinlichkeiten hinzu ensprechend des uebergebenen Scenariocreators
     secenario_creator.create_scenarios(two_stage_problem);
@@ -156,7 +177,9 @@ Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEd
     edge_cost_creator.create_costs(two_stage_problem);
 }
 
-void Tree::add_edges(std::mt19937 & rng) {
+void Tree::add_edges() {
+
+    std::cout << "Tree::add_edges\n";
 
     // diese Fkt erwartet, dass der Edgesvektor des Graphen leer ist 
 
@@ -208,19 +231,19 @@ void Tree::add_edges(std::mt19937 & rng) {
     }
 }
 
-void Tree::recreate(std::mt19937 & rng) {
+// void Tree::recreate(std::mt19937 & rng) {
 
-    // loesche die bisherigen Kanten
-    erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
-    // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe
-    add_edges(rng);
+//     // loesche die bisherigen Kanten
+//     erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
+//     // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe
+//     add_edges(rng);
 
-    // fuege neue Scenariowahrscheinlichkeiten hinzu (ensprechend des uebergebenen Scenariocreators)
-    secenario_creator.create_scenarios(two_stage_problem);
+//     // fuege neue Scenariowahrscheinlichkeiten hinzu (ensprechend des uebergebenen Scenariocreators)
+//     secenario_creator.create_scenarios(two_stage_problem);
 
-    //fuege neue Gewichte entsprechend des uebergebenen edgecostCreators hinzu
-    edge_cost_creator.create_costs(two_stage_problem);
-}
+//     //fuege neue Gewichte entsprechend des uebergebenen edgecostCreators hinzu
+//     edge_cost_creator.create_costs(two_stage_problem);
+// }
 
 void Ensemble::save_current_graph(std::string name) {
 

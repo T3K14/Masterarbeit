@@ -94,7 +94,8 @@ public:
     Ensemble(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator);
 
     // soll das Ensemble neu aufsetzen, zB. einen neuen Baum erzeugen und neue Kosten
-    // virtual void recreate() = 0;        // mache ich in den childklassen individuell
+    virtual void recreate();// = 0;      
+    virtual void add_edges(); //=0;
 
     double approx();
     double bruteforce();
@@ -109,14 +110,16 @@ public:
 
 class Tree : public Ensemble {
 
+    std::mt19937 & rng;
+
 public:
-    Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & rng);
+    Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng);
 
     virtual ~Tree() = default;
     // virtual void recreate() override;               // was passiert mit dieser methode???, wird die versteckt?
-    virtual void recreate(std::mt19937 & rng);
+    // virtual void recreate() override;
 
-    virtual void add_edges(std::mt19937 & rng);
+    virtual void add_edges() override;
 
 };
 
