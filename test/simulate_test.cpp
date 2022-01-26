@@ -8,13 +8,10 @@ using namespace lemon;
 
 TEST(SimulateSuite, Test1) {
 
-    // Tree tree(10, rng);
+    NRandomScenarioCreator sc(3, rng);
+    RandomTestCreator ec(0., 10., rng);
 
-    // for (ListGraph::EdgeIt e(tree.two_stage_problem.g); e!=INVALID; ++e) {
-    //     std::cout << tree.two_stage_problem.firstStageWeights[e] << "\n";
-
-    // }
+    Tree tree(10, sc, ec, rng);
 
     
-    // simulate(1000, tree, "4bvsApprox");
 }
