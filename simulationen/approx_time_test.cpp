@@ -90,9 +90,9 @@ int main(int argc, char * argv[]) {
 
         int counter_iteration = 0;
 
-        // NRandomScenarioCreator s(number_scenarios, rng);    
-        // RandomTestCreator n(0., 10., rng);
-        // FullyConnectedMinusEdges ensemble(number_nodes, s, n, rng, number_minus_edges);
+        NRandomScenarioCreator s(number_scenarios, rng);    
+        RandomTestCreator n(0., 10., rng);
+        FullyConnectedMinusEdges ensemble(number_nodes, s, n, rng, number_minus_edges);
 
         // // while (true) {
         
