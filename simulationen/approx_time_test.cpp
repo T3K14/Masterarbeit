@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <map>
 
 using namespace std;
 
@@ -52,7 +51,7 @@ int main(int argc, char * argv[]) {
     std::string outputPath = R"(/gss/work/xees8992/)";
     outputPath += directory;
 
-    std::cout << "ROBERTSAGTHIER\n";
+    std::cout << "ROBERTSAGTHIER\n" << std::endl;
 
     // hier drin speichere ich pro run die Anzahl der hinzugefuegten Bedingungen
     // std::vector<unsigned long> counters;
@@ -65,6 +64,8 @@ int main(int argc, char * argv[]) {
     // hier speicher ich die Zeiten, wie lange alle Optimierungen bei allen Iteratioenn gedauert haben
     // std::vector<std::vector<std::chrono::milliseconds>> optimierungs_zeiten;
 
+}
+/*
     try {
        
         // std::cout << "Nodes: " << number_nodes << "\n";
@@ -215,3 +216,4 @@ int main(int argc, char * argv[]) {
 
     
 }
+*/
