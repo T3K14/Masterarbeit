@@ -9,6 +9,9 @@ using namespace lemon;
 
 int main() {
 
+    // IRGENDWAS KLAPPT BEI DER KONSTRUKTION NICHT, DIE EDGES SIND LEER ODER SO
+
+
     // will schauen, ob Vererbung klappt
 
     NRandomScenarioCreator s(3, rng);    
@@ -20,25 +23,6 @@ int main() {
     FullyConnectedMinusEdges ensemble(6, s, n, rng, 5);
     ensemble.initialize();
 
-    // double res = solve_relaxed_lp(mst);
-
-    ensemble.save_current_graph("minus_test");
-
-    int number_edges = 44;
-    int number_nodes;
-    int number_minus_edges;
-
-    for (int i=2; i<=10; i++) {
-        // fc_edges_to_nodes.insert(std::make_pair(i, BinomialCoefficient(i, 2));)
-        // std::cout << BinomialCoefficient(i, 2) << "\n";
-
-        if (number_edges <= BinomialCoefficient(i, 2)) {
-            number_nodes = i;
-            number_minus_edges = BinomialCoefficient(i, 2) - number_edges;
-            std::cout << "Nodes: " << number_nodes << ", fc: " << BinomialCoefficient(i, 2) << ", minus_edges: " << number_minus_edges << "\n";
-            break;
-        }
-    }
 
     // // teste RandomTestCreator::create_costs()
     // tree.recreate(rng);

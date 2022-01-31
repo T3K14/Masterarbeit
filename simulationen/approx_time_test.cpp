@@ -93,6 +93,7 @@ int main(int argc, char * argv[]) {
         NRandomScenarioCreator s(number_scenarios, rng);    
         RandomTestCreator n(0., 10., rng);
         FullyConnectedMinusEdges ensemble(number_nodes, s, n, rng, number_minus_edges);
+        ensemble.initialize();
 
         // while (true) {
         
