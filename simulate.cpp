@@ -188,6 +188,16 @@ void Ensemble::save_current_graph(std::string name) {
 
 }
 
+
+void Ensemble::approx(std::mt19937 & rng) {
+
+    // erst lp Problem loesen 
+    double lp_res = solve_relaxed_lp(two_stage_problem);
+
+    // und nun approximieren
+    two_stage_problem.approximate(rng);
+}
+
 // kann ich den auch noch umschreiben, dass ich nur an den ensemble constructor delegieren muss??? wird dann auch die richtige add_edges methode genommen?
 Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng) : Ensemble(number_nodes, _scenario_creator, _edge_cost_creator), rng(_rng) {
     // delegiere zum Ensemble constructor, der die Knoten erzeugt

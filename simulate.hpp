@@ -98,7 +98,7 @@ public:
     virtual void add_edges() = 0;       // PROTECTED MACHEN? SONST KANN ICH DIE AUCH VON AUSSERHALB AUFRUFEN, ODER SIND DIE SAVE SO???                  
     virtual void initialize();
 
-    double approx();
+    void approx(std::mt19937 & rng);
     double bruteforce();
     double do4b();
     double greedy();

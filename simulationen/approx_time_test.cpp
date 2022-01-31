@@ -14,6 +14,7 @@ using namespace std;
 Dieses Skript ist dazu da, um zu testen, wieso der LP Alg so langsam war (exponentiell langsamer wurde)
 */
 
+// input argumente: number_nodes, 
 int main(int argc, char * argv[]) {
 
     Tree t(10, rng);

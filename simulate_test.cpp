@@ -16,9 +16,12 @@ int main() {
     // Tree tree(10, s, n, rng);
     // tree.recreate();
 
-    FullyConnectedMinusEdges ensemble(10, s, n, rng, 5);
+    FullyConnectedMinusEdges ensemble(6, s, n, rng, 5);
     ensemble.initialize();
 
+    // double res = solve_relaxed_lp(mst);
+
+    ensemble.save_current_graph("minus_test");
 
 
 
