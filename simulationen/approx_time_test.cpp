@@ -105,32 +105,32 @@ int main(int argc, char * argv[]) {
 
         double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
 
-        // // Ergebnisse abspeichern:
+        // Ergebnisse abspeichern:
 
-        // counter_file.open(counter_path, std::ios::app);
-        // counter_file << counter << "\n";
-        // counter_file.close();
+        counter_file.open(counter_path, std::ios::app);
+        counter_file << counter << "\n";
+        counter_file.close();
 
-        // setup_file.open(setup_path, std::ios::app);
-        // setup_file << setup_zeit.count() << "\n";
-        // setup_file.close();
+        setup_file.open(setup_path, std::ios::app);
+        setup_file << setup_zeit.count() << "\n";
+        setup_file.close();
 
-        // loop_file.open (loop_path, std::ios::app);
-        // loop_file << loop_zeit.count() << "\n";
-        // loop_file.close();
+        loop_file.open (loop_path, std::ios::app);
+        loop_file << loop_zeit.count() << "\n";
+        loop_file.close();
 
-        // ofstream opt_file;
-        // opt_file.open(opt_path + std::to_string(counter_iteration) + "_ms.txt");
+        ofstream opt_file;
+        opt_file.open(opt_path + std::to_string(counter_iteration) + "_ms.txt");
 
-        // for (auto t : opt_times) {
-        //     opt_file << t.count() << "\n";
-        // }
+        for (auto t : opt_times) {
+            opt_file << t.count() << "\n";
+        }
 
-        // opt_file.close();
+        opt_file.close();
     
-        // // naechste Iteration
-        // counter_iteration++;
-        // ensemble.recreate();
+        // naechste Iteration
+        counter_iteration++;
+        ensemble.recreate();
 
             // counters.push_back(counter);
             // optimierungs_zeiten.push_back(opt_times);
