@@ -102,7 +102,7 @@ int main(int argc, char * argv[]) {
 
         std::vector<std::chrono::milliseconds> opt_times;
 
-        double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
+        double res = solve_relaxed_lp(ensemble.two_stage_problem);//, counter, setup_zeit, loop_zeit, opt_times);
 
         // // Ergebnisse abspeichern:
 
