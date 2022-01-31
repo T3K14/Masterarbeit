@@ -188,11 +188,11 @@ void Ensemble::save_current_graph(std::string name) {
 
 }
 
-
+// KLAPPT MIT solve_relaxd_lp noch nicht...
 void Ensemble::approx(std::mt19937 & rng) {
 
     // erst lp Problem loesen 
-    double lp_res = solve_relaxed_lp(two_stage_problem);
+    // double lp_res = solve_relaxed_lp(two_stage_problem);
 
     // und nun approximieren
     two_stage_problem.approximate(rng);

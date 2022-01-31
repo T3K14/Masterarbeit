@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <map>
 
 using namespace std;
 
@@ -14,38 +15,53 @@ using namespace std;
 Dieses Skript ist dazu da, um zu testen, wieso der LP Alg so langsam war (exponentiell langsamer wurde)
 */
 
-// input argumente: number_nodes, 
+// input argumente: number_edges, number_scenarios 
 int main(int argc, char * argv[]) {
 
-    Tree t(10, rng);
+    int number_edges = stoi(argv[1]);
+    int number_scenarios = stoi(argv[2]);
+    std::string directory(argv[3]);
 
-    // lass ich erstmal auf 3 und schau dann, was das fuer eine Aenderung bewirkt
-    unsigned int number_scenarios = 3;
+    // int iterations = stoi(argv[2]);
 
-    int number_nodes = stoi(argv[1]);
-    int iterations = stoi(argv[2]);
+    // if (number_nodes < 1 || number_scenarios < 1) {
+    //     throw std::invalid_argument( "Anzahl Knoten und Anzahl Szenarios muessen >1 sein!\n" );
+    // }
 
-    if (number_nodes < 1 || iterations < 1) {
-        throw std::invalid_argument( "Anzahl Knoten und Anzahl Iterationen muessen >1 sein!\n" );
+    // int number_edges = BinomialCoefficient(number_nodes, 2);
+
+    int number_minus_edges;
+    int number_nodes;
+
+    if (number_edges > 4950)  {
+        throw std::invalid_argument("ROBERT-ERROR, so viele Kanten waeren schon krass..");
     }
 
-    int number_edges = BinomialCoefficient(number_nodes, 2);
+    // finde heraus, wie viel Knoten ich brauche
+    for (int i=2; i<=100; i++) {
+        // fc_edges_to_nodes.insert(std::make_pair(i, BinomialCoefficient(i, 2));)
+        // std::cout << BinomialCoefficient(i, 2) << "\n";
 
-    std::string directory(argv[3]);
+        if (number_edges <= BinomialCoefficient(i, 2)) {
+            number_nodes = i;
+            number_minus_edges = BinomialCoefficient(i, 2) - number_edges;
+            break;
+        }
+    }
 
     std::string outputPath = R"(/gss/work/xees8992/)";
     outputPath += directory;
 
     // hier drin speichere ich pro run die Anzahl der hinzugefuegten Bedingungen
-    std::vector<unsigned long> counters;
+    // std::vector<unsigned long> counters;
 
     // hier drin speichere ich die setupzeiten
-    std::vector<std::chrono::seconds> setup_zeiten;
+    // std::vector<std::chrono::seconds> setup_zeiten;
 
     // hier drin speichere ich die Loopzeiten (zeit, in der die Bedingungen hinzugefuegt werden und f)
-    std::vector<std::chrono::seconds> loop_zeiten;
+    // std::vector<std::chrono::seconds> loop_zeiten;
     // hier speicher ich die Zeiten, wie lange alle Optimierungen bei allen Iteratioenn gedauert haben
-    std::vector<std::vector<std::chrono::milliseconds>> optimierungs_zeiten;
+    // std::vector<std::vector<std::chrono::milliseconds>> optimierungs_zeiten;
 
     try {
        
@@ -55,7 +71,28 @@ int main(int argc, char * argv[]) {
 
         // loope ueber Anzahl Iterationen und fuere so oft ein fully connected Problem aus und tracke die Dauer und die Anzahl an hinzugefuegten Bedingungen
 
-        for (int i=0; i<iterations; i++) {
+        // counter
+        ofstream counter_file;
+        std::string counter_path = outputPath + "/counters.txt";
+
+        // setup zeit
+        ofstream setup_file;
+        std::string setup_path = outputPath + "/setup_zeiten_s.txt";
+
+        // loop zeit
+        ofstream loop_file;
+        std::string loop_path = outputPath + "/loop_zeiten_s.txt";
+
+        // die optimierungszeiten
+        std::string opt_path = outputPath + "/opt/";
+
+        int counter_iteration = 0;
+
+        NRandomScenarioCreator s(number_scenarios, rng);    
+        RandomTestCreator n(0., 10., rng);
+        FullyConnectedMinusEdges ensemble(number_nodes, s, n, rng, number_minus_edges);
+
+        while (true) {
         
             unsigned long counter = 0;
             std::chrono::seconds setup_zeit;
@@ -63,37 +100,39 @@ int main(int argc, char * argv[]) {
 
             std::vector<std::chrono::milliseconds> opt_times;
 
-            // std::vector<double> scenarioProbabilities {0.2, 0.3, 0.5};
-
-            auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
-            std::uniform_real_distribution<double> dist(0., 10.);                
-
-            std::vector<double> firstStageWeights;
-
-            for (int i=0; i<number_edges; i++) {
-                firstStageWeights.push_back(dist(rng));
-            }
-
-            std::vector<std::vector<double>> secondStageWeights;
-            for (int i=0; i<number_scenarios; i++) {
-                std::vector<double> v;
-                for (int j=0; j<number_edges; j++) {
-                    v.push_back(dist(rng));
-                }
-                secondStageWeights.push_back(v);
-            } 
-
-            // FullyConnectedTwoStageMST mst(number_nodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
-            FullyConnectedTwoStageMST mst(number_nodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
-
-            double res = solve_relaxed_lp(mst, counter, setup_zeit, loop_zeit, opt_times);
-            // mst.save_lp_result_map("lp_long");
+            double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
 
             // Ergebnisse abspeichern:
-            counters.push_back(counter);
-            optimierungs_zeiten.push_back(opt_times);
-            setup_zeiten.push_back(setup_zeit);
-            loop_zeiten.push_back(loop_zeit);
+
+            counter_file.open(counter_path, std::ios::app);
+            counter_file << counter << "\n";
+            counter_file.close();
+
+            setup_file.open(setup_path, std::ios::app);
+            setup_file << setup_zeit.count() << "\n";
+            setup_file.close();
+
+            loop_file.open (loop_path, std::ios::app);
+            loop_file << loop_zeit.count() << "\n";
+            loop_file.close();
+
+            ofstream opt_file;
+            opt_file.open(opt_path + std::to_string(counter_iteration) + "_ms.txt");
+
+            for (auto t : opt_times) {
+                opt_file << t.count() << "\n";
+            }
+
+            opt_file.close();
+        
+            // naechste Iteration
+            counter_iteration++;
+            ensemble.recreate();
+
+            // counters.push_back(counter);
+            // optimierungs_zeiten.push_back(opt_times);
+            // setup_zeiten.push_back(setup_zeit);
+            // loop_zeiten.push_back(loop_zeit);
 
             //std::cout << "Ich komme bis zur Ausgabe des Ergebnisses des LP-Algorithmus\n" << std::endl;
 
@@ -110,58 +149,58 @@ int main(int argc, char * argv[]) {
         }
         // alles abspeichern
 
-        // counter
-        ofstream counter_file;
-        std::string counter_path = outputPath + "/counters.txt";
+        // // counter
+        // ofstream counter_file;
+        // std::string counter_path = outputPath + "/counters.txt";
 
-        std::cout << counter_path << "\n";
+        // std::cout << counter_path << "\n";
 
-        counter_file.open (counter_path);
+        // counter_file.open (counter_path);
 
-        for (auto c : counters) {
-            counter_file << c << "\n";
-        }
-        counter_file.close();
-
-
-        // setup zeit
-        ofstream setup_file;
-        std::string setup_path = outputPath + "/setup_zeiten_s.txt";
-
-        setup_file.open (setup_path);
-
-        for (auto t : setup_zeiten) {
-            setup_file << t.count() << "\n";
-        }
-        setup_file.close();
-
-        // loop zeit
-        ofstream loop_file;
-        std::string loop_path = outputPath + "/loop_zeiten_s.txt";
-
-        loop_file.open (loop_path);
-
-        for (auto t : loop_zeiten) {
-            loop_file << t.count() << "\n";
-        }
-        loop_file.close();
+        // for (auto c : counters) {
+        //     counter_file << c << "\n";
+        // }
+        // counter_file.close();
 
 
-        // die optimierungszeiten
-        std::string opt_path = outputPath + "/opt/";
+        // // setup zeit
+        // ofstream setup_file;
+        // std::string setup_path = outputPath + "/setup_zeiten_s.txt";
 
-        for (int i=0; i<iterations; i++) {
-            ofstream opt_file;
-            opt_file.open(opt_path + std::to_string(i) + "_ms.txt");
+        // setup_file.open (setup_path);
 
-            std::cout << opt_path + std::to_string(i) + "_ms.txt" << "\n";
+        // for (auto t : setup_zeiten) {
+        //     setup_file << t.count() << "\n";
+        // }
+        // setup_file.close();
 
-            for (auto t : optimierungs_zeiten[i]) {
-                opt_file << t.count() << "\n";
-            }
+        // // loop zeit
+        // ofstream loop_file;
+        // std::string loop_path = outputPath + "/loop_zeiten_s.txt";
 
-            opt_file.close();
-        }
+        // loop_file.open (loop_path);
+
+        // for (auto t : loop_zeiten) {
+        //     loop_file << t.count() << "\n";
+        // }
+        // loop_file.close();
+
+
+        // // die optimierungszeiten
+        // std::string opt_path = outputPath + "/opt/";
+
+        // for (int i=0; i<iterations; i++) {
+        //     ofstream opt_file;
+        //     opt_file.open(opt_path + std::to_string(i) + "_ms.txt");
+
+        //     std::cout << opt_path + std::to_string(i) + "_ms.txt" << "\n";
+
+        //     for (auto t : optimierungs_zeiten[i]) {
+        //         opt_file << t.count() << "\n";
+        //     }
+
+        //     opt_file.close();
+        // }
         
     }
     // catch(GRBException e) {

@@ -7,6 +7,10 @@
 
 enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
 
+// forward declaration  KLAPPT IRGENDWIE NICHT
+// class TwoStageProblem;
+// double solve_relaxed_lp(TwoStageProblem & two_stage_problem);
+
 template <typename... Tn>
 void simulate(int i, Tn..., double d);
 
@@ -105,6 +109,8 @@ public:
 
     // speichert mir den aktuellen graphen des twostageproblems
     virtual void save_current_graph(std::string name);
+
+    friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem);
 
 };
 
