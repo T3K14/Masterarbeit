@@ -131,6 +131,19 @@ int main(int argc, char * argv[]) {
             // naechste Iteration
             counter_iteration++;
             ensemble.recreate();
+
+
+            // mal ausgeben:
+            for (auto s : ensemble.two_stage_problem.secondStageProbabilities) {
+                std::cout << s << "\n";
+            }
+
+            for (auto e: ensemble.two_stage_problem.edges) {
+                std::cout << ensemble.two_stage_problem.firstStageWeights[e] << "\n";
+            }
+
+            std::cout << "Ende" << std::endl;
+
         }
             // counters.push_back(counter);
             // optimierungs_zeiten.push_back(opt_times);
