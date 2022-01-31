@@ -13,8 +13,14 @@ int main() {
     NRandomScenarioCreator s(3, rng);    
     RandomTestCreator n(0., 10., rng);
 
-    Tree tree(10, s, n, rng);
-    tree.recreate();
+    // Tree tree(10, s, n, rng);
+    // tree.recreate();
+
+    FullyConnectedMinusEdges ensemble(10, s, n, rng, 5);
+    ensemble.initialize();
+
+
+
 
     // // teste RandomTestCreator::create_costs()
     // tree.recreate(rng);

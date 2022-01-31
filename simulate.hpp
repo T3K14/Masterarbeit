@@ -95,7 +95,8 @@ public:
 
     // soll das Ensemble neu aufsetzen, zB. einen neuen Baum erzeugen und neue Kosten
     virtual void recreate();// = 0;      
-    virtual void add_edges() = 0;                    
+    virtual void add_edges() = 0;       // PROTECTED MACHEN? SONST KANN ICH DIE AUCH VON AUSSERHALB AUFRUFEN, ODER SIND DIE SAVE SO???                  
+    virtual void initialize();
 
     double approx();
     double bruteforce();
@@ -110,6 +111,7 @@ public:
 
 class Tree : public Ensemble {
 
+protected:
     std::mt19937 & rng;
 
 public:
@@ -123,15 +125,42 @@ public:
 
 };
 
-class FullyConnected : public Ensemble {
+// Ensemble-Klasse, die zuerst einen Tree baut und dann noch random N Edges zum Graph hinzufuegt
+class TreePlusEdges : public Tree {
 
-    public:
-    FullyConnected(unsigned int number_nodes);
-    virtual ~FullyConnected() = default;
-    virtual void recreate();
+protected:
+    unsigned int number_extra_edges;
+
+public:
+    TreePlusEdges(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, unsigned int _number_extra_edges);
+
+    virtual ~TreePlusEdges() = default;
+    virtual void add_edges() override;
+
 
 };
 
+class FullyConnected : public Ensemble {
+
+public:
+    FullyConnected(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator);
+    virtual ~FullyConnected() = default;
+    virtual void add_edges() override;
+
+};
+
+class FullyConnectedMinusEdges : public FullyConnected {
+
+protected:
+    unsigned int number_minus_edges;
+    std::mt19937 & rng;
+
+public:
+    FullyConnectedMinusEdges(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, unsigned int _number_minus_edges);
+    virtual ~FullyConnectedMinusEdges() = default;
+    virtual void add_edges() override;
+
+};
 
 
 void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich);

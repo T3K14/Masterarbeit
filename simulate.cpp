@@ -104,7 +104,7 @@ void RandomTestCreator::create_costs(TwoStageProblem & tsp) {
     size_t number_scenarios = tsp.get_number_scenarios();
 
     auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
-    std::uniform_real_distribution<double> dist(0., 10.);                
+    std::uniform_real_distribution<double> dist(low, high);                
 
     std::vector<double> first_stage_costs;
 
@@ -164,10 +164,9 @@ void Ensemble::erase_all_edges() {
     two_stage_problem.edges.clear();
 }
 
-// kann ich den auch noch umschreiben, dass ich nur an den ensemble constructor delegieren muss??? wird dann auch die richtige add_edges methode genommen?
-Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng) : Ensemble(number_nodes, _scenario_creator, _edge_cost_creator), rng(_rng) {
-    // delegiere zum Ensemble constructor, der die Knoten erzeugt
-    // jetzt kommen noch so viele Kanten dazu, dass das ganze einen Tree ergibt (dieser Vorgang wird dann bei einem recreate-call wiederholt)
+void Ensemble::initialize() {
+
+    // rufe die entsprechende add_edges methode auf
     add_edges();
 
     // fuege die Scenariowahrscheinlichkeiten hinzu ensprechend des uebergebenen Scenariocreators
@@ -175,6 +174,24 @@ Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEd
 
     //fuege Kantengewichte entsprechend des uebergebenen Edgecoscreators hinzu
     edge_cost_creator.create_costs(two_stage_problem);
+}
+
+void Ensemble::save_current_graph(std::string name) {
+
+    std::string path = R"(D:\Uni\Masterarbeit\Code\output\)";
+    path += name;
+    path += R"(.lgf)";
+
+    lemon::GraphWriter<lemon::ListGraph> writer(two_stage_problem.g, path); 
+
+    writer.run();
+
+}
+
+// kann ich den auch noch umschreiben, dass ich nur an den ensemble constructor delegieren muss??? wird dann auch die richtige add_edges methode genommen?
+Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng) : Ensemble(number_nodes, _scenario_creator, _edge_cost_creator), rng(_rng) {
+    // delegiere zum Ensemble constructor, der die Knoten erzeugt
+    // jetzt kommen noch so viele Kanten dazu, dass das ganze einen Tree ergibt (dieser Vorgang wird dann bei einem recreate-call wiederholt)
 }
 
 void Tree::add_edges() {
@@ -245,17 +262,107 @@ void Tree::add_edges() {
 //     edge_cost_creator.create_costs(two_stage_problem);
 // }
 
-void Ensemble::save_current_graph(std::string name) {
+// NOCH NICHT FERTIG
+TreePlusEdges::TreePlusEdges(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, unsigned int _number_extra_edges) 
+    : Tree(_number_nodes, _scenario_creator, _edge_cost_creator, _rng), number_extra_edges(_number_extra_edges) {
 
-    std::string path = R"(D:\Uni\Masterarbeit\Code\output\)";
-    path += name;
-    path += R"(.lgf)";
-
-    lemon::GraphWriter<lemon::ListGraph> writer(two_stage_problem.g, path); 
-
-    writer.run();
+    // checke, ob es mit der geforderten Anzahl an Extraedges zu Problemen kommt
+    if (number_nodes - 1 + number_extra_edges > BinomialCoefficient(number_nodes, 2)) {         //ACHTUNG WENN ICH UNSIGNED INTS VONEINANDER ABZIEHE
+        throw std::invalid_argument( "ROBERT-ERROR: The number of extra edges plus the number of the edges in the tree canvnot be bigger than the number of edges in a fully connected graph!\n" );
+    }
 
 }
+
+// NOCH NICHT FERTIG
+void TreePlusEdges::add_edges() {
+
+    // zuerst den Baum bauen
+    Tree::add_edges();
+
+    //
+
+     // random discrete distribution
+    // std::uniform_int_distribution<unsigned int> dist(0, 10);
+
+}
+
+FullyConnected::FullyConnected(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator) : Ensemble(_number_nodes, _scenario_creator, _edge_cost_creator) {
+    // delegiere zum Ensemble constructor, der die Knoten erzeugt
+}
+
+void FullyConnected::add_edges() {
+
+    // Dabei ist es jetzt so, dass zuerst alle Kanten durchgegangen werden ab der ersten Node, dann alle ab der zweiten (ohne die Kante zur ersten Node) etc.
+    for (int i=0; i<number_nodes; i++) {
+        for (int j=0; j<number_nodes; j++) {  // DER INDEX SOLLTE EIGENTLICH AUCH BEI 1 STARTEN KÖNNEN ODER?
+            if (i < j) {
+                two_stage_problem.edges.push_back(two_stage_problem.g.addEdge(two_stage_problem.nodes[i], two_stage_problem.nodes[j]));
+            }
+        }
+    }
+
+}
+
+FullyConnectedMinusEdges::FullyConnectedMinusEdges(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, unsigned int _number_minus_edges)
+    : FullyConnected(_number_nodes, _scenario_creator, _edge_cost_creator), rng(_rng), number_minus_edges(_number_minus_edges) {
+
+    // checken, dass ich nicht so viele Kanten wegnehme, dass am Ende kein Tree mehr vorhanden sein kann
+    if (BinomialCoefficient(number_nodes, 2) < number_minus_edges || BinomialCoefficient(number_nodes, 2) - number_minus_edges < number_nodes - 1) {     // erste Bedingung, weil ich hier mit unsigned ints hantiere
+        throw std::invalid_argument("ROBERT-ERROR: The number of remaining edges must be bigger than N-1.\n" );
+    }
+}
+
+void FullyConnectedMinusEdges::add_edges() {
+
+    // diese Methode koennte save noch optimiert werden
+
+    // erstmal fully connected Edges bauen
+    FullyConnected::add_edges();
+
+    // vector mit edges, die ich noch entfernen darf
+    std::vector<lemon::ListGraph::Edge> edges_left(two_stage_problem.edges);
+
+    unsigned int number_edges_left = two_stage_problem.edges.size();
+        
+    std::uniform_int_distribution<unsigned int> dist(0, --number_edges_left);       // --, weil uniform int dist aus Intervall [a,b] zieht
+
+    for (int i=0; i<number_minus_edges; i++) {
+
+        // passe die Parameter der Verteilung an, um neue Edge aus den verbleibenden zu waehlen
+        dist.param(decltype(dist)::param_type(0, number_edges_left--));
+
+        // waehle random eine edge aus und entferne sie
+        unsigned int index = dist(rng);
+        auto e = edges_left[index];
+
+        edges_left.erase(edges_left.begin() + index);
+
+        // auch noch aus dem two_stage_problem entfernen, zuerst aus edges und dann aus dem Graph
+        // finde zuerst den Index der Edge in two_stage_problem.edges
+        auto iter = std::find(two_stage_problem.edges.begin(), two_stage_problem.edges.end(), e);
+        // int index = std::distance(two_stage_problem.edges.begin(), iter);
+
+        two_stage_problem.edges.erase(two_stage_problem.edges.begin() + std::distance(two_stage_problem.edges.begin(), iter));
+        
+        two_stage_problem.g.erase(e);
+
+        // aktualisiere die edges_left indem alle entfernt werden, die nun, nachdem die neue Edge entfernt wurde nicht mehr entfernt werden duerfen
+
+        auto it = edges_left.begin();
+
+        while(it != edges_left.end()) {
+
+            // zur edge: *it 
+            // schauen, ob ein Knoten nun nur noch 1 inzidente Kante hat
+            if(lemon::countIncEdges(two_stage_problem.g, two_stage_problem.g.u(*it)) < 2 || lemon::countIncEdges(two_stage_problem.g, two_stage_problem.g.v(*it)) < 2) {
+
+                it = edges_left.erase(it);
+            }
+            else ++it;
+        }
+    }
+}
+
 
 /*
 int main() {
