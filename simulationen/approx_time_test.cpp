@@ -69,7 +69,7 @@ int main(int argc, char * argv[]) {
         std::cout << "Nodes: " << number_nodes << "\n";
         // std::cout << "Iterationen: " << iterations << "\n";
         std::cout << "Anzahl Edges: " << number_edges << "\n";
-        std::cout << "Szenarien: " << number_scenarios << "\n";
+        std::cout << "Szenarien: " << number_scenarios << std::endl;
 
         // loope ueber Anzahl Iterationen und fuere so oft ein fully connected Problem aus und tracke die Dauer und die Anzahl an hinzugefuegten Bedingungen
 
@@ -90,46 +90,46 @@ int main(int argc, char * argv[]) {
 
         int counter_iteration = 0;
 
-        NRandomScenarioCreator s(number_scenarios, rng);    
-        RandomTestCreator n(0., 10., rng);
-        FullyConnectedMinusEdges ensemble(number_nodes, s, n, rng, number_minus_edges);
+        // NRandomScenarioCreator s(number_scenarios, rng);    
+        // RandomTestCreator n(0., 10., rng);
+        // FullyConnectedMinusEdges ensemble(number_nodes, s, n, rng, number_minus_edges);
 
-        // while (true) {
+        // // while (true) {
         
-        unsigned long counter = 0;
-        std::chrono::seconds setup_zeit;
-        std::chrono::seconds loop_zeit;
+        // unsigned long counter = 0;
+        // std::chrono::seconds setup_zeit;
+        // std::chrono::seconds loop_zeit;
 
-        std::vector<std::chrono::milliseconds> opt_times;
+        // std::vector<std::chrono::milliseconds> opt_times;
 
-        double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
+        // double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
 
-        // Ergebnisse abspeichern:
+        // // Ergebnisse abspeichern:
 
-        counter_file.open(counter_path, std::ios::app);
-        counter_file << counter << "\n";
-        counter_file.close();
+        // counter_file.open(counter_path, std::ios::app);
+        // counter_file << counter << "\n";
+        // counter_file.close();
 
-        setup_file.open(setup_path, std::ios::app);
-        setup_file << setup_zeit.count() << "\n";
-        setup_file.close();
+        // setup_file.open(setup_path, std::ios::app);
+        // setup_file << setup_zeit.count() << "\n";
+        // setup_file.close();
 
-        loop_file.open (loop_path, std::ios::app);
-        loop_file << loop_zeit.count() << "\n";
-        loop_file.close();
+        // loop_file.open (loop_path, std::ios::app);
+        // loop_file << loop_zeit.count() << "\n";
+        // loop_file.close();
 
-        ofstream opt_file;
-        opt_file.open(opt_path + std::to_string(counter_iteration) + "_ms.txt");
+        // ofstream opt_file;
+        // opt_file.open(opt_path + std::to_string(counter_iteration) + "_ms.txt");
 
-        for (auto t : opt_times) {
-            opt_file << t.count() << "\n";
-        }
+        // for (auto t : opt_times) {
+        //     opt_file << t.count() << "\n";
+        // }
 
-        opt_file.close();
+        // opt_file.close();
     
-        // naechste Iteration
-        counter_iteration++;
-        ensemble.recreate();
+        // // naechste Iteration
+        // counter_iteration++;
+        // ensemble.recreate();
 
             // counters.push_back(counter);
             // optimierungs_zeiten.push_back(opt_times);
