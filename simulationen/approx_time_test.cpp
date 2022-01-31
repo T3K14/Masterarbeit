@@ -52,6 +52,8 @@ int main(int argc, char * argv[]) {
     std::string outputPath = R"(/gss/work/xees8992/)";
     outputPath += directory;
 
+    std::cout << "HIERHIERHIER\n";
+
     // hier drin speichere ich pro run die Anzahl der hinzugefuegten Bedingungen
     // std::vector<unsigned long> counters;
 
