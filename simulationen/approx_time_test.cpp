@@ -66,9 +66,10 @@ int main(int argc, char * argv[]) {
 
     try {
        
-        // std::cout << "Nodes: " << number_nodes << "\n";
+        std::cout << "Nodes: " << number_nodes << "\n";
         // std::cout << "Iterationen: " << iterations << "\n";
-        // std::cout << "Anzahl Edges: " << number_edges << "\n";
+        std::cout << "Anzahl Edges: " << number_edges << "\n";
+        std::cout << "Szenarien: " << number_scenarios << "\n";
 
         // loope ueber Anzahl Iterationen und fuere so oft ein fully connected Problem aus und tracke die Dauer und die Anzahl an hinzugefuegten Bedingungen
 
