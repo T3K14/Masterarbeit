@@ -333,19 +333,19 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
     //double res = obj.getValue();
     
     // ich schreibe nun in die uebergebene EdgeMap die Ergebnisse der optimierten LP-Variablen und free die hier allocateten Variablen arrays
-    // for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
+    for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
 
-    //     // std::copy_n(model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), two_stage_problem.lp_results_map[e].size(), two_stage_problem.lp_results_map[e].begin());
+        // std::copy_n(model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), two_stage_problem.lp_results_map[e].size(), two_stage_problem.lp_results_map[e].begin());
 
-    //     double * lp_edge_solutions = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
-    //     for (int i=0; i<two_stage_problem.numberScenarios+1; i++) {
-    //         two_stage_problem.lp_results_map[e].push_back(lp_edge_solutions[i]);
-    //     }
+        double * lp_edge_solutions = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
+        for (int i=0; i<two_stage_problem.numberScenarios+1; i++) {
+            two_stage_problem.lp_results_map[e].push_back(lp_edge_solutions[i]);
+        }
 
-    //     // hier free ich die Variablen arrays pro Kante
-    //     delete[] gurobi_variables_map[e];
+        // hier free ich die Variablen arrays pro Kante
+        delete[] gurobi_variables_map[e];
 
-    // }
+    }
 
     // for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
         // delete[] gurobi_variables_map[e];
