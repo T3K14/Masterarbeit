@@ -209,9 +209,9 @@ int main(int argc, char * argv[]) {
     //     cout << "Error code = " << e.getErrorCode() << endl;
     //     cout << e.getMessage() << endl;
     // } 
-    catch(...) {
-        cout << "Exception during optimization" << endl;
-    }
+    // catch(...) {
+    //     cout << "Exception during optimization" << endl;
+    // }
 
     
 }
