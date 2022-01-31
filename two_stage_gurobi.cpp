@@ -144,6 +144,12 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
     auto t_start_setup = std::chrono::high_resolution_clock::now();
 
+    for (auto i : two_stage_problem.edges) {
+        std::cout << two_stage_problem.firstStageWeights[e] << "\n";
+    }
+
+    std:: cout << "Das waren die first stage weights" << std::endl;
+
     /* DEBUG
     // std::cout << "pkt 1 in Funktion\n";
     // auto eddy = two_stage_problem.g.edgeFromId(0);
