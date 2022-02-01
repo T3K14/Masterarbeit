@@ -103,7 +103,7 @@ int main(int argc, char * argv[]) {
 
             std::vector<std::chrono::milliseconds> opt_times;
 
-            double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
+            double res = solve_relaxed_lp(ensemble.two_stage_problem);//, counter, setup_zeit, loop_zeit, opt_times);
 
             // Ergebnisse abspeichern:
 
@@ -134,16 +134,28 @@ int main(int argc, char * argv[]) {
 
 
             // mal ausgeben:
+
+            std::cout << "\nScenarioeigenscahften:\n" << std::endl;
+            
+            std::cout << "Wahrscheinlichkeiten:\n" << std::endl;
+
             for (auto s : ensemble.two_stage_problem.secondStageProbabilities) {
                 std::cout << s << "\n";
             }
+            std::cout << "\nFirst Stage Kosten:\n" << std::endl;
 
             for (auto e: ensemble.two_stage_problem.edges) {
                 std::cout << ensemble.two_stage_problem.firstStageWeights[e] << "\n";
             }
+            
+            std::cout << "\nSecond Stage Kosten:\n" << std::endl;
 
-            std::cout << "Ende" << std::endl;
-
+            for (int i=0: i<ensemble.two_stage_problem.numberScenarios; i++) {
+                std::cout << "Szenario" << i << ":\n" << std::endl;
+                for (auto e: ensemble.two_stage_problem.edges) {
+                    std::cout << ensemble.two_stage_problem.secondStageWeights[e][i] << "\n";
+                }
+            }
         }
             // counters.push_back(counter);
             // optimierungs_zeiten.push_back(opt_times);
