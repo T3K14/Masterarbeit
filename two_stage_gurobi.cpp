@@ -307,6 +307,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
         // hier hab ich entweder alle szenarien durch und nicht gebreakt, was bedeutet, dass alle min-cut-values >= 1 sind oder ich bin entweder aus dem for-loop rausgebreakt, also
         // muss ich nochmal checken, ob auch der letzte Wert >= 1 ist, weil wenn nicht, muss ich neu mit der neuen Bed. optimieren
 
+        std::cout << "min_cut_value: " << min_cut_value << std::endl;
+
+
         // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
         if(min_cut_value >= 1) {
             break;
