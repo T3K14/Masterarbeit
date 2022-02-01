@@ -23,6 +23,14 @@ int main() {
     FullyConnectedMinusEdges ensemble(6, s, n, rng, 5);
     ensemble.initialize();
 
+    std::cout << 1.0000001 << std::endl;
+    std::cout << 1.00001 << std::endl;
+    std::cout << 1. << std::endl;
+    std::cout << 1 << std::endl;
+
+    std::cout << int(0.9999) << std::endl;
+    std::cout << int(0.99999) << std::endl;
+
 
     // // teste RandomTestCreator::create_costs()
     // tree.recreate(rng);
