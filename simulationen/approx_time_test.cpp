@@ -150,7 +150,7 @@ int main(int argc, char * argv[]) {
             
             std::cout << "\nSecond Stage Kosten:\n" << std::endl;
 
-            for (int i=0: i<ensemble.two_stage_problem.numberScenarios; i++) {
+            for (int i=0; i<ensemble.two_stage_problem.numberScenarios; i++) {
                 std::cout << "Szenario" << i << ":\n" << std::endl;
                 for (auto e: ensemble.two_stage_problem.edges) {
                     std::cout << ensemble.two_stage_problem.secondStageWeights[e][i] << "\n";
