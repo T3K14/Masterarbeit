@@ -221,7 +221,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
     // jetzt so lange Cut-Constraints hinzufuegen, bis die Bedingungen immer erfuellt sind 
     while(true) {
         counter2++;
-        std::cout << counter2 << std::endl;
+        std::cout << "counter2: " << counter2 << std::endl;
 
         // COUNTER zum zaehlen, wie viele Iterationen hier benoetigt werden
         counter++;
