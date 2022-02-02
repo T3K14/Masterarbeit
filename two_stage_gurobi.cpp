@@ -72,7 +72,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
 
             // falls der minCut die Bedingung verletzt, der Aufruf speichert direkt auch die bools fuer die Teilmengen in min_cut_result_map
             min_cut_value = hao.minCutMap(min_cut_result_map);
-            if(min_cut_value < 1) {
+            if(min_cut_value < 1.) {
                 
                 // fuege neues constraint hinzu, damit diese Bedingung in zukunft erfuellt ist
                 GRBLinExpr constraint = 0.0;
@@ -104,7 +104,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
         // muss ich nochmal checken, ob auch der letzte Wert >= 1 ist, weil wenn nicht, muss ich neu mit der neuen Bed. optimieren
 
         // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
-        if(min_cut_value >= 1) {
+        if(min_cut_value > 0.99999999) {        // eigentlich >= 1, aber das laesst sich mit dem int 1 nicht vergleichen, sonst komme ich ab und zu in unendliche loops
             break;
         }
         // ansonsten optimiere erneut
@@ -276,7 +276,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
             // falls der minCut die Bedingung verletzt, der Aufruf speichert direkt auch die bools fuer die Teilmengen in min_cut_result_map
             min_cut_value = hao.minCutMap(min_cut_result_map);
-            if(min_cut_value < 1) {
+            if(min_cut_value < 1.) {
                 
                 // fuege neues constraint hinzu, damit diese Bedingung in zukunft erfuellt ist
                 GRBLinExpr constraint = 0.0;
