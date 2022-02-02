@@ -311,17 +311,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
 
         // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
-        if(min_cut_value > 0.99999999) {
+        if(min_cut_value > 0.99999999) {        // eigentlich >= 1, aber das laesst sich mit dem int 1 nicht vergleichen, sonst komme ich ab und zu in unendliche loops
             break;
         }
-
-        // if (min_cut_value > 0.99999) {
-        //     if (min_cut_value > 1.) {
-        //         break;
-        //     } else if (min_cut_value < 1.000001) {
-        //         break;
-        //     }
-        // }
 
         // ansonsten optimiere erneut
     }
