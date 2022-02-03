@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <vector>
+// #include <map>
 
 #include "../two_stage.hpp"
 #include "../utilities.hpp"
@@ -324,4 +325,36 @@ TEST(TwoStageSuite, Test_NEW) {
 
     auto res = mst.bruteforce_new();
     ASSERT_NEAR(res, 2.9925, 0.00000001);
+}
+
+TEST(TwoStageSuite, Greedy1) {
+    // ist der selbe Test, wie Test7
+
+    unsigned int numberNodes = 4;
+
+    std::vector<double> scenarioProbabilities {0.5, 0.25, 0.25};
+    std::vector<double> firstStageWeights {1.1, .9, 8.4, 4.1, 5.8, 4.2};
+    std::vector<std::vector<double>> secondStageWeights {{{3.7, 2.9, 3., 2., .4, 2.1}, {7.3, 5.6, 5.9, 10., 3.1, 7.8}, {9.4, 5.1, 7.6, 6.7, .2, 4.6}}};
+
+    // Erwartungswerte: 
+    // std::vector<double> ev {6.025, 4.125, 4.875, 5.175, 1.025, 4.15};
+    // erwartete Auswahl:
+    std::vector<bool> auswahl {false, false, false, false, true, true};
+
+    FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+    // Schaue fuer jede Edge, ob das Ergebnis in greedy_first_stage_map mit meiner Erwatung uebereinstimmt
+    for (auto e : mst.edges) {
+
+        // hier drin steht meine Erwartung zu dieser Kante e
+        bool edge_first_stage = false;
+
+        for (int i=0; i<firstStageWeights.size(); i++) {
+            if (mst.firstStageWeights[e] == firstStageWeights[i]) {         // vergleiche hier doubles mit ==, weil die nicht veraendert wurden und so geht das auch nur, wenn
+                                                                            // nicht mehrere Kanten das selbe Gewicht haben
+                edge_first_stage = auswahl[i];
+            }
+        }
+        ASSERT_TRUE(mst.greedy_first_stage_map[e]==edge_first_stage);
+    }
 }

@@ -639,10 +639,38 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
     }
 }
 
+// Algorithmus der Kanten in Stage 1 kauft, deren Kosten dort geringer sind, als der Erwrtungswert in Stage 2
+void TwoStageProblem::greedy() {
+
+    // zur Warnung unten
+    unsigned int counter = 0;
+
+    for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
+        // berechne Erwartungswert
+        double ev_edge = 0.;
+        for (int i=0; i<numberScenarios; i++) {
+            ev_edge += secondStageProbabilities[i] * secondStageWeights[e][i];
+        }
+
+        // entscheiden, ob ich die Kante nehme (Erwartungswert muss kleiner als 1. stage Wert sein und Kante muss keinen Zyklus erzeugen)
+        if (ev_edge < firstStageWeights[e] && !edge_creates_loop(greedy_first_stage_map, e)) {
+            greedy_first_stage_map[e] = true;
+            counter++;
+        }
+
+        // aufhoeren, wenn n-1 Kanten gekauft wurden, weil dann wueder jede weitere Kante einen Zyklus erzeugen
+        // hier erstmal nur Warnung, dass etwas falsch ist
+        if (counter > nodes.size()-1) {
+            throw std::logic_error("Es kann eigentlich nicht sein, dass hier mehr als N-1 Kanten in Stage 1 gekauft werden!\n");
+        }
+
+    }
+}
+
 // konstruktor fuer TwoStageProblem
 // die number_scenarios lese ich dabei aus dem Vector ab
 TwoStageProblem::TwoStageProblem(const std::vector<double> & second_stage_probabilites) 
-    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g), approx_first_stage_map(g, false), bruteforce_first_stage_map(g, false) {
+    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g), approx_first_stage_map(g, false), bruteforce_first_stage_map(g, false), greedy_first_stage_map(g, false) {
 
     }
 

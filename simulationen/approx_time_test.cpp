@@ -35,7 +35,7 @@ int main(int argc, char * argv[]) {
     int number_minus_edges;
     int number_nodes;
 
-    if (number_edges > 4950)  {
+    if (number_edges > 10000)  {
         throw std::invalid_argument("ROBERT-ERROR, so viele Kanten waeren schon krass..");
     }
 

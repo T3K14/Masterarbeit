@@ -163,14 +163,13 @@ public:
     // hier sollen die double Ergebnisse der LP-Algorithmus zwischengespeichert werden
     lemon::ListGraph::EdgeMap<std::vector<double>> lp_results_map;
 
-    // hier wird gespeichert, welche Kanten vom Approximationsalgorithmus fuer die erste Phase eine Kaufempfehlung erhalten
-    lemon::ListGraph::EdgeMap<bool> approx_first_stage_map;
+    // in diesen Maps wird gespeichert, welche Kanten von den jeweiligen Algorithmen fuer die erste Phase eine Kaufempfehlung erhalten
 
-    // hier wird gespeichert, welche Kanten vom optimalen bruteforce Algorithmus fuer die erste Phase gekauft werden
+    lemon::ListGraph::EdgeMap<bool> approx_first_stage_map;
     lemon::ListGraph::EdgeMap<bool> bruteforce_first_stage_map;
+    lemon::ListGraph::EdgeMap<bool> greedy_first_stage_map;
 
 public:
-
 
 
     // constructor (ist da, damit ich die ganzen member bekomme?)
@@ -192,7 +191,7 @@ public:
     friend ScenarioCreator;
 
     // nur zum zeit testen:
-    double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<std::chrono::milliseconds> & opti_times);
+    friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<std::chrono::milliseconds> & opti_times);
 
 
 
@@ -205,6 +204,8 @@ public:
     // berechnet durch durchprobieren aller (sinnvollen) Moeglichkeiten die optimale Loesung fuer das gegebene Problem und speichert die Kanten, die in Phase 1 gekauft werden in 'bruteforce_first_stage_map'
     double bruteforce();
     double bruteforce_new();
+
+    void greedy();
 
     unsigned int get_number_edges();
     unsigned int get_number_scenarios();
