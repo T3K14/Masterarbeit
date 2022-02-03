@@ -35,12 +35,12 @@ int main(int argc, char * argv[]) {
     int number_minus_edges;
     int number_nodes;
 
-    if (number_edges > 10000)  {
-        throw std::invalid_argument("ROBERT-ERROR, so viele Kanten waeren schon krass..");
+    if (number_edges > 499500)  {
+        throw std::invalid_argument("ROBERT-ERROR, habe 499500 Kanten als Grenze (entspricht 1000 choose 2)");
     }
 
     // finde heraus, wie viel Knoten ich brauche
-    for (int i=2; i<=100; i++) {
+    for (int i=2; i<=1000; i++) {           //geht bis 499500 Kanten 
         // fc_edges_to_nodes.insert(std::make_pair(i, BinomialCoefficient(i, 2));)
         // std::cout << BinomialCoefficient(i, 2) << "\n";
 
