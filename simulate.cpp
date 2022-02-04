@@ -5,6 +5,8 @@
 #include <vector>
 
 #include <lemon/lgf_writer.h>
+#include <lemon/kruskal.h>
+
 
 // zum testen
 #include <chrono>
@@ -188,14 +190,37 @@ void Ensemble::save_current_graph(std::string name) {
 
 }
 
-// KLAPPT MIT solve_relaxd_lp noch nicht...
-void Ensemble::approx(std::mt19937 & rng) {
-
-    // erst lp Problem loesen 
-    // double lp_res = solve_relaxed_lp(two_stage_problem);
-
-    // und nun approximieren
+void Ensemble::approx_after_lp(std::mt19937 & rng) {
+    // nachdem der LP-Alg. fertig ist approximieren
     two_stage_problem.approximate(rng);
+}
+
+void Ensemble::greedy() {
+    two_stage_problem.greedy();
+}
+
+// wahle pro Szenario von jeder Kante die billiger aus 1. und 2. stage aus, baue damit MST und mittle die Gesamtkosten davon ueber alle Szenarien
+double Ensemble::do4b() {
+
+    double res = 0.;
+    lemon::ListGraph::EdgeMap<double> minMap(two_stage_problem.g); 
+
+    // loope ueber alle szenarien
+    for (int i=0; i<two_stage_problem.numberScenarios; i++) {
+
+        // baue fuer dieses Szenario die map mit billigsten Kosten fuer jede Edge
+        for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
+            minMap[e] = (two_stage_problem.firstStageWeights[e] < two_stage_problem.secondStageWeights[e][i] ? two_stage_problem.firstStageWeights[e] : two_stage_problem.secondStageWeights[e][i]);
+        }
+
+        // do the MST calculation
+        lemon::ListGraph::EdgeMap<bool> kruskalResMap(two_stage_problem.g);
+        double scenario_mst_costs = lemon::kruskal(two_stage_problem.g, minMap, kruskalResMap);
+
+        res += two_stage_problem.secondStageProbabilities[i] * scenario_mst_costs;
+    }
+
+    return res;    
 }
 
 // kann ich den auch noch umschreiben, dass ich nur an den ensemble constructor delegieren muss??? wird dann auch die richtige add_edges methode genommen?

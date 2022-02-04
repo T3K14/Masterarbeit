@@ -102,10 +102,12 @@ public:
     virtual void add_edges() = 0;       // PROTECTED MACHEN? SONST KANN ICH DIE AUCH VON AUSSERHALB AUFRUFEN, ODER SIND DIE SAVE SO???                  
     virtual void initialize();
 
-    void approx(std::mt19937 & rng);
+    void approx_after_lp(std::mt19937 & rng);
     double bruteforce();
+
+    // bei 4b kommt keine 1.stage Kantenauswahl raus, daher wird hier direkt das Ergebnis returned
     double do4b();
-    double greedy();
+    void greedy();
 
     // speichert mir den aktuellen graphen des twostageproblems
     virtual void save_current_graph(std::string name);

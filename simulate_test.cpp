@@ -20,8 +20,10 @@ int main() {
     // Tree tree(10, s, n, rng);
     // tree.recreate();
 
-    FullyConnectedMinusEdges ensemble(6, s, n, rng, 5);
+    FullyConnected ensemble(4, s, n);
     ensemble.initialize();
+
+    ensemble.do4b();
 
     std::cout << 1.0000001 << std::endl;
     std::cout << 1.00001 << std::endl;
