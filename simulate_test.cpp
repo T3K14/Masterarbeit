@@ -9,9 +9,6 @@ using namespace lemon;
 
 int main() {
 
-    // IRGENDWAS KLAPPT BEI DER KONSTRUKTION NICHT, DIE EDGES SIND LEER ODER SO
-
-
     // will schauen, ob Vererbung klappt
 
     NRandomScenarioCreator s(3, rng);    

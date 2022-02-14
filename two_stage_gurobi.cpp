@@ -240,7 +240,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
         // die folgenden zwei zeilen gehoeren auch noch dazu
         auto t_end_opt = std::chrono::high_resolution_clock::now();
-        opti_times.push_back(std::chrono::duration_cast<std::chrono::seconds>(t_end_setup - t_start_setup));
+        opti_times.push_back(std::chrono::duration_cast<std::chrono::seconds>(t_end_opt - t_start_opt));
 
         // DEBUG
         // std::cout << "\n\n Hier nach einem optimierungsvorgang\n";

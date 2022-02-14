@@ -19,7 +19,9 @@ using namespace lemon;
 /*
 void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich) {
     
-    unsigned int successes = 0;
+
+
+    // unsigned int successes = 0;
 
     for(int i=0; i<runs; i++) {
         
@@ -31,13 +33,13 @@ void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich) {
             break;
         case Vergleich::ApproxVsBruteforce:
 
-            double approx_res = ensemble.approx();
+            double approx_res = ensemble.approx_after_lp();
             double optimum_res = ensemble.bruteforce();
 
             // Bedingung checken, ob das Problem geloest wurde
-            if (approx_res < 1.05 * optimum_res) {
-                successes++;
-            }
+            // if (approx_res < 1.05 * optimum_res) {
+            //     successes++;
+            // }
 
             break;
         
