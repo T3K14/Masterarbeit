@@ -3,10 +3,12 @@
 // #include <functional>
 #include <iostream>
 #include <vector>
+#include <set>
 
 #include <lemon/lgf_writer.h>
 #include <lemon/kruskal.h>
 
+// #include "boost/filesystem.hpp"
 
 // zum testen
 #include <chrono>
@@ -16,6 +18,55 @@
 using namespace lemon;
 
 // Ensemble::Ensemble() {}
+
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set) {
+
+    if (alg_set.size() < 1) {
+        throw std::invalid_argument("ROBERT-ERROR: Brauche mindestens einen Algorithmus, den ich laufen lasse!\n");
+    }
+
+    std::string dir_name = ensemble.identify_all(); 
+
+    for (int i=0; i<runs; i++) {
+
+        for (auto alg : alg_set) {
+
+            switch (alg) {
+                case Alg::Schranke4b: {
+                    double res_4b = ensemble.do4b();
+                }
+                break;
+
+                case Alg::LPApprox: {
+                // double res_approx = ensemble.approx_after_lp();
+
+                }
+                break;
+
+                case Alg::GreedyApprox: {
+
+                }         
+                break;
+                
+                case Alg::Optimal: {
+                // double res_optimum = ensemble.bruteforce();
+
+                }
+                break;                
+
+            // default:
+                // break;
+            }
+        }
+
+        // Problemstellung resetten
+        ensemble.recreate();
+    }
+    
+
+}
+
+
 /*
 void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich) {
     
@@ -71,8 +122,18 @@ void NRandomScenarioCreator::create_scenarios(TwoStageProblem & tsp) {
     override_scenarios(tsp, probs);
 }
 
+std::string NRandomScenarioCreator::identify() {
+    std::string s = std::to_string(number_scenarios) + "_RandomScenarioCreator";
+    return s;
+}
+
 RandomTestCreator::RandomTestCreator(double _low, double _high, std::mt19937 & _rng) : low(_low), high(_high), rng(_rng) {
 
+}
+
+std::string RandomTestCreator::identify() {
+    std::string s = "RandomTestCreator_" + std::to_string(low) + "_" + std::to_string(high);
+    return s;
 }
 
 // nimmt die gegebenen neuen Gewichte an und schreibt sie unter ANNAHME, DASS ERSTER EINTRAG IN DEN VEKTOREN SICH AUCH AUF DIE ERSTE KANTE in edges (vektor) bezieht BEZIEHT in das two stage problem
@@ -130,7 +191,7 @@ void RandomTestCreator::create_costs(TwoStageProblem & tsp) {
 }
 
 
-Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), secenario_creator(_scenario_creator), edge_cost_creator(_edge_cost_creator) {
+Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), scenario_creator(_scenario_creator), edge_cost_creator(_edge_cost_creator) {
 
     // baue schon die Knoten in den Graphen, weil die bleiben erstmal fuer eien Mittelung immer konstant
     for (int i=0; i<number_nodes; i++) {
@@ -147,7 +208,7 @@ void Ensemble::recreate() {
     add_edges();        // DAS SOLL DANN DIE JEWEILIGE UEBERSCHRIEBENE add_edges METHODE SEIN!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // fuege neue Scenariowahrscheinlichkeiten hinzu (ensprechend des uebergebenen Scenariocreators)
-    secenario_creator.create_scenarios(two_stage_problem);
+    scenario_creator.create_scenarios(two_stage_problem);
 
     //fuege neue Gewichte entsprechend des uebergebenen edgecostCreators hinzu
     edge_cost_creator.create_costs(two_stage_problem);
@@ -174,7 +235,7 @@ void Ensemble::initialize() {
     add_edges();
 
     // fuege die Scenariowahrscheinlichkeiten hinzu ensprechend des uebergebenen Scenariocreators
-    secenario_creator.create_scenarios(two_stage_problem);
+    scenario_creator.create_scenarios(two_stage_problem);
 
     //fuege Kantengewichte entsprechend des uebergebenen Edgecoscreators hinzu
     edge_cost_creator.create_costs(two_stage_problem);
@@ -223,6 +284,11 @@ double Ensemble::do4b() {
     }
 
     return res;    
+}
+
+std::string Ensemble::identify_all() {
+    std::string s = scenario_creator.identify() + "_" + edge_cost_creator.identify() + "_" + identify();
+    return s;
 }
 
 // kann ich den auch noch umschreiben, dass ich nur an den ensemble constructor delegieren muss??? wird dann auch die richtige add_edges methode genommen?
@@ -285,6 +351,11 @@ void Tree::add_edges() {
     }
 }
 
+std::string Tree::identify() {
+    std::string s = "Tree";
+    return s;
+}
+
 // void Tree::recreate(std::mt19937 & rng) {
 
 //     // loesche die bisherigen Kanten
@@ -338,6 +409,11 @@ void FullyConnected::add_edges() {
         }
     }
 
+}
+
+std::string FullyConnected::identify() {
+    std::string s = "FullyConnected";
+    return s;
 }
 
 FullyConnectedMinusEdges::FullyConnectedMinusEdges(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, unsigned int _number_minus_edges)
@@ -398,6 +474,11 @@ void FullyConnectedMinusEdges::add_edges() {
             else ++it;
         }
     }
+}
+
+std::string FullyConnectedMinusEdges::identify() {
+    std::string s = "FullyConnectedMinus_" + std::to_string(number_minus_edges) + "_edges";
+    return s;
 }
 
 

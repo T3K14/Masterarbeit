@@ -20,15 +20,17 @@ int main() {
     FullyConnected ensemble(4, s, n);
     ensemble.initialize();
 
-    ensemble.do4b();
+    std::cout << ensemble.identify_all();
 
-    std::cout << 1.0000001 << std::endl;
-    std::cout << 1.00001 << std::endl;
-    std::cout << 1. << std::endl;
-    std::cout << 1 << std::endl;
+    // ensemble.do4b();
 
-    std::cout << int(0.9999) << std::endl;
-    std::cout << int(0.99999) << std::endl;
+    // std::cout << 1.0000001 << std::endl;
+    // std::cout << 1.00001 << std::endl;
+    // std::cout << 1. << std::endl;
+    // std::cout << 1 << std::endl;
+
+    // std::cout << int(0.9999) << std::endl;
+    // std::cout << int(0.99999) << std::endl;
 
 
     // // teste RandomTestCreator::create_costs()
