@@ -639,7 +639,7 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
     }
 }
 
-// Algorithmus der Kanten in Stage 1 kauft, deren Kosten dort geringer sind, als der Erwrtungswert in Stage 2
+// Algorithmus der Kanten in Stage 1 kauft, deren Kosten dort geringer sind, als der Erwartungswert in Stage 2
 void TwoStageProblem::greedy() {
 
     // zur Warnung unten

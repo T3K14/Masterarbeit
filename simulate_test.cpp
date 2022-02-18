@@ -4,12 +4,14 @@
 
 #include <iostream>
 #include <map>
+// #include <set>
+#include <fstream>
+
+#include "boost/filesystem.hpp"
 
 using namespace lemon;
 
 int main() {
-
-    // will schauen, ob Vererbung klappt
 
     NRandomScenarioCreator s(3, rng);    
     RandomTestCreator n(0., 10., rng);
@@ -17,10 +19,12 @@ int main() {
     // Tree tree(10, s, n, rng);
     // tree.recreate();
 
-    FullyConnected ensemble(4, s, n);
+    // FullyConnected ensemble(4, s, n);
+    Tree ensemble(15, s, n, rng);
     ensemble.initialize();
 
-    std::cout << ensemble.identify_all();
+    simulate(10, ensemble, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal});
+
 
     // ensemble.do4b();
 

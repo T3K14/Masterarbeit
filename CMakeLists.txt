@@ -60,6 +60,21 @@ else()
     set(lemonpath D:\\Programme\\Lemon)
     include_directories(D:\\Programme\\Lemon\\include)
     find_library(mylemon PATHS ${lemonpath} NAMES lemon emon)
+
+    set(Boost_USE_STATIC_LIBS ON)
+
+    SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "D:\\Program Files (x86)\\boost_1_75_0")
+    SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "D:\\Program Files (x86)\\boost_1_75_0\\stage\\lib")
+    
+    find_package(Boost 1.75.0 COMPONENTS filesystem)
+
+
+    # set(boostpath D:\\Program Files (x86)\\boost_1_75_0\\stage\\lib)
+    # include_directories(D:\\Program Files (x86)\\boost_1_75_0)
+    # find_library(myboost PATHS ${boostpath} NAMES boost)
+
+
+    # message("MESSAGE: ${myboost}")
 endif()
 
 set (Sources
@@ -79,9 +94,13 @@ option(Compile_Test_Code "Decide if code that is only used for testing functiona
 add_executable(${first} first.cpp)
 target_link_libraries(${first} PUBLIC ${mylemon})
 
-add_library(two_stage STATIC ${Sources} ${Headers})
-target_link_libraries(two_stage PUBLIC ${mylemon})
+if(Boost_FOUND)
+include_directories(${Boost_INCLUDE_DIRS})
 
+add_library(two_stage STATIC ${Sources} ${Headers})
+target_link_libraries(two_stage PUBLIC ${mylemon} ${Boost_LIBRARIES})
+
+endif()
 #target_link_libraries(two_stage PUBLIC m)
 
 add_subdirectory(test)

@@ -4,6 +4,7 @@
 #include "two_stage.hpp"
 #include "utilities.hpp"
 #include <random>
+#include <set>
 
 // enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
 enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal};
@@ -12,7 +13,6 @@ enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal};
 // class TwoStageProblem;
 // double solve_relaxed_lp(TwoStageProblem & two_stage_problem);
 
-void simulate();
 
 template <typename... Tn>
 void simulate(int i, Tn..., double d);
@@ -117,7 +117,7 @@ public:
 
     // bei 4b kommt keine 1.stage Kantenauswahl raus, daher wird hier direkt das Ergebnis returned
     double do4b();
-    void greedy();
+    double greedy();
 
     // speichert mir den aktuellen graphen des twostageproblems
     virtual void save_current_graph(std::string name);
@@ -190,4 +190,5 @@ public:
 
 
 // void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich);
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, bool on_cluster=false);
 

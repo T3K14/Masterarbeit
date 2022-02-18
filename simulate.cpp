@@ -3,12 +3,13 @@
 // #include <functional>
 #include <iostream>
 #include <vector>
-#include <set>
+// #include <set>
+#include <map>
 
 #include <lemon/lgf_writer.h>
 #include <lemon/kruskal.h>
 
-// #include "boost/filesystem.hpp"
+#include "boost/filesystem.hpp"
 
 // zum testen
 #include <chrono>
@@ -19,13 +20,52 @@ using namespace lemon;
 
 // Ensemble::Ensemble() {}
 
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set) {
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, bool on_cluster) {
 
+    // DAS ENSEMBLE MUSS INITIALISIERT UEBERGEBEN WERDEN
+
+    // Namen zu den Algorithmen:
+    std::map<Alg, std::string> name_to_alg {{Alg::GreedyApprox, "Greedy"}, {Alg::LPApprox, "LP_Approx"}, {Alg::Optimal, "Optimum"}, {Alg::Schranke4b, "Schranke4b"}};
+
+    // Ordner etc checken
     if (alg_set.size() < 1) {
         throw std::invalid_argument("ROBERT-ERROR: Brauche mindestens einen Algorithmus, den ich laufen lasse!\n");
     }
 
-    std::string dir_name = ensemble.identify_all(); 
+    std::string dir_name = std::to_string(runs) + "_runs_" + ensemble.identify_all();
+    std::string dir_path;
+
+    if (!on_cluster) {
+        dir_path = "D:\\Uni\\Masterarbeit\\Code\\output\\" + dir_name;
+    } else {
+        dir_path = "/gss/work/xees8992/" + dir_name;
+    }
+
+    unsigned int counter_simulations = 0;
+    // checken, ob der Ordner schon existert, wenn ja, zaehle, wie viele identische Simulationen schon gemacht wurden
+    if (boost::filesystem::exists(dir_path)) {
+
+        for (boost::filesystem::directory_iterator itr(dir_path); itr != boost::filesystem::directory_iterator(); ++itr) {
+            counter_simulations++;
+        }
+    } else {
+        boost::filesystem::create_directory(dir_path);
+    }
+
+    // neuen Ordner:    SCHAUEN, OB DAS SO AUCH AUF DEM HPC KLAPPT
+    std::string simulation_path = dir_path + "\\simulation_" + std::to_string(counter_simulations);
+    boost::filesystem::create_directory(simulation_path);
+
+    // Unterordner fuer die Algorithmen
+    for (auto alg: alg_set) {
+        boost::filesystem::create_directory(simulation_path + "\\" + name_to_alg[alg]);
+    }
+
+    // map, wo die Ergebnisse reingespeichert werden
+    std::map<Alg, std::vector<double>> results_map;
+    for (auto alg: alg_set) {
+        results_map[alg] = std::vector<double>();
+    }
 
     for (int i=0; i<runs; i++) {
 
@@ -34,6 +74,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set) {
             switch (alg) {
                 case Alg::Schranke4b: {
                     double res_4b = ensemble.do4b();
+                    results_map[alg].push_back(res_4b);
                 }
                 break;
 
@@ -44,13 +85,17 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set) {
                 break;
 
                 case Alg::GreedyApprox: {
+                    double res = ensemble.greedy();
+                    results_map[alg].push_back(res);
+
+                    // speichere die Ergebnismap
 
                 }         
                 break;
                 
                 case Alg::Optimal: {
-                // double res_optimum = ensemble.bruteforce();
-
+                    double res_optimum = ensemble.bruteforce();
+                    results_map[alg].push_back(res_optimum);
                 }
                 break;                
 
@@ -63,7 +108,38 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set) {
         ensemble.recreate();
     }
     
+    // alle results abspeichern
+    std::string filepath = simulation_path + "\\results.txt";
+    std::ofstream outFile(filepath, std::ios_base::out);
 
+    std::vector<Alg> ordered_algs;
+    for (auto alg: alg_set) {
+        ordered_algs.push_back(alg);
+    }
+
+    if (outFile.is_open()) {
+
+        // header schreiben
+        std::string header = "";
+        for (auto alg: ordered_algs) {
+            header += name_to_alg[alg] + ",";
+        }
+
+        outFile << header + "\n";
+
+        // einzelne Zeilen schreiben
+        for (int i=0; i<runs; i++) {
+            std::string line = "";
+            for (auto alg: ordered_algs) {
+                line += std::to_string(results_map[alg][i]) + ",";                
+            }
+            outFile << line + "\n";
+        }
+    }
+    else {
+        std::cout << "Error beim Fileoeffnen\n";
+    }
+    outFile.close();
 }
 
 
@@ -252,14 +328,19 @@ void Ensemble::save_current_graph(std::string name) {
     writer.run();
 
 }
+double Ensemble::bruteforce() {
+    return two_stage_problem.bruteforce();
+}
 
 void Ensemble::approx_after_lp(std::mt19937 & rng) {
     // nachdem der LP-Alg. fertig ist approximieren
     two_stage_problem.approximate(rng);
 }
 
-void Ensemble::greedy() {
+double Ensemble::greedy() {
     two_stage_problem.greedy();
+    // berechne noch den EV, den man mit dieser Loesung erhaelt
+    return two_stage_problem.calculate_expected_from_bool_map(two_stage_problem.greedy_first_stage_map);
 }
 
 // wahle pro Szenario von jeder Kante die billiger aus 1. und 2. stage aus, baue damit MST und mittle die Gesamtkosten davon ueber alle Szenarien
