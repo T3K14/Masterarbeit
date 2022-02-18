@@ -652,8 +652,8 @@ void TwoStageProblem::greedy() {
             ev_edge += secondStageProbabilities[i] * secondStageWeights[e][i];
         }
 
-        // entscheiden, ob ich die Kante nehme (Erwartungswert muss kleiner als 1. stage Wert sein und Kante muss keinen Zyklus erzeugen)
-        if (ev_edge < firstStageWeights[e] && !edge_creates_loop(greedy_first_stage_map, e)) {
+        // entscheiden, ob ich die Kante nehme (Erwartungswert muss groesser als 1. stage Wert sein und Kante muss keinen Zyklus erzeugen)
+        if (ev_edge > firstStageWeights[e] && !edge_creates_loop(greedy_first_stage_map, e)) {
             greedy_first_stage_map[e] = true;
             counter++;
         }
@@ -772,6 +772,23 @@ void TwoStageProblem::save_bruteforce_first_stage_map(std::string output_name, b
         lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath);
 
         writer.edgeMap("bruteforce_results", bruteforce_first_stage_map);
+        writer.run();
+    } else {
+        //output_name ist jetzt output_path
+        lemon::GraphWriter<lemon::ListGraph> writer(g, output_name);
+
+        writer.edgeMap("bruteforce_results", bruteforce_first_stage_map);
+        writer.run();
+    }
+}
+
+void TwoStageProblem::save_greedy_first_stage_map(std::string output_path, bool on_luster) {
+    if (on_luster) {
+
+    } else {
+        lemon::GraphWriter<lemon::ListGraph> writer(g, output_path);
+
+        writer.edgeMap("greedy_results", greedy_first_stage_map);
         writer.run();
     }
 }

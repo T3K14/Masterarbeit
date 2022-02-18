@@ -89,13 +89,18 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, b
                     results_map[alg].push_back(res);
 
                     // speichere die Ergebnismap
-
+                    std::string map_path = simulation_path + "\\" + name_to_alg[alg] + "\\" + std::to_string(i) + ".txt";
+                    ensemble.two_stage_problem.save_greedy_first_stage_map(map_path, false);
                 }         
                 break;
                 
                 case Alg::Optimal: {
                     double res_optimum = ensemble.bruteforce();
                     results_map[alg].push_back(res_optimum);
+
+                    // speichere die Ergebnismap
+                    std::string map_path = simulation_path + "\\" + name_to_alg[alg] + "\\" + std::to_string(i) + ".txt";
+                    ensemble.two_stage_problem.save_bruteforce_first_stage_map(map_path, false, false);
                 }
                 break;                
 
