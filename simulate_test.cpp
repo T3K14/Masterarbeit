@@ -13,18 +13,45 @@ using namespace lemon;
 
 int main() {
 
-    NRandomScenarioCreator s(3, rng);    
+    NRandomScenarioCreator s(5, rng);    
     RandomTestCreator n(0., 10., rng);
 
-    // Tree tree(10, s, n, rng);
+    Tree tree(10, s, n, rng);
+    tree.initialize();
+    simulate(25, tree, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal}, "test", false, true);
+
+    // tree.save_current_scenarios("D:\\uni\\Masterarbeit\\Code\\output\\test");
     // tree.recreate();
 
     // FullyConnected ensemble(4, s, n);
-    Tree ensemble(15, s, n, rng);
-    ensemble.initialize();
+    // Tree ensemble(10, s, n, rng);
+    // ensemble.initialize();
 
-    simulate(10, ensemble, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal});
+    // simulate(500, ensemble, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal});
 
+
+
+
+    // std::vector<double> ps {0.0, 0.05, 0.1, 0.15, 0.2};
+    // std::vector<double> ps;
+
+    // for (int i=0; i<=10; i++) {
+    //     double p = 0.1 * i;
+    //     ps.push_back(p);
+    // }
+
+    // // TreePlusP ensemble2(13, s, n, rng, 0.0);
+    // // ensemble2.initialize();
+    // // simulate(250, ensemble2, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal}, "TreePlusP_13");
+
+    // for (double p: ps) {
+    //     TreePlusP ensemble2(13, s, n, rng, p);
+
+    //     ensemble2.initialize();
+    //     simulate(500, ensemble2, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b}, "TreePlusP_13_10000_scen");
+    // }
+
+    // ensemble2.save_current_graph("treeplus0.5");
 
     // ensemble.do4b();
 

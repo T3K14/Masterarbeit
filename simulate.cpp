@@ -20,26 +20,33 @@ using namespace lemon;
 
 // Ensemble::Ensemble() {}
 
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, bool on_cluster) {
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster, bool save_problems) {
 
     // DAS ENSEMBLE MUSS INITIALISIERT UEBERGEBEN WERDEN
 
     // Namen zu den Algorithmen:
     std::map<Alg, std::string> name_to_alg {{Alg::GreedyApprox, "Greedy"}, {Alg::LPApprox, "LP_Approx"}, {Alg::Optimal, "Optimum"}, {Alg::Schranke4b, "Schranke4b"}};
 
-    // Ordner etc checken
     if (alg_set.size() < 1) {
         throw std::invalid_argument("ROBERT-ERROR: Brauche mindestens einen Algorithmus, den ich laufen lasse!\n");
     }
 
-    std::string dir_name = std::to_string(runs) + "_runs_" + ensemble.identify_all();
-    std::string dir_path;
-
+    std::string ordner_path;
+    // Ordner ist der Ueberordner, in den alle zusammengehoerigen Ordner reinkommen sollen
     if (!on_cluster) {
-        dir_path = "D:\\Uni\\Masterarbeit\\Code\\output\\" + dir_name;
+        ordner_path = "D:\\Uni\\Masterarbeit\\Code\\output\\" + ordner;
     } else {
-        dir_path = "/gss/work/xees8992/" + dir_name;
+        ordner_path = "/gss/work/xees8992/" + ordner;
     }
+
+    // erstelle den uebergebenen Ueberordner, falls er noch nicht existiert
+    if (!boost::filesystem::exists(ordner_path)) {
+        boost::filesystem::create_directory(ordner_path);
+    } 
+
+    // dir_path ist dann der Ordner zu den gegebenen Parametern
+    // std::string dir_name = std::to_string(runs) + "_runs_" + ensemble.identify_all();
+    std::string dir_path = ordner_path + "\\" + ensemble.identify_all();
 
     unsigned int counter_simulations = 0;
     // checken, ob der Ordner schon existert, wenn ja, zaehle, wie viele identische Simulationen schon gemacht wurden
@@ -61,13 +68,27 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, b
         boost::filesystem::create_directory(simulation_path + "\\" + name_to_alg[alg]);
     }
 
+    // Unterordner fuer die Problemstellungen
+    if (save_problems) {
+        boost::filesystem::create_directory(simulation_path + "\\Problems");
+    }
+
     // map, wo die Ergebnisse reingespeichert werden
     std::map<Alg, std::vector<double>> results_map;
     for (auto alg: alg_set) {
         results_map[alg] = std::vector<double>();
     }
 
+    // --- Debug
+    std::vector<int> vector_number_edges;
+    // --- Ende Debug
+
     for (int i=0; i<runs; i++) {
+
+        // falls die Problemstellungen gespeichert werden sollen
+        if (save_problems) {
+            ensemble.save_current_scenarios(simulation_path + "\\Problems", std::to_string(i));
+        }
 
         for (auto alg : alg_set) {
 
@@ -109,10 +130,28 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, b
             }
         }
 
+        // --Debug
+        vector_number_edges.push_back(lemon::countEdges(ensemble.two_stage_problem.g));
+        // -- Ende Debug
+
         // Problemstellung resetten
         ensemble.recreate();
     }
     
+    // -- Debug
+    std::string filepath_edges = simulation_path + "\\edges_count.txt";
+    std::ofstream outFile_edges(filepath_edges, std::ios_base::out);
+
+    if (outFile_edges.is_open()) {
+
+        for (auto edc: vector_number_edges) {
+            outFile_edges << std::to_string(edc) + "\n";
+        }
+    }
+    outFile_edges.close();
+
+    // -- Ende Debug
+
     // alle results abspeichern
     std::string filepath = simulation_path + "\\results.txt";
     std::ofstream outFile(filepath, std::ios_base::out);
@@ -322,10 +361,10 @@ void Ensemble::initialize() {
     edge_cost_creator.create_costs(two_stage_problem);
 }
 
-void Ensemble::save_current_graph(std::string name) {
+void Ensemble::save_current_graph(std::string path, std::string name) {
 
-    std::string path = R"(D:\Uni\Masterarbeit\Code\output\)";
-    path += name;
+    // std::string path = R"(D:\Uni\Masterarbeit\Code\output\)";
+    path += "\\" + name;
     path += R"(.lgf)";
 
     lemon::GraphWriter<lemon::ListGraph> writer(two_stage_problem.g, path); 
@@ -333,6 +372,79 @@ void Ensemble::save_current_graph(std::string name) {
     writer.run();
 
 }
+
+// path ist der Pfad, worein die Szenariodaten gespeichert werden sollen
+void Ensemble::save_current_scenarios(std::string path, std::string name) {
+
+    std::string path_scenarios = path + "\\scenarios" + name + ".csv";
+    std::string path_scenario_probs = path + "\\scenario_probs" + name + ".csv";
+
+
+    // speichere die Szenariowahrscheinlichkeiten
+    std::ofstream offs;
+    offs.open(path_scenario_probs, std::ios_base::out);
+
+    for (auto p: two_stage_problem.secondStageProbabilities) {
+        offs << p << "\n";
+    }
+    offs.close();
+
+    // speichere die Gewichte
+
+    std::ofstream sc;
+    sc.open(path_scenarios, std::ios_base::out);
+
+    // header
+    sc << "EdgeID, first_stage_costs, ";
+
+    for (int i=0; i<two_stage_problem.numberScenarios; i++) {
+        sc << "scenario" << i << ", ";
+    }
+    sc << "\n";
+
+    // pro Edge die Gewichte
+
+    for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
+        
+        sc << two_stage_problem.g.id(e) << ", " << two_stage_problem.firstStageWeights[e] << ", ";
+
+        for (int i=0; i<two_stage_problem.numberScenarios; i++) {
+            sc << two_stage_problem.secondStageWeights[e][i] << ", ";
+
+        }
+        sc << "\n";
+    }
+
+    sc.close();
+
+
+    // speichere noch die Graphstruktur
+    // oder ne, dafuer hab ich je extra die andere Fkt.
+
+    // lemon::GraphWriter<lemon::ListGraph> writer(two_stage_problem.g, path_scenarios); 
+
+    // writer.edgeMap("first_stage_costs", two_stage_problem.firstStageWeights);
+
+    // // erstmal so probieren
+    // lemon::ListGraph::EdgeMap<double> m(two_stage_problem.g);
+
+    // for (int i=0; i<lemon::countEdges(two_stage_problem.g); i++) {
+
+    //     for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
+    //         m[e] = two_stage_problem.secondStageWeights[e][i];
+    //     }
+    //     std::string name = "szenario" + std::to_string(i);
+    //     writer.edgeMap(name, m);
+    // }
+
+    // writer.run();
+
+
+    
+
+}
+
+
 double Ensemble::bruteforce() {
     return two_stage_problem.bruteforce();
 }
@@ -373,7 +485,7 @@ double Ensemble::do4b() {
 }
 
 std::string Ensemble::identify_all() {
-    std::string s = scenario_creator.identify() + "_" + edge_cost_creator.identify() + "_" + identify();
+    std::string s = identify() + "_" + scenario_creator.identify() + "_" + edge_cost_creator.identify();
     return s;
 }
 
@@ -438,7 +550,7 @@ void Tree::add_edges() {
 }
 
 std::string Tree::identify() {
-    std::string s = "Tree";
+    std::string s = "Tree_" + std::to_string(number_nodes) + "_nodes";
     return s;
 }
 
@@ -455,6 +567,47 @@ std::string Tree::identify() {
 //     //fuege neue Gewichte entsprechend des uebergebenen edgecostCreators hinzu
 //     edge_cost_creator.create_costs(two_stage_problem);
 // }
+
+
+TreePlusP::TreePlusP(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, double _p)
+    : Tree(_number_nodes, _scenario_creator, _edge_cost_creator, _rng), p(_p) {
+
+}
+
+void TreePlusP::add_edges() {
+
+    // erstmal Tree bauen
+    Tree::add_edges();
+
+    // -- DEBUG
+    // save_current_graph("treeplus0.5_TREE");
+    // -- ende DEBUG
+
+
+    // jetzt jede noch nicht hinzugefuegte Kante mit Wahrscheinlichkeit p hinzufuegen
+
+    // create uniform distribution between 0 and 1
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+    for (int i=0; i<number_nodes; i++) {
+        for (int j=i+1; j<number_nodes; j++) {
+            
+            // falls Kante nicht schon im Tree ist und die Wahrscheinlichkeit trifft
+            if (lemon::findEdge(two_stage_problem.g, two_stage_problem.nodes[i], two_stage_problem.nodes[j]) == lemon::INVALID && dist(rng) < p) {
+                // fuege Kante hinzu
+                two_stage_problem.edges.push_back(two_stage_problem.g.addEdge(two_stage_problem.nodes[i], two_stage_problem.nodes[j]));
+            }
+        }
+    }
+
+    // for (lemon::ListGraph::NodeIt n(g); n!=lemon::INVALID; ++n) {    }
+
+}
+
+std::string TreePlusP::identify() {
+    std::string s = "TreePlusP_" + std::to_string(p) + "_p_" + std::to_string(number_nodes) + "_nodes";
+    return s;
+}
 
 // NOCH NICHT FERTIG
 TreePlusEdges::TreePlusEdges(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, unsigned int _number_extra_edges) 

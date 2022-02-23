@@ -5,6 +5,7 @@
 #include "utilities.hpp"
 #include <random>
 #include <set>
+// #include <string_view>
 
 // enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
 enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal};
@@ -120,7 +121,8 @@ public:
     double greedy();
 
     // speichert mir den aktuellen graphen des twostageproblems
-    virtual void save_current_graph(std::string name);
+    virtual void save_current_graph(std::string path, std::string name);
+    void save_current_scenarios(std::string path, std::string name);
 
     friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem);
 
@@ -160,8 +162,18 @@ public:
     virtual void add_edges() override;
     // virtual std::string identify() override;
 
+};
 
+// Klasse, wo erst ein Baum gebaut wird und dann jede moegliche weitere Kante mit Wahrscheinlichkeit p eingebaut wird
+class TreePlusP : public Tree {
 
+    const double p;
+
+public:
+    TreePlusP(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, double _p);
+    virtual ~TreePlusP() = default;
+    virtual void add_edges() override;
+    virtual std::string identify() override;
 };
 
 class FullyConnected : public Ensemble {
@@ -188,7 +200,6 @@ public:
 
 };
 
-
 // void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich);
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, bool on_cluster=false);
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster=false, bool save_problems=false);
 
