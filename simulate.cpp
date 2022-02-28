@@ -85,11 +85,6 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
     for (int i=0; i<runs; i++) {
 
-        // falls die Problemstellungen gespeichert werden sollen
-        if (save_problems) {
-            ensemble.save_current_scenarios(simulation_path + "\\Problems", std::to_string(i));
-        }
-
         for (auto alg : alg_set) {
 
             switch (alg) {
@@ -128,6 +123,11 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
             // default:
                 // break;
             }
+        }
+
+        // falls die Problemstellungen gespeichert werden sollen
+        if (save_problems) {
+            ensemble.save_current_scenarios(simulation_path + "\\Problems", std::to_string(i));
         }
 
         // --Debug
@@ -446,7 +446,7 @@ void Ensemble::save_current_scenarios(std::string path, std::string name) {
 
 
 double Ensemble::bruteforce() {
-    return two_stage_problem.bruteforce();
+    return two_stage_problem.bruteforce_new();
 }
 
 void Ensemble::approx_after_lp(std::mt19937 & rng) {

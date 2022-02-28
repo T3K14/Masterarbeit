@@ -328,7 +328,6 @@ TEST(TwoStageSuite, Test_NEW) {
 }
 
 TEST(TwoStageSuite, Greedy1) {
-    // ist der selbe Test, wie Test7
 
     unsigned int numberNodes = 4;
 
@@ -339,9 +338,10 @@ TEST(TwoStageSuite, Greedy1) {
     // Erwartungswerte: 
     // std::vector<double> ev {6.025, 4.125, 4.875, 5.175, 1.025, 4.15};
     // erwartete Auswahl:
-    std::vector<bool> auswahl {false, false, false, false, true, true};
+    std::vector<bool> auswahl {true, true, false, true, false, false};
 
     FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+    mst.greedy();
 
     // Schaue fuer jede Edge, ob das Ergebnis in greedy_first_stage_map mit meiner Erwatung uebereinstimmt
     for (auto e : mst.edges) {
@@ -353,6 +353,7 @@ TEST(TwoStageSuite, Greedy1) {
             if (mst.firstStageWeights[e] == firstStageWeights[i]) {         // vergleiche hier doubles mit ==, weil die nicht veraendert wurden und so geht das auch nur, wenn
                                                                             // nicht mehrere Kanten das selbe Gewicht haben
                 edge_first_stage = auswahl[i];
+                break;
             }
         }
         ASSERT_TRUE(mst.greedy_first_stage_map[e]==edge_first_stage);

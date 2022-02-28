@@ -856,7 +856,7 @@ void FullyConnectedTwoStageMST::initialise_graph() {
     // Edges hinzufuegen
     // Dabei ist es jetzt so, dass zuerst alle Kanten durchgegangen werden ab der ersten Node, dann alle ab der zweiten (ohne die Kante zur ersten Node) etc.
     for (int i=0; i<numberNodes; i++) {
-        for (int j=0; j<numberNodes; j++) {  // DER INDEX SOLLTE EIGENTLICH AUCH BEI 1 STARTEN KÖNNEN ODER?
+        for (int j=1; j<numberNodes; j++) {  // DER INDEX SOLLTE EIGENTLICH AUCH BEI 1 STARTEN KÖNNEN ODER?
             if (i < j) {
                 edges.push_back(g.addEdge(nodes[i], nodes[j]));
             }
