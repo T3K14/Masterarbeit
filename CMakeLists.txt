@@ -53,6 +53,14 @@ if(${On_Cluster})
     # For Windows: Prevent overriding the parent project's compiler/linker settings
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
+
+    # muss Boost finden
+    set(Boost_USE_STATIC_LIBS ON)
+
+    # SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "D:\\Program Files (x86)\\boost_1_75_0")
+    # SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "D:\\Program Files (x86)\\boost_1_75_0\\stage\\lib")
+    
+    find_package(Boost 1.75.0 COMPONENTS filesystem)
 else()
     add_subdirectory(googletest)
 
