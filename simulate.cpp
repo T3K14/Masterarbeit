@@ -9,6 +9,8 @@
 #include <lemon/lgf_writer.h>
 #include <lemon/kruskal.h>
 
+// #include <boost/mpl/assert.hpp>
+// #include <assert.h>
 #include "boost/filesystem.hpp"
 
 // zum testen

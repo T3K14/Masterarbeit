@@ -57,10 +57,13 @@ if(${On_Cluster})
     # muss Boost finden
     set(Boost_USE_STATIC_LIBS ON)
 
-    # SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "D:\\Program Files (x86)\\boost_1_75_0")
-    # SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "D:\\Program Files (x86)\\boost_1_75_0\\stage\\lib")
+    SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/cm/shared/uniol/software/6.4/Boost/1.71.0-gimkl-2018a/include")
+    SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/cm/shared/uniol/software/6.4/Boost/1.71.0-gimkl-2018a/lib")
     
-    find_package(Boost 1.75.0 COMPONENTS filesystem)
+    find_package(Boost 1.71.0 COMPONENTS filesystem)
+
+    message("CMAKE_INCLUDE_PATH: ${CMAKE_INCLUDE_PATH}")
+    message("CMAKE_LIBRARY_PATH: ${CMAKE_LIBRARY_PATH}")
 else()
     add_subdirectory(googletest)
 
@@ -106,7 +109,7 @@ if(Boost_FOUND)
 include_directories(${Boost_INCLUDE_DIRS})
 
 add_library(two_stage STATIC ${Sources} ${Headers})
-target_link_libraries(two_stage PUBLIC ${mylemon} ${Boost_LIBRARIES})
+target_link_libraries(two_stage PUBLIC ${mylemon})# ${Boost_LIBRARIES})
 
 endif()
 #target_link_libraries(two_stage PUBLIC m)
