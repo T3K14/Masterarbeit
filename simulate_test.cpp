@@ -51,7 +51,8 @@ int main() {
         TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
 
         ensemble2.initialize();
-        simulate(runs[i], ensemble2, std::set<Alg> {Alg::GreedyApprox, Alg::Optimal}, "Greedy_Optimum\\15Knoten_10Szenarien", false, false);
+        std::set<Alg> s {Alg::GreedyApprox, Alg::Optimal};
+        simulate(runs[i], ensemble2, s, "Greedy_Optimum\\15Knoten_10Szenarien", false, false);
     }
 
     // ensemble2.save_current_graph("treeplus0.5");

@@ -21,6 +21,8 @@
 using namespace lemon;
 
 // Ensemble::Ensemble() {}
+// void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster, bool save_problems) {
+//}
 
 void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster, bool save_problems) {
 

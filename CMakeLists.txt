@@ -6,6 +6,8 @@ project(MA C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 
+set(CMAKE_CXX_COMPILER /cm/shared/uniol/software/6.4/GCCcore/6.4.0/bin/g++)
+
 enable_testing()
 
 # Option, damit das mit der Gurobi Bibliothek zusammen laeuft
@@ -20,7 +22,7 @@ if(${On_Cluster})
     #set(lemonpath "/cm/shared/uniol/software/6.4/lemon/1.2.1-GCCcore-6.4.0")
     set(lemonpath /user/xees8992/local_lemon/lemon-1.3.1/build/lemon)
 
-    include_directories(/user/xees8992/local_lemon/lemon-1.3.1/lemon)   
+    #include_directories(/user/xees8992/local_lemon/lemon-1.3.1/lemon)   
 
     # find_library von lemon auf dem Cluster 
     find_library(mylemon PATHS ${lemonpath} NAMES emon.a lemon.a libemon.a)
@@ -55,10 +57,10 @@ if(${On_Cluster})
     FetchContent_MakeAvailable(googletest)
 
     # muss Boost finden
-    set(Boost_USE_STATIC_LIBS ON)
+    # set(Boost_USE_STATIC_LIBS ON)
 
-    SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/cm/shared/uniol/software/6.4/Boost/1.71.0-gimkl-2018a/include")
-    SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/cm/shared/uniol/software/6.4/Boost/1.71.0-gimkl-2018a/lib")
+    #SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/cm/shared/uniol/software/6.4/Boost/1.71.0-gimkl-2018a/include")
+    #SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/cm/shared/uniol/software/6.4/Boost/1.71.0-gimkl-2018a/lib")
     
     find_package(Boost 1.71.0 COMPONENTS filesystem)
 
@@ -109,7 +111,7 @@ if(Boost_FOUND)
 include_directories(${Boost_INCLUDE_DIRS})
 
 add_library(two_stage STATIC ${Sources} ${Headers})
-target_link_libraries(two_stage PUBLIC ${mylemon})# ${Boost_LIBRARIES})
+target_link_libraries(two_stage PUBLIC ${mylemon} ${Boost_LIBRARIES})
 
 endif()
 #target_link_libraries(two_stage PUBLIC m)
@@ -143,3 +145,6 @@ endif()
 
 add_executable(simulate2 simulate_test.cpp)
 target_link_libraries(simulate2 PUBLIC two_stage)
+
+#add_executable(boost_assert boost_assert.cpp)
+#target_link_libraries(boost_assert PUBLIC two_stage ${Boost_LIBRARIES})
