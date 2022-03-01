@@ -30,6 +30,7 @@ add_executable(approx_tests approximate_test.cpp)
 target_link_libraries(approx_tests PUBLIC
     gtest_main
     two_stage
+    simulate
     gtest
     two_stage_gurobi
     gurobi_c++	
@@ -50,15 +51,16 @@ add_test(
     COMMAND tests2
 )
 
-
-add_executable(simulate simulate_test.cpp)
-target_link_libraries(simulate PUBLIC
-    gtest_main
-    two_stage
-    gtest
-)
+# habe den rausgenommen, weil er nichts macht und weil ich hier auf dem Cluster noch two_stage_gurobi verlinken muesste
+#add_executable(simulate_t simulate_test.cpp)
+#target_link_libraries(simulate_t PUBLIC
+#    gtest_main
+#    two_stage
+#    gtest
+#    simulate
+#)
 
 add_test(
     NAME simulate_test
-    COMMAND simulate
+    COMMAND simulate_t
 )

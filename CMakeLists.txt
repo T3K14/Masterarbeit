@@ -93,19 +93,17 @@ endif()
 set (Sources
     two_stage.cpp
     utilities.cpp
-    simulate.cpp
 )
 
 set (Headers
     two_stage.hpp
     utilities.hpp
-    simulate.hpp
 )
 
 option(Compile_Test_Code "Decide if code that is only used for testing functionality ist compiled." ON)
 
-add_executable(${first} first.cpp)
-target_link_libraries(${first} PUBLIC ${mylemon})
+#add_executable(${first} first.cpp)
+#target_link_libraries(${first} PUBLIC ${mylemon})
 
 if(Boost_FOUND)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -114,7 +112,11 @@ add_library(two_stage STATIC ${Sources} ${Headers})
 target_link_libraries(two_stage PUBLIC ${mylemon} ${Boost_LIBRARIES})
 
 endif()
-#target_link_libraries(two_stage PUBLIC m)
+
+# eigene lib fuer simulate
+add_library(simulate STATIC simulate.cpp simulate.hpp)
+target_link_libraries(simulate PUBLIC ${mylemon} two_stage ${Boost_LIBRARIES})
+
 
 add_subdirectory(test)
 add_subdirectory(simulationen)
@@ -143,8 +145,13 @@ if(${Compile_Test_Code})
 
 endif()
 
-add_executable(simulate2 simulate_test.cpp)
-target_link_libraries(simulate2 PUBLIC two_stage)
+if(${On_Cluster})
+    add_executable(simulate2 simulate_test.cpp)
+    target_link_libraries(simulate2 PUBLIC two_stage simulate two_stage_gurobi)
+else()
+    add_executable(simulate2 simulate_test.cpp)
+    target_link_libraries(simulate2 PUBLIC two_stage simulate)
+endif()
 
 #add_executable(boost_assert boost_assert.cpp)
-#target_link_libraries(boost_assert PUBLIC two_stage ${Boost_LIBRARIES})
+#target_link_libraries(boost_assert PUBLIC two_stage simulate ${Boost_LIBRARIES})

@@ -1,4 +1,6 @@
 #include "simulate.hpp"
+#include "two_stage_gurobi.hpp"
+
 
 // #include <functional>
 #include <iostream>
