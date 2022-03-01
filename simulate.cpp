@@ -19,12 +19,13 @@
 // using namespace std::chrono_literals;
 
 using namespace lemon;
+using boost_path = boost::filesystem::path;
 
 // Ensemble::Ensemble() {}
 // void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster, bool save_problems) {
 //}
 
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster, bool save_problems) {
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems) {
 
     // DAS ENSEMBLE MUSS INITIALISIERT UEBERGEBEN WERDEN
 
@@ -35,46 +36,48 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
         throw std::invalid_argument("ROBERT-ERROR: Brauche mindestens einen Algorithmus, den ich laufen lasse!\n");
     }
 
-    std::string ordner_path;
+    std::string ueber_ordner_path_string;
     // Ordner ist der Ueberordner, in den alle zusammengehoerigen Ordner reinkommen sollen
     if (!on_cluster) {
-        ordner_path = "D:\\Uni\\Masterarbeit\\Code\\output\\" + ordner;
+        ueber_ordner_path_string = "D:\\Uni\\Masterarbeit\\Code\\output\\" + ueber_ordner;
     } else {
-        ordner_path = "/gss/work/xees8992/" + ordner;
+        ueber_ordner_path_string = "/gss/work/xees8992/" + ueber_ordner;
     }
+    boost_path ueber_ordner_path(ueber_ordner_path_string);
 
     // erstelle den uebergebenen Ueberordner, falls er noch nicht existiert
-    if (!boost::filesystem::exists(ordner_path)) {
-        boost::filesystem::create_directory(ordner_path);
+    if (!boost::filesystem::exists(ueber_ordner_path)) {
+        boost::filesystem::create_directory(ueber_ordner_path);
     } 
 
-    // dir_path ist dann der Ordner zu den gegebenen Parametern
-    // std::string dir_name = std::to_string(runs) + "_runs_" + ensemble.identify_all();
-    std::string dir_path = ordner_path + "\\" + ensemble.identify_all();
+    // konfig_dir_path ist dann der Ordner zu den gegebenen Parametern
+    boost::filesystem::path konfig_dir_path = ueber_ordner_path / ensemble.identify_all();
+    // std::string konfig_dir_path = ueber_ordner_path + "\\" + ensemble.identify_all();
 
     unsigned int counter_simulations = 0;
     // checken, ob der Ordner schon existert, wenn ja, zaehle, wie viele identische Simulationen schon gemacht wurden
-    if (boost::filesystem::exists(dir_path)) {
+    if (boost::filesystem::exists(konfig_dir_path)) {
 
-        for (boost::filesystem::directory_iterator itr(dir_path); itr != boost::filesystem::directory_iterator(); ++itr) {
+        for (boost::filesystem::directory_iterator itr(konfig_dir_path); itr != boost::filesystem::directory_iterator(); ++itr) {
             counter_simulations++;
         }
     } else {
-        boost::filesystem::create_directory(dir_path);
+        boost::filesystem::create_directory(konfig_dir_path);
     }
 
-    // neuen Ordner:    SCHAUEN, OB DAS SO AUCH AUF DEM HPC KLAPPT
-    std::string simulation_path = dir_path + "\\simulation_" + std::to_string(counter_simulations);
+    // neuer Simulationsordner:    
+    // std::string sim_name("simulation_" + std::to_string(counter_simulations));
+    boost_path simulation_path = konfig_dir_path / ("simulation_" + std::to_string(counter_simulations));
     boost::filesystem::create_directory(simulation_path);
 
     // Unterordner fuer die Algorithmen
     for (auto alg: alg_set) {
-        boost::filesystem::create_directory(simulation_path + "\\" + name_to_alg[alg]);
+        boost::filesystem::create_directory(simulation_path / name_to_alg[alg]);
     }
 
     // Unterordner fuer die Problemstellungen
     if (save_problems) {
-        boost::filesystem::create_directory(simulation_path + "\\Problems");
+        boost::filesystem::create_directory(simulation_path / "Problems");
     }
 
     // map, wo die Ergebnisse reingespeichert werden
@@ -99,8 +102,15 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                 break;
 
                 case Alg::LPApprox: {
-                // double res_approx = ensemble.approx_after_lp();
 
+                    // erst LP-Alg, benutze hier den global definierten rng
+                    double res_lp_approx = ensemble.approx_lp(rng);
+                    results_map[alg].push_back(res_lp_approx);
+
+                    // speichere die Ergebnismap
+                    boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
+                    ensemble.two_stage_problem.save_approx_result_map(map_path.string(), false);
+                
                 }
                 break;
 
@@ -109,8 +119,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                     results_map[alg].push_back(res);
 
                     // speichere die Ergebnismap
-                    std::string map_path = simulation_path + "\\" + name_to_alg[alg] + "\\" + std::to_string(i) + ".txt";
-                    ensemble.two_stage_problem.save_greedy_first_stage_map(map_path, false);
+                    boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
+                    ensemble.two_stage_problem.save_greedy_first_stage_map(map_path.string(), false);
                 }         
                 break;
                 
@@ -119,8 +129,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                     results_map[alg].push_back(res_optimum);
 
                     // speichere die Ergebnismap
-                    std::string map_path = simulation_path + "\\" + name_to_alg[alg] + "\\" + std::to_string(i) + ".txt";
-                    ensemble.two_stage_problem.save_bruteforce_first_stage_map(map_path, false, false);
+                    boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
+                    ensemble.two_stage_problem.save_bruteforce_first_stage_map(map_path.string(), false, false);
                 }
                 break;                
 
@@ -131,7 +141,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
         // falls die Problemstellungen gespeichert werden sollen
         if (save_problems) {
-            ensemble.save_current_scenarios(simulation_path + "\\Problems", std::to_string(i));
+            ensemble.save_current_scenarios((simulation_path / "Problems").string(), std::to_string(i));
         }
 
         // --Debug
@@ -143,8 +153,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     }
     
     // -- Debug
-    std::string filepath_edges = simulation_path + "\\edges_count.txt";
-    std::ofstream outFile_edges(filepath_edges, std::ios_base::out);
+    boost_path filepath_edges = simulation_path / "edges_count.txt";
+    std::ofstream outFile_edges(filepath_edges.string(), std::ios_base::out);
 
     if (outFile_edges.is_open()) {
 
@@ -157,8 +167,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     // -- Ende Debug
 
     // alle results abspeichern
-    std::string filepath = simulation_path + "\\results.txt";
-    std::ofstream outFile(filepath, std::ios_base::out);
+    boost_path filepath = simulation_path / "results.txt";
+    std::ofstream outFile(filepath.string(), std::ios_base::out);
 
     std::vector<Alg> ordered_algs;
     for (auto alg: alg_set) {
@@ -442,10 +452,6 @@ void Ensemble::save_current_scenarios(std::string path, std::string name) {
     // }
 
     // writer.run();
-
-
-    
-
 }
 
 
@@ -453,9 +459,10 @@ double Ensemble::bruteforce() {
     return two_stage_problem.bruteforce_new();
 }
 
-void Ensemble::approx_after_lp(std::mt19937 & rng) {
-    // nachdem der LP-Alg. fertig ist approximieren
+double Ensemble::approx_lp(std::mt19937 & rng) {
+    double lp_res = solve_relaxed_lp(two_stage_problem);
     two_stage_problem.approximate(rng);
+    return two_stage_problem.calculate_expected_from_bool_map(two_stage_problem.approx_first_stage_map);
 }
 
 double Ensemble::greedy() {

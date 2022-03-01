@@ -16,26 +16,16 @@ int main() {
     int number_scenarios = 10;
     int number_nodes = 15;
 
+    bool on_cluster = true;
+    bool save_problems = true;
+
+    // Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal, Alg::LPApprox
 
     NRandomScenarioCreator s(number_scenarios, rng);    
     RandomTestCreator n(0., 10., rng);
 
-    // Tree tree(10, s, n, rng);
-    // tree.initialize();
-    // simulate(25, tree, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal}, "test", false, true);
-
-    // tree.save_current_scenarios("D:\\uni\\Masterarbeit\\Code\\output\\test");
-    // tree.recreate();
-
-    // FullyConnected ensemble(4, s, n);
-    // Tree ensemble(10, s, n, rng);
-    // ensemble.initialize();
-
-    // simulate(500, ensemble, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal});
-
-
-    std::vector<double> ps {0.05, 0.1, 0.15, 0.2, 0.25};
-    std::vector<int> runs {50, 50, 50, 50, 50};
+    std::vector<double> ps {0.05};//, 0.1, 0.15, 0.2, 0.25};
+    std::vector<int> runs {50};//, 50, 50, 50, 50};
     // std::vector<double> ps;
 
     // for (int i=0; i<=10; i++) {
@@ -51,8 +41,8 @@ int main() {
         TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
 
         ensemble2.initialize();
-        std::set<Alg> s {Alg::GreedyApprox, Alg::Optimal};
-        simulate(runs[i], ensemble2, s, "Greedy_Optimum\\15Knoten_10Szenarien", false, false);
+        std::set<Alg> s {Alg::LPApprox, Alg::Optimal};
+        simulate(runs[i], ensemble2, s, "First_HPC_Test", on_cluster, save_problems);
     }
 
     // ensemble2.save_current_graph("treeplus0.5");

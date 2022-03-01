@@ -220,7 +220,7 @@ public:
     void save_lp_result_map(std::string output_name, bool on_cluster=true, bool work=true);
     void save_approx_result_map(std::string output_name, bool on_cluster=true, bool work=true);
     void save_bruteforce_first_stage_map(std::string output_name, bool on_cluster=true, bool work=true);
-    void save_greedy_first_stage_map(std::string output_path, bool on_luster=true);
+    void save_greedy_first_stage_map(std::string output_path, bool on_cluster=true);
 
     // Funktion, die mir fuer eine gegebene bool-map die zu erwartenden Kosten ausrechnet
     double calculate_expected_from_bool_map(lemon::ListGraph::EdgeMap<bool> & bool_map);

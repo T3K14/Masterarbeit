@@ -782,8 +782,8 @@ void TwoStageProblem::save_bruteforce_first_stage_map(std::string output_name, b
     }
 }
 
-void TwoStageProblem::save_greedy_first_stage_map(std::string output_path, bool on_luster) {
-    if (on_luster) {
+void TwoStageProblem::save_greedy_first_stage_map(std::string output_path, bool on_cluster) {
+    if (on_cluster) {
 
     } else {
         lemon::GraphWriter<lemon::ListGraph> writer(g, output_path);

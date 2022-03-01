@@ -7,14 +7,13 @@
 
 #include <lemon/lgf_writer.h>
 
-
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
 /* 
-Dieses Skript ist dazu da, um zu testen, wieso der LP Alg so langsam war (exponentiell langsamer wurde)
+Dieses Skript ist dazu da, um zu testen, wieso der LP Alg so langsam war (exponentiell langsamer wurde), spoiler, war gar nicht so schlimm
 */
 
 // input argumente: number_edges, number_scenarios 

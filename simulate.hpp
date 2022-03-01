@@ -120,6 +120,9 @@ public:
     double do4b();
     double greedy();
 
+    // die Approx Methode braucht rng, um aus der lp loesung eine gueltige Lsg zu berechnen
+    double approx_lp(std::mt19937 & rng);
+
     // speichert mir den aktuellen graphen des twostageproblems
     virtual void save_current_graph(std::string path, std::string name);
     void save_current_scenarios(std::string path, std::string name);
@@ -201,5 +204,5 @@ public:
 };
 
 // void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich);
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster=false, bool save_problems=false);
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster=false, bool save_problems=false);
 

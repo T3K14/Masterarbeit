@@ -318,7 +318,6 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
         // ansonsten optimiere erneut
     }
 
-
     // TIMER
     auto t_end_loop = std::chrono::high_resolution_clock::now();
     loop_zeit = std::chrono::duration_cast<std::chrono::seconds>(t_end_loop - t_start_loop);
