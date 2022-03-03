@@ -7,8 +7,6 @@ target_link_libraries(erste_approx PUBLIC
     two_stage
     simulate
     two_stage_gurobi
-    gurobi_c++	
-    gurobi91
 )
 
 add_executable(approx_long approx_long.cpp)
@@ -16,8 +14,6 @@ target_link_libraries(approx_long PUBLIC
     two_stage
     simulate
     two_stage_gurobi
-    gurobi_c++	
-    gurobi91
 )
 
 add_executable(approx_time approx_time_test.cpp)
@@ -25,8 +21,6 @@ target_link_libraries(approx_time PUBLIC
 two_stage
 simulate
 two_stage_gurobi
-gurobi_c++	
-gurobi91
 )
 
 endif()

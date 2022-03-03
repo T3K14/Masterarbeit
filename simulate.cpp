@@ -47,14 +47,21 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     }
     boost_path ueber_ordner_path(ueber_ordner_path_string);
 
+    // std::cout << "Bishier" << std::endl;
+
+
     // erstelle den uebergebenen Ueberordner, falls er noch nicht existiert
     if (!boost::filesystem::exists(ueber_ordner_path)) {
         boost::filesystem::create_directory(ueber_ordner_path);
     } 
+    // std::cout << ueber_ordner_path / boost_path("hii") << std::endl;
 
+    // std::cout << "Bishier2" << std::endl;
     // konfig_dir_path ist dann der Ordner zu den gegebenen Parametern
-    boost::filesystem::path konfig_dir_path = ueber_ordner_path / ensemble.identify_all();
+    boost_path konfig_dir_path = (ueber_ordner_path / ensemble.identify_all());
     // std::string konfig_dir_path = ueber_ordner_path + "\\" + ensemble.identify_all();
+
+    // std::cout << "Bishier3" << std::endl;
 
     unsigned int counter_simulations = 0;
     // checken, ob der Ordner schon existert, wenn ja, zaehle, wie viele identische Simulationen schon gemacht wurden
@@ -104,6 +111,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                 break;
 
                 case Alg::LPApprox: {
+
+                    std::cout << "bin beim LPApprox" << std::endl;
 
                     // erst LP-Alg, benutze hier den global definierten rng
                     double res_lp_approx = ensemble.approx_lp(rng);
@@ -200,6 +209,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
         std::cout << "Error beim Fileoeffnen\n";
     }
     outFile.close();
+
+    std::cout << "Simulate ist fertig" << std::endl;
 }
 
 

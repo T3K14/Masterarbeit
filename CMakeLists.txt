@@ -11,12 +11,12 @@ set(CMAKE_CXX_COMPILER /cm/shared/uniol/software/6.4/GCCcore/6.4.0/bin/g++)
 enable_testing()
 
 # Option, damit das mit der Gurobi Bibliothek zusammen laeuft
-add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0)
+#add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0)
 
-option(On_Cluster "Switch to on if the code should be build on the HPC-Cluster" OFF)
+option(On_Cluster "Switch to on if the code should be build on the HPC-Cluster" ON)
 
 if(${On_Cluster})
-    # muss unter Umstaenden den c und cxx compiler mittels export CXX=/cm/.. und CC=/cm/... aktualisieren
+    # muss unter Umstaenden den c und cxx compiler mittels export CXX=/cm/shared/uniol/software/6.4/GCCcore/6.4.0/bin/g++ und CC=/cm/shared/uniol/software/6.4/GCCcore/6.4.0/bin/gcc aktualisieren
 
     # nutze die lokale Version, um das math.h Problem zu loesen
     #set(lemonpath "/cm/shared/uniol/software/6.4/lemon/1.2.1-GCCcore-6.4.0")
@@ -28,8 +28,9 @@ if(${On_Cluster})
     find_library(mylemon PATHS ${lemonpath} NAMES emon.a lemon.a libemon.a)
 
     # Gurobi, selber gebuilded, damit es keinen Konflikt mit verschiedenen Compilerflags gibt (es gab Error mit _GLIBCXX_USE_CXX11_ABI)
-    set(mygurobipath /user/xees8992/Gurobi_src/build/)
-    find_library(gurobi_c++ PATHS ${mygurobipath} NAMES gurobi_c++.a gurobi_c++)
+    #set(mygurobipath /user/xees8992/Gurobi_src/build/)
+    set(mygurobipath /cm/shared/uniol/software/generic/Gurobi/9.1.2)
+    find_library(gurobi_c++ PATHS ${mygurobipath} NAMES gurobi_c++5.2.a gurobi_c++5.2 libgurobi_g++5.2.a)
     find_library(gurobi91 PATHS ${mygurobipath} NAMES gurobi91)
 
     message("MESSAGE1: ${gurobi_c++}")
@@ -64,8 +65,9 @@ if(${On_Cluster})
     
     find_package(Boost 1.71.0 COMPONENTS filesystem)
 
-    message("CMAKE_INCLUDE_PATH: ${CMAKE_INCLUDE_PATH}")
-    message("CMAKE_LIBRARY_PATH: ${CMAKE_LIBRARY_PATH}")
+    message("Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+    message("Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
+    message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
 else()
     add_subdirectory(googletest)
 
@@ -115,6 +117,11 @@ endif()
 
 # eigene lib fuer simulate
 add_library(simulate STATIC simulate.cpp simulate.hpp)
+
+#if(${On_Cluster})
+#target_compile_options(simulate PUBLIC -D_GLIBCXX_USE_CXX11_ABI=1)
+#endif()
+
 target_link_libraries(simulate PUBLIC ${mylemon} two_stage ${Boost_LIBRARIES})
 
 
@@ -147,11 +154,12 @@ endif()
 
 if(${On_Cluster})
     add_executable(simulate2 simulate_test.cpp)
-    target_link_libraries(simulate2 PUBLIC two_stage simulate two_stage_gurobi)
+    target_link_libraries(simulate2 PUBLIC two_stage simulate two_stage_gurobi ${Boost_LIBRARIES})
 else()
     add_executable(simulate2 simulate_test.cpp)
     target_link_libraries(simulate2 PUBLIC two_stage simulate)
 endif()
 
-#add_executable(boost_assert boost_assert.cpp)
-#target_link_libraries(boost_assert PUBLIC two_stage simulate ${Boost_LIBRARIES})
+add_executable(boost_assert boost_assert.cpp)
+target_compile_options(boost_assert PUBLIC -D_GLIBCXX_USE_CXX11_ABI=1)
+target_link_libraries(boost_assert PUBLIC two_stage simulate ${Boost_LIBRARIES})

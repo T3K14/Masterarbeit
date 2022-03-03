@@ -16,7 +16,7 @@ using namespace lemon;
 int main() {
 
     int number_scenarios = 10;
-    int number_nodes = 15;
+    int number_nodes = 13;
 
     bool on_cluster = true;
     bool save_problems = true;
@@ -43,7 +43,7 @@ int main() {
         TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
 
         ensemble2.initialize();
-        std::set<Alg> s {Alg::LPApprox, Alg::Optimal};
+        std::set<Alg> s {Alg::LPApprox};
         simulate(runs[i], ensemble2, s, "First_HPC_Test", on_cluster, save_problems);
     }
 

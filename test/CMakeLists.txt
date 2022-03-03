@@ -33,8 +33,6 @@ target_link_libraries(approx_tests PUBLIC
     simulate
     gtest
     two_stage_gurobi
-    gurobi_c++	
-    gurobi91
 )
 
 add_test(
