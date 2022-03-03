@@ -9,14 +9,14 @@
 // #include <set>
 #include <fstream>
 
-#include "boost/filesystem.hpp"
+// #include "boost/filesystem.hpp"
 
 using namespace lemon;
 
 int main() {
 
-    int number_scenarios = 10;
-    int number_nodes = 13;
+    int number_scenarios = 5;
+    int number_nodes = 10;
 
     bool on_cluster = true;
     bool save_problems = true;
@@ -39,7 +39,7 @@ int main() {
     // // ensemble2.initialize();
     // // simulate(250, ensemble2, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal}, "TreePlusP_13");
 
-    for (int i=0; i< ps.size(); i++) {
+    for (int i=0; i<ps.size(); i++) {
         TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
 
         ensemble2.initialize();

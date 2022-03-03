@@ -13,7 +13,6 @@
 
 // #include <boost/mpl/assert.hpp>
 // #include <assert.h>
-#include "boost/filesystem.hpp"
 
 // zum testen
 #include <chrono>
@@ -21,7 +20,7 @@
 // using namespace std::chrono_literals;
 
 using namespace lemon;
-using boost_path = boost::filesystem::path;
+// using boost_path = boost::filesystem::path;
 
 // Ensemble::Ensemble() {}
 // void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster, bool save_problems) {
@@ -30,6 +29,8 @@ using boost_path = boost::filesystem::path;
 void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems) {
 
     // DAS ENSEMBLE MUSS INITIALISIERT UEBERGEBEN WERDEN
+
+    // std::cout << "Runs: " << runs << std::endl;
 
     // Namen zu den Algorithmen:
     std::map<Alg, std::string> name_to_alg {{Alg::GreedyApprox, "Greedy"}, {Alg::LPApprox, "LP_Approx"}, {Alg::Optimal, "Optimum"}, {Alg::Schranke4b, "Schranke4b"}};
@@ -100,8 +101,16 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     // --- Ende Debug
 
     for (int i=0; i<runs; i++) {
+        std::cout << "run: " << i << std::endl;
+
+        // HABE DAS NUR ZUM DEBUGGEN hier nach oben verlegt
+        if (save_problems) {
+            ensemble.save_current_scenarios(simulation_path / "Problems", std::to_string(i));
+        }
 
         for (auto alg : alg_set) {
+
+            // std::cout << "alg: " << name_to_alg[alg] << std::endl;
 
             switch (alg) {
                 case Alg::Schranke4b: {
@@ -112,16 +121,19 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
                 case Alg::LPApprox: {
 
-                    std::cout << "bin beim LPApprox" << std::endl;
+                    // std::cout << "bin beim LPApprox" << std::endl;
 
                     // erst LP-Alg, benutze hier den global definierten rng
                     double res_lp_approx = ensemble.approx_lp(rng);
+                    std::cout << "Alg ist fertig" << std::endl;
+
                     results_map[alg].push_back(res_lp_approx);
 
                     // speichere die Ergebnismap
                     boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
-                    ensemble.two_stage_problem.save_approx_result_map(map_path.string(), false);
-                
+                    // ensemble.two_stage_problem.save_approx_result_map(map_path.string(), on_cluster);
+                    ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.approx_first_stage_map, map_path);
+
                 }
                 break;
 
@@ -131,7 +143,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
                     // speichere die Ergebnismap
                     boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
-                    ensemble.two_stage_problem.save_greedy_first_stage_map(map_path.string(), false);
+                    ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.greedy_first_stage_map, map_path);
                 }         
                 break;
                 
@@ -141,7 +153,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
                     // speichere die Ergebnismap
                     boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
-                    ensemble.two_stage_problem.save_bruteforce_first_stage_map(map_path.string(), false, false);
+                    ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.bruteforce_first_stage_map, map_path);
                 }
                 break;                
 
@@ -150,10 +162,11 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
             }
         }
 
+        // HABE DAS ZUM DEBUGGEN NACH OBEN VERLEGT
         // falls die Problemstellungen gespeichert werden sollen
-        if (save_problems) {
-            ensemble.save_current_scenarios((simulation_path / "Problems").string(), std::to_string(i));
-        }
+        // if (save_problems) {
+            // ensemble.save_current_scenarios(simulation_path / "Problems", std::to_string(i));
+        // }
 
         // --Debug
         vector_number_edges.push_back(lemon::countEdges(ensemble.two_stage_problem.g));
@@ -401,15 +414,17 @@ void Ensemble::save_current_graph(std::string path, std::string name) {
 }
 
 // path ist der Pfad, worein die Szenariodaten gespeichert werden sollen
-void Ensemble::save_current_scenarios(std::string path, std::string name) {
+void Ensemble::save_current_scenarios(boost_path path, std::string name) {
 
-    std::string path_scenarios = path + "\\scenarios" + name + ".csv";
-    std::string path_scenario_probs = path + "\\scenario_probs" + name + ".csv";
+    boost_path scenario_path = path / ("scenarios" + name + ".csv");
+    // std::string path_scenarios = path + "\\scenarios" + name + ".csv";
+    boost_path scenario_probs_path = path / ("scenario_probs" + name + ".csv");
+    // std::string path_scenario_probs = path + "\\scenario_probs" + name + ".csv";
 
 
     // speichere die Szenariowahrscheinlichkeiten
     std::ofstream offs;
-    offs.open(path_scenario_probs, std::ios_base::out);
+    offs.open(scenario_probs_path.string(), std::ios_base::out);
 
     for (auto p: two_stage_problem.secondStageProbabilities) {
         offs << p << "\n";
@@ -419,7 +434,7 @@ void Ensemble::save_current_scenarios(std::string path, std::string name) {
     // speichere die Gewichte
 
     std::ofstream sc;
-    sc.open(path_scenarios, std::ios_base::out);
+    sc.open(scenario_path.string(), std::ios_base::out);
 
     // header
     sc << "EdgeID, first_stage_costs, ";
@@ -474,6 +489,12 @@ double Ensemble::bruteforce() {
 
 double Ensemble::approx_lp(std::mt19937 & rng) {
     double lp_res = solve_relaxed_lp(two_stage_problem);
+    
+    // -- Debug
+    boost_path p("/user/xees8992/Masterarbeit/build/ICHBINLP.txt");
+    two_stage_problem.save_lp_result_map(p);
+    // -- Ende Debug
+
     two_stage_problem.approximate(rng);
     return two_stage_problem.calculate_expected_from_bool_map(two_stage_problem.approx_first_stage_map);
 }

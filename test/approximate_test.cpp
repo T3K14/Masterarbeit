@@ -59,13 +59,13 @@ TEST(TrivialSuite, Test1) {
 
     // alle Kanten werden nur teurer, also idealerweise alle am Anfang kaufen
     double res = solve_relaxed_lp(mst);
-    mst.save_lp_result_map("lp_test_trivial1");
+    // mst.save_lp_result_map("lp_test_trivial1");
 
     // ASSERT_NEAR(.5, res, 0.0000001);
 
     // lemon::ListGraph::EdgeMap<double> output(mst.g);
     mst.approximate(rng);
-    mst.save_approx_result_map("approx_test_trivial1");
+    // mst.save_approx_result_map("approx_test_trivial1");
 
     double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
 
@@ -101,13 +101,13 @@ TEST(LPSuite, TrivialTest) {
         ASSERT_NEAR(.5, opt_res, 0.0000001);
 
         double res = solve_relaxed_lp(mst);
-        mst.save_lp_result_map("lp_test_two_nodes");
+        // mst.save_lp_result_map("lp_test_two_nodes");
 
         ASSERT_NEAR(.5, res, 0.0000001);
 
         // lemon::ListGraph::EdgeMap<double> output(mst.g);
         mst.approximate(rng);
-        mst.save_approx_result_map("approx_test_two_nodes");
+        // mst.save_approx_result_map("approx_test_two_nodes");
 
 
         double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
@@ -154,13 +154,13 @@ TEST(LPSuite, Test2) {
         ASSERT_NEAR(1.5, opt_res, 0.0000001);
 
         double res = solve_relaxed_lp(mst);
-        mst.save_lp_result_map("lp_test_three_nodes");
+        // mst.save_lp_result_map("lp_test_three_nodes");
 
         // 1.25, weil man fuer alle Cuts immer zwei Kanten hat und daher muessen alle mindestens einmal den Wert 0.5 zugeordnet bekommen, da die erste Kante in stage 2 aber mit 0.5
         // multipliziert wird, lohnt es sich mehr die in Phase 2 zu kaufen und zu den 2 mal 0.5 kommt noch 0.5*0.5 dazu 
         ASSERT_NEAR(1.25, res, 0.0000001);
         mst.approximate(rng);
-        mst.save_approx_result_map("approx_test_three_nodes");
+        // mst.save_approx_result_map("approx_test_three_nodes");
 
         double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
         //output, zum Vergleichen
@@ -203,7 +203,7 @@ TEST(LPSuite, Test3) {
         ASSERT_NEAR(1.6, opt_res, 0.0000001);
 
         double res = solve_relaxed_lp(mst);
-        mst.save_lp_result_map("lp_test_three_nodes2");
+        // mst.save_lp_result_map("lp_test_three_nodes2");
 
         // dazu auch aufzeichnungen vom 26.10.21
         // es ist so, dass fuer das zweite Szenario so lange Kante 1 gekauft wird, bis deren Kosten die von den anderen beiden in diesem Szenario uebersteigen (hier 3), da sie nur 2.99
@@ -211,7 +211,7 @@ TEST(LPSuite, Test3) {
         ASSERT_NEAR(1.3745, res, 0.0000001);
 
         mst.approximate(rng);
-        mst.save_approx_result_map("approx_test_three_nodes2");
+        // mst.save_approx_result_map("approx_test_three_nodes2");
 
         double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
         //output, zum Vergleichen

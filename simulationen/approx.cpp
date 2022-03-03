@@ -25,10 +25,10 @@ int main() {
         FullyConnectedTwoStageMST mst(10, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
         double res = solve_relaxed_lp(mst);
-        mst.save_lp_result_map("lp_zweite_simulation_approx");
+        // mst.save_lp_result_map("lp_zweite_simulation_approx");
 
         mst.approximate(rng);
-        mst.save_approx_result_map("approx_zweite_simulation_approx");
+        // mst.save_approx_result_map("approx_zweite_simulation_approx");
 
         double expected_costs = mst.calculate_expected_from_bool_map(mst.approx_first_stage_map);
         std::cout << "Mit dieser Auswahl hat man Gesamterwartungskosten von : " << expected_costs << std::endl;

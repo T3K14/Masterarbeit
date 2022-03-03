@@ -40,6 +40,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
 
     model.setObjective(obj, GRB_MINIMIZE);
 
+
     // Ende vom Setup
     // jetzt so lange Cut-Constraints hinzufuegen, bis die Bedingungen immer erfuellt sind 
     while(true) {
@@ -98,7 +99,6 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
                 //Szenarien zu schauen
                 break;
             } 
-
         }
         // hier hab ich entweder alle szenarien durch und nicht gebreakt, was bedeutet, dass alle min-cut-values >= 1 sind oder ich bin entweder aus dem for-loop rausgebreakt, also
         // muss ich nochmal checken, ob auch der letzte Wert >= 1 ist, weil wenn nicht, muss ich neu mit der neuen Bed. optimieren

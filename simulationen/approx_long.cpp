@@ -43,7 +43,7 @@ int main() {
         std::cout << "SETUP VORBEI!\n";
 
         double res = solve_relaxed_lp(mst);
-        mst.save_lp_result_map("lp_long_testtest");
+        // mst.save_lp_result_map("lp_long_testtest");
 
         std::cout << "Ich komme bis zur Ausgabe des Ergebnisses des LP-Algorithmus\n" << std::endl;
 

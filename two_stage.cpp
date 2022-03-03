@@ -578,7 +578,8 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
     // hier drin speichere ich, welche szenarien schon connected sind
     std::vector<bool> is_connected(numberScenarios, false);
 
-    // in dieser Map werden die first und second stage-Auswahlen vereinigt, um zu ueberpruefen, ob beide zusammen fuer ein scenario schon eine connected component (mindestens tree) sind
+    // in dieser Map werden die first und second stage-Auswahlen vereinigt, um zu ueberpruefen, ob beide zusammen fuer ein scenario schon eine connected component 
+    // (mindestens tree) sind
     lemon::ListGraph::EdgeMap<bool> connected_map(g);
 
     while(true) {
@@ -597,8 +598,11 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
         }
 
         // loop ueber alle Kanten
+        std::cout << "\n" << std::endl;
+        boost_path p("/user/xees8992/Masterarbeit/build/ICHBINAPPROX.txt");
+        save_result_map(approx_first_stage_map, p);
         for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
-        
+            std::cout << lp_results_map[e][0] << std::endl;
             // 1. stage: nehme die Kante, wenn sie noch nicht genommen ist, wenn die Wahrscheinlichkeit eintritt und wenn sie kein loop erzeugt
             if (!approx_first_stage_map[e] && dist(rng) < lp_results_map[e][0] && !edge_creates_loop(approx_first_stage_map, e)) {
                 approx_first_stage_map[e] = true;
@@ -611,7 +615,7 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
                 if (is_connected[i]) {
                     continue;
                 }
-                
+                std::cout << "Szenario" << i << std::endl;
                 // beschreibe die connected_map, um das loop-Kriterium ueberpruefen zu koennen und fuer den subgraph mit dem geschaut wird. ob der Graph jetzt connected ist
                 for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
                     connected_map[e] = approx_first_stage_map[e] || second_stage_edges[e][i];
@@ -687,55 +691,28 @@ unsigned int TwoStageProblem::get_number_scenarios() {
     return numberScenarios;
 }
 
-void TwoStageProblem::save_lp_result_map(std::string output_name, bool on_cluster, bool work) {
-    if (on_cluster) {
 
-        std::string outputPath;
-        if (work) {
-            outputPath = R"(/gss/work/xees8992/)";
-            outputPath += output_name;
-            outputPath += ".lgf";
+void TwoStageProblem::save_lp_result_map(const boost_path & output_path) {
+   
+    lemon::GraphWriter<lemon::ListGraph> writer(g, output_path.string()); //.edgeMap("lp results", lp_results_map).run();
 
-        } else {
-            outputPath = R"(./)";
-            outputPath += output_name;
-            outputPath += R"(.lgf)";
+    // ist jetzt sehr schlecht, aber ich schreibe fuer jedes szenario eine eigene Map, welche ich dann am Ende printe
+    std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> edge_maps;
+
+    for (int i=0; i<numberScenarios+1; i++) {
+
+        std::unique_ptr<lemon::ListGraph::EdgeMap<double>> tmp_unique(new lemon::ListGraph::EdgeMap<double>(g));
+        edge_maps.push_back(std::move(tmp_unique));
+        // fuer alle kanten der edgemap des aktuellen szenarios den Wert kopieren
+        for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+            (*edge_maps[i])[e] = lp_results_map[e][i];
         }
 
-        lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath); //.edgeMap("lp results", lp_results_map).run();
-
-        // ist jetzt sehr schlecht, aber ich schreibe fuer jedes szenario eine eigene Map, welche ich dann am Ende printe
-        std::vector<std::unique_ptr<lemon::ListGraph::EdgeMap<double>>> edge_maps;
-
-        for (int i=0; i<numberScenarios+1; i++) {
-
-            std::unique_ptr<lemon::ListGraph::EdgeMap<double>> tmp_unique(new lemon::ListGraph::EdgeMap<double>(g));
-            edge_maps.push_back(std::move(tmp_unique));
-            // fuer alle kanten der edgemap des aktuellen szenarios den Wert kopieren
-            for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
-                (*edge_maps[i])[e] = lp_results_map[e][i];
-            }
-
-            writer.edgeMap(std::to_string(i), *edge_maps[i]);
-        }
-
-        // AB HIER DEBUGGING
-        // std::cout << lp_results_map[g.edgeFromId(0)].size() << std::endl;
-        //lemon::ListGraph::EdgeMap<double> firstStage(g);
-
-
-
-        //for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
-        //    firstStage[e] = lp_results_map[e][0];
-        //}
-
-        //writer.edgeMap("first stage", firstStage);
-        // ENDE DEBUGGING
-        
-        writer.run();
+        writer.edgeMap(std::to_string(i), *edge_maps[i]);
     }
+    writer.run();
 }
-
+/*
 void TwoStageProblem::save_approx_result_map(std::string output_name, bool on_cluster, bool work) {
     if (on_cluster) {
         std::string outputPath;
@@ -756,41 +733,29 @@ void TwoStageProblem::save_approx_result_map(std::string output_name, bool on_cl
     }
 }
 
-void TwoStageProblem::save_bruteforce_first_stage_map(std::string output_name, bool on_cluster, bool work) {
-    if (on_cluster) {
-        std::string outputPath;
-        if (work) {
-            outputPath = R"(/gss/work/xees8992/)";
-            outputPath += output_name;
-            outputPath += ".lgf";
+void TwoStageProblem::save_bruteforce_first_stage_map(boost_path output_path) {
 
-        } else {
-            outputPath = R"(./)";
-            outputPath += output_name;
-            outputPath += R"(.lgf)";
-        }
-        lemon::GraphWriter<lemon::ListGraph> writer(g, outputPath);
+    lemon::GraphWriter<lemon::ListGraph> writer(g, output_path.string());
 
-        writer.edgeMap("bruteforce_results", bruteforce_first_stage_map);
-        writer.run();
-    } else {
-        //output_name ist jetzt output_path
-        lemon::GraphWriter<lemon::ListGraph> writer(g, output_name);
-
-        writer.edgeMap("bruteforce_results", bruteforce_first_stage_map);
-        writer.run();
-    }
+    writer.edgeMap("bruteforce_results", bruteforce_first_stage_map);
+    writer.run();
 }
 
-void TwoStageProblem::save_greedy_first_stage_map(std::string output_path, bool on_cluster) {
-    if (on_cluster) {
+void TwoStageProblem::save_greedy_first_stage_map(boost_path output_path) {
 
-    } else {
-        lemon::GraphWriter<lemon::ListGraph> writer(g, output_path);
+    lemon::GraphWriter<lemon::ListGraph> writer(g, output_path.string());
 
-        writer.edgeMap("greedy_results", greedy_first_stage_map);
-        writer.run();
-    }
+    writer.edgeMap("greedy_results", greedy_first_stage_map);
+    writer.run();
+}
+*/
+
+void TwoStageProblem::save_result_map(const lemon::ListGraph::EdgeMap<bool> & bool_map, const boost_path & output_path) {
+    
+    lemon::GraphWriter<lemon::ListGraph> writer(g, output_path.string());
+
+    writer.edgeMap("First_Stage_Auswahl", bool_map);
+    writer.run();
 }
 
 double TwoStageProblem::calculate_expected_from_bool_map(lemon::ListGraph::EdgeMap<bool> & bool_map) {
@@ -1206,8 +1171,11 @@ bool TwoStageProblem::edge_creates_loop(const lemon::ListGraph::EdgeMap<bool> & 
     lemon::ListGraph::NodeMap<bool> visited_map(g, false);  // zeigt an, ob nodes in der Breitensuche schon besucht wurden
     visited_map[root_node] = true;
     id_queue.push(g.id(root_node));
+    // std::cout << "Starte edge_creates_loop-Schleife" << std::endl;
 
     while(!id_queue.empty()) {
+
+
 
         // hole die letzte Node vom queue (einmal auslesen und danach pop, um sie von der queue zu nehmen, weil das nicht automatisch passiert)
         auto n = g.nodeFromId(id_queue.front());
@@ -1215,6 +1183,7 @@ bool TwoStageProblem::edge_creates_loop(const lemon::ListGraph::EdgeMap<bool> & 
 
         // wenn die node mit goal_node uebereinstimmt bedeutet das, dass ich auch schon bisher zu der Node komme und damit ein loop bauen wuerde
         if (n == goal_node) {
+            // std::cout << "Beende edge_creates_loop-Schleife mit true" << std::endl;
             return true;
         }
 
@@ -1232,6 +1201,8 @@ bool TwoStageProblem::edge_creates_loop(const lemon::ListGraph::EdgeMap<bool> & 
             }
         }
     }
+    // std::cout << "Beende edge_creates_loop-Schleife mit false" << std::endl;
+
     // false, falls die goal_node nicht gefunden wurde, weil dann ist sie bisher nicht erreichbar und ich erzeuge keinen neuen Zyklus
     return false;
 }

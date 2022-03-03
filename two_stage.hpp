@@ -8,6 +8,11 @@
 #include <string>
 
 #include <chrono>
+
+#include "boost/filesystem.hpp"
+
+using boost_path = boost::filesystem::path;
+
 // struct RNG{
     // std::mt19937 eng;
 // };
@@ -216,11 +221,15 @@ private:
     bool check_new(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter);
 
 public:
-    // --- Funktionen zum abspeichern von den Edgemaps
-    void save_lp_result_map(std::string output_name, bool on_cluster=true, bool work=true);
-    void save_approx_result_map(std::string output_name, bool on_cluster=true, bool work=true);
-    void save_bruteforce_first_stage_map(std::string output_name, bool on_cluster=true, bool work=true);
-    void save_greedy_first_stage_map(std::string output_path, bool on_cluster=true);
+
+    void save_lp_result_map(const boost_path & output_path);
+    // einzige Fkt zum Abspeichern von Ergebnis bool EdgeMaps
+    void save_result_map(const lemon::ListGraph::EdgeMap<bool> & bool_map, const boost_path & output_path);
+
+    // --- Funktionen zum abspeichern von den Edgemaps, SIND VERALTET UND NICHT MEHR IM GEBRAUCH
+    // void save_approx_result_map(std::string output_name, bool on_cluster=true, bool work=true);
+    // void save_bruteforce_first_stage_map(std::string output_name, bool on_cluster=true, bool work=true);
+    // void save_greedy_first_stage_map(std::string output_path, bool on_cluster=true);
 
     // Funktion, die mir fuer eine gegebene bool-map die zu erwartenden Kosten ausrechnet
     double calculate_expected_from_bool_map(lemon::ListGraph::EdgeMap<bool> & bool_map);

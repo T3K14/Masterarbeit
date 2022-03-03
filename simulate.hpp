@@ -6,6 +6,9 @@
 #include <random>
 #include <set>
 // #include <string_view>
+#include "boost/filesystem.hpp"
+
+using boost_path = boost::filesystem::path;
 
 // enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
 enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal};
@@ -125,7 +128,7 @@ public:
 
     // speichert mir den aktuellen graphen des twostageproblems
     virtual void save_current_graph(std::string path, std::string name);
-    void save_current_scenarios(std::string path, std::string name);
+    void save_current_scenarios(boost_path path, std::string name);
 
     friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem);
 
