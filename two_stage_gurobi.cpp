@@ -52,8 +52,8 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
         // map der capacities (wird fuer jedes szenario neu beschrieben), brauche ich fuer den HaoOrlin-Algorithmus
         lemon::ListGraph::EdgeMap<double> capacity_map(two_stage_problem.g);
 
-        // map in der angegeben wird, welche Knoten in der einen MinCut-Teilmenge drin sind, output des HaoOrlin-Algorithmus, aus dem ich dann die Kanten bestimmen kann, die die Cut-
-        // Teilmengen verbinden
+        // map in der angegeben wird, welche Knoten in der einen MinCut-Teilmenge drin sind, output des HaoOrlin-Algorithmus, aus dem ich dann die Kanten bestimmen kann,
+        // die die Cut-Teilmengen verbinden
         lemon::ListGraph::NodeMap<bool> min_cut_result_map(two_stage_problem.g);
 
         // gehe alle szenarien durch und suche nach mincut, der die Bedingung nicht erfuellt
@@ -73,6 +73,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
 
             // falls der minCut die Bedingung verletzt, der Aufruf speichert direkt auch die bools fuer die Teilmengen in min_cut_result_map
             min_cut_value = hao.minCutMap(min_cut_result_map);
+
             if(min_cut_value < 1.) {
                 
                 // fuege neues constraint hinzu, damit diese Bedingung in zukunft erfuellt ist
@@ -95,16 +96,19 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
                 // constraint jetzt noch hinzufuegen
                 model.addConstr(constraint, GRB_GREATER_EQUAL, 1.0);
 
-                // und ich gehe aus derm for-loop raus, in der Annahme, dass allein diese Veraenderung schon was bewirkt und es sich vielleicht nicht lohnt, noch weiter durch alle anderen
-                //Szenarien zu schauen
+                // und ich gehe aus derm for-loop raus, in der Annahme, dass allein diese Veraenderung schon was bewirkt und es sich vielleicht nicht lohnt, 
+                // noch weiter durch alle anderen Szenarien zu schauen
                 break;
             } 
         }
         // hier hab ich entweder alle szenarien durch und nicht gebreakt, was bedeutet, dass alle min-cut-values >= 1 sind oder ich bin entweder aus dem for-loop rausgebreakt, also
         // muss ich nochmal checken, ob auch der letzte Wert >= 1 ist, weil wenn nicht, muss ich neu mit der neuen Bed. optimieren
 
+        
+
         // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
         if(min_cut_value > 0.99999999) {        // eigentlich >= 1, aber das laesst sich mit dem int 1 nicht vergleichen, sonst komme ich ab und zu in unendliche loops
+            std::cout << "Min_Cut_Value: " << min_cut_value << std::endl; 
             break;
         }
         // ansonsten optimiere erneut

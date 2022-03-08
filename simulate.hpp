@@ -127,7 +127,7 @@ public:
     double approx_lp(std::mt19937 & rng);
 
     // speichert mir den aktuellen graphen des twostageproblems
-    virtual void save_current_graph(std::string path, std::string name);
+    virtual void save_current_graph(boost_path path, std::string name);
     void save_current_scenarios(boost_path path, std::string name);
 
     friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem);

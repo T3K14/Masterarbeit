@@ -15,11 +15,13 @@ using namespace lemon;
 
 int main() {
 
-    int number_scenarios = 5;
-    int number_nodes = 10;
+    int number_scenarios = 15;
+    int number_nodes = 15;
 
     bool on_cluster = true;
     bool save_problems = true;
+
+    int number_minus_edges = 20;
 
     // Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal, Alg::LPApprox
 
@@ -40,7 +42,9 @@ int main() {
     // // simulate(250, ensemble2, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal}, "TreePlusP_13");
 
     for (int i=0; i<ps.size(); i++) {
-        TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
+        // TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
+        FullyConnectedMinusEdges ensemble2(number_nodes, s, n, rng, number_minus_edges);
+
 
         ensemble2.initialize();
         std::set<Alg> s {Alg::LPApprox};

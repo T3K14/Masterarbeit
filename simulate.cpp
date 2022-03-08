@@ -401,16 +401,14 @@ void Ensemble::initialize() {
     edge_cost_creator.create_costs(two_stage_problem);
 }
 
-void Ensemble::save_current_graph(std::string path, std::string name) {
+void Ensemble::save_current_graph(boost_path path, std::string name) {
 
     // std::string path = R"(D:\Uni\Masterarbeit\Code\output\)";
-    path += "\\" + name;
-    path += R"(.lgf)";
+    path /= (name + R"(.lgf)");
 
-    lemon::GraphWriter<lemon::ListGraph> writer(two_stage_problem.g, path); 
+    lemon::GraphWriter<lemon::ListGraph> writer(two_stage_problem.g, path.string()); 
 
     writer.run();
-
 }
 
 // path ist der Pfad, worein die Szenariodaten gespeichert werden sollen
@@ -492,8 +490,11 @@ double Ensemble::approx_lp(std::mt19937 & rng) {
     
     // -- Debug
     boost_path p("/user/xees8992/Masterarbeit/build/ICHBINLP.txt");
+    boost_path p2("/user/xees8992/Masterarbeit/build");
     two_stage_problem.save_lp_result_map(p);
+    save_current_graph(p2, "ICHBINGRAPH");
     // -- Ende Debug
+    std::cout << "LP-Alg ist fertig" << std::endl;
 
     two_stage_problem.approximate(rng);
     return two_stage_problem.calculate_expected_from_bool_map(two_stage_problem.approx_first_stage_map);

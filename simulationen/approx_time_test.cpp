@@ -106,7 +106,7 @@ int main(int argc, char * argv[]) {
             std::vector<std::chrono::milliseconds> opt_times;
 
             double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
-
+            // ensemble.two_stage_problem.approximate(rng);
             // Ergebnisse abspeichern:
 
             counter_file.open(counter_path, std::ios::app);

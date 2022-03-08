@@ -602,7 +602,8 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
         boost_path p("/user/xees8992/Masterarbeit/build/ICHBINAPPROX.txt");
         save_result_map(approx_first_stage_map, p);
         for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
-            std::cout << lp_results_map[e][0] << std::endl;
+
+            // std::cout << lp_results_map[e][0] << std::endl;
             // 1. stage: nehme die Kante, wenn sie noch nicht genommen ist, wenn die Wahrscheinlichkeit eintritt und wenn sie kein loop erzeugt
             if (!approx_first_stage_map[e] && dist(rng) < lp_results_map[e][0] && !edge_creates_loop(approx_first_stage_map, e)) {
                 approx_first_stage_map[e] = true;
@@ -615,7 +616,7 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
                 if (is_connected[i]) {
                     continue;
                 }
-                std::cout << "Szenario" << i << std::endl;
+                // std::cout << "Szenario" << i << std::endl;
                 // beschreibe die connected_map, um das loop-Kriterium ueberpruefen zu koennen und fuer den subgraph mit dem geschaut wird. ob der Graph jetzt connected ist
                 for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
                     connected_map[e] = approx_first_stage_map[e] || second_stage_edges[e][i];
@@ -667,7 +668,6 @@ void TwoStageProblem::greedy() {
         if (counter > nodes.size()-1) {
             throw std::logic_error("Es kann eigentlich nicht sein, dass hier mehr als N-1 Kanten in Stage 1 gekauft werden!\n");
         }
-
     }
 }
 
