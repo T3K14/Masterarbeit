@@ -34,12 +34,17 @@ int main() {
     capacities[edges[1]] = 0.1;
     capacities[edges[2]] = 1.1;
     capacities[edges[3]] = 0.05;
-    capacities[edges[4]] = 0.7;
+    capacities[edges[4]] = 0.05;
     capacities[edges[5]] = 0.1;
+
+    lemon::ListGraph::NodeMap<bool> min_cut_result_map(g);
 
     HaoOrlin<lemon::ListGraph, lemon::ListGraph::EdgeMap<double>> hao(g, capacities);
     hao.init();
     hao.calculateIn();
+
+    double min_cut_value = hao.minCutMap(min_cut_result_map);
+
 
     std::cout << "Der min cut Value ist: " << hao.minCutValue() << "\n";
 }

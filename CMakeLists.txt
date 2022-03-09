@@ -6,7 +6,7 @@ project(MA C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_COMPILER /cm/shared/uniol/software/6.4/GCCcore/6.4.0/bin/g++)
+#set(CMAKE_CXX_COMPILER /cm/shared/uniol/software/6.4/GCCcore/6.4.0/bin/g++)
 
 enable_testing()
 
@@ -140,7 +140,7 @@ target_link_libraries(4avs4b PUBLIC ${mylemon} two_stage)
 if(${Compile_Test_Code})
 
     add_executable(mincut min_cut_test.cpp ${Sources} ${Headers})
-    target_link_libraries(mincut PUBLIC ${mylemon})
+    target_link_libraries(mincut PUBLIC ${mylemon} two_stage)
 
     add_executable(twiddle twiddle_combi.cpp)
 
@@ -155,9 +155,9 @@ endif()
 if(${On_Cluster})
     add_executable(simulate2 simulate_test.cpp)
     target_link_libraries(simulate2 PUBLIC two_stage simulate two_stage_gurobi ${Boost_LIBRARIES})
-else()
-    add_executable(simulate2 simulate_test.cpp)
-    target_link_libraries(simulate2 PUBLIC two_stage simulate)
+# else()
+    # add_executable(simulate2 simulate_test.cpp)
+    # target_link_libraries(simulate2 PUBLIC two_stage simulate)
 endif()
 
 add_executable(boost_assert boost_assert.cpp)

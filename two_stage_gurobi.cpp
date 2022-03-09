@@ -122,6 +122,24 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
 
         // std::copy_n(model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1), two_stage_problem.lp_results_map[e].size(), two_stage_problem.lp_results_map[e].begin());
 
+        // Debug, speichere die Ergebnisse der einzel gurobi variablen, um zu schauen, ob hier bei der uebertragung der Daten was schief laeuft
+        ofstream out_gur;
+        out_gur.open("/gss/work/xees8992/OutGur.txt", std::ios::out);
+        
+        for (auto eddie : two_stage_problem.edges) {
+            out_gur << "Edge: " << eddie.id << ": " << gurobi_variables_map[e][0].get(GRB_DoubleAttr_X);
+
+            for (int ii=0; ii<two_stage_problem.numberScenarios; ii++) {
+                out_gur << ", " << gurobi_variables_map[e][i].get(GRB_DoubleAttr_X);
+            }
+            out_gur << "\n";
+        }
+        out_gur.close();
+        // ENDE Debug
+
+
+
+
         double * lp_edge_solutions = model.get(GRB_DoubleAttr_X, gurobi_variables_map[e], two_stage_problem.numberScenarios+1);
         for (int i=0; i<two_stage_problem.numberScenarios+1; i++) {
             two_stage_problem.lp_results_map[e].push_back(lp_edge_solutions[i]);
