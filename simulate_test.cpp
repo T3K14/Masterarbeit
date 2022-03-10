@@ -15,7 +15,7 @@ using namespace lemon;
 
 int main() {
 
-    int number_scenarios = 15;
+    int number_scenarios = 10;
     int number_nodes = 15;
 
     bool on_cluster = true;
@@ -42,8 +42,9 @@ int main() {
     // // simulate(250, ensemble2, std::set<Alg> {Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal}, "TreePlusP_13");
 
     for (int i=0; i<ps.size(); i++) {
-        // TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
-        FullyConnectedMinusEdges ensemble2(number_nodes, s, n, rng, number_minus_edges);
+        TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
+        std::cout << "Edges:" << ensemble2.two_stage_problem.get_number_edges() << std::endl;
+        // FullyConnectedMinusEdges ensemble2(number_nodes, s, n, rng, number_minus_edges);
 
 
         ensemble2.initialize();
