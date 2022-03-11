@@ -690,7 +690,6 @@ void TwoStageProblem::greedy() {
 
         std::vector<lemon::ListGraph::Edge> cheap_edges;
 
-        // Erwartungswerte ausrechnen
         for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
 
             // billige Kanten in vector pushen
@@ -700,7 +699,7 @@ void TwoStageProblem::greedy() {
         }
 
         // vector richtig sortieren
-        std::sort(cheap_edges.begin(), cheap_edges.end(), [&](lemon::ListGraph::Edge const &a, lemon::ListGraph::Edge const &b) {return ev_map[a] < ev_map[b];});
+        std::sort(cheap_edges.begin(), cheap_edges.end(), [&](lemon::ListGraph::Edge const &a, lemon::ListGraph::Edge const &b) {return firstStageWeights[a] < firstStageWeights[b];});
     
         // Edges auswaehlen
         for (auto ed : cheap_edges) {
@@ -715,7 +714,6 @@ void TwoStageProblem::greedy() {
             if (ev_map[e] > firstStageWeights[e] && !edge_creates_loop(greedy_first_stage_map, e)) {
                 greedy_first_stage_map[e] = true;
             }
-
         }
     }
 }
