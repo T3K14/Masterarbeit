@@ -139,6 +139,9 @@ target_link_libraries(4avs4b PUBLIC ${mylemon} two_stage)
 
 if(${Compile_Test_Code})
 
+    add_executable(sorti sorti.cpp)
+    target_link_libraries(sorti PUBLIC two_stage ${mylemon})
+
     add_executable(mincut min_cut_test.cpp ${Sources} ${Headers})
     target_link_libraries(mincut PUBLIC ${mylemon} two_stage)
 

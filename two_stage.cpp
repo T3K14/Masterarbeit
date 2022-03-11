@@ -644,8 +644,9 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
     }
 }
 
+// ERSETZT
 // Algorithmus der Kanten in Stage 1 kauft, deren Kosten dort geringer sind, als der Erwartungswert in Stage 2
-void TwoStageProblem::greedy_old() {
+/*void TwoStageProblem::greedy_old() {
 
     // zur Warnung unten
     unsigned int counter = 0;
@@ -670,11 +671,53 @@ void TwoStageProblem::greedy_old() {
         }
     }
 }
+*/
 
 void TwoStageProblem::greedy() {
 
-    if ()
+    // Erwartungswerte ausrechnen
+    lemon::ListGraph::EdgeMap<double> ev_map(g, 0.0);
 
+    for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
+        // berechne Erwartungswert
+        for (int i=0; i<numberScenarios; i++) {
+            ev_map[e] += secondStageProbabilities[i] * secondStageWeights[e][i];
+        }
+    }
+
+    // wenn ich einen Tree habe, dann muss ich nicht sortieren
+    if (lemon::countEdges(g) > nodes.size()-1) {
+
+        std::vector<lemon::ListGraph::Edge> cheap_edges;
+
+        // Erwartungswerte ausrechnen
+        for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
+
+            // billige Kanten in vector pushen
+            if (ev_map[e] > firstStageWeights[e]) {
+                cheap_edges.push_back(e);
+            }
+        }
+
+        // vector richtig sortieren
+        std::sort(cheap_edges.begin(), cheap_edges.end(), [&](lemon::ListGraph::Edge const &a, lemon::ListGraph::Edge const &b) {return ev_map[a] < ev_map[b];});
+    
+        // Edges auswaehlen
+        for (auto ed : cheap_edges) {
+            if (!edge_creates_loop(greedy_first_stage_map, ed)) {
+                greedy_first_stage_map[ed] = true;
+                // counter++;
+            }
+        }
+    } else {
+        // habe tree
+        for (lemon::ListGraph::EdgeIt e(g); e!=lemon::INVALID; ++e) {
+            if (ev_map[e] > firstStageWeights[e] && !edge_creates_loop(greedy_first_stage_map, e)) {
+                greedy_first_stage_map[e] = true;
+            }
+
+        }
+    }
 }
 
 // konstruktor fuer TwoStageProblem

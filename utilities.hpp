@@ -24,3 +24,4 @@ void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap,
 int BinomialCoefficient(const int n, const int k);
 
 void update_c(std::vector<int> & c, const int & number_edges, const int & number_nodes, const bool & stop);
+

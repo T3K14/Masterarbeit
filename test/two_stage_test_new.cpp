@@ -338,7 +338,7 @@ TEST(TwoStageSuite, Greedy1) {
     // Erwartungswerte: 
     // std::vector<double> ev {6.025, 4.125, 4.875, 5.175, 1.025, 4.15};
     // erwartete Auswahl:
-    std::vector<bool> auswahl {true, true, false, true, false, false};
+    std::vector<bool> auswahl {true, true, false, false, false, false};
 
     FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
     mst.greedy();
