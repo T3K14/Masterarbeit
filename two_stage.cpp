@@ -598,9 +598,9 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
         }
 
         // loop ueber alle Kanten
-        std::cout << "\n" << std::endl;
-        boost_path p("/user/xees8992/Masterarbeit/build/ICHBINAPPROX.txt");
-        save_result_map(approx_first_stage_map, p);
+        // std::cout << "\n" << std::endl;
+        // boost_path p("/user/xees8992/Masterarbeit/build/ICHBINAPPROX.txt");
+        // save_result_map(approx_first_stage_map, p);
         for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
 
             // std::cout << lp_results_map[e][0] << std::endl;
@@ -645,7 +645,7 @@ void TwoStageProblem::approximate(std::mt19937 & rng) {
 }
 
 // Algorithmus der Kanten in Stage 1 kauft, deren Kosten dort geringer sind, als der Erwartungswert in Stage 2
-void TwoStageProblem::greedy() {
+void TwoStageProblem::greedy_old() {
 
     // zur Warnung unten
     unsigned int counter = 0;
@@ -669,6 +669,12 @@ void TwoStageProblem::greedy() {
             throw std::logic_error("Es kann eigentlich nicht sein, dass hier mehr als N-1 Kanten in Stage 1 gekauft werden!\n");
         }
     }
+}
+
+void TwoStageProblem::greedy() {
+
+    if ()
+
 }
 
 // konstruktor fuer TwoStageProblem

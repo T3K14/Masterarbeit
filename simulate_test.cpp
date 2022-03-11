@@ -28,8 +28,8 @@ int main() {
     NRandomScenarioCreator s(number_scenarios, rng);    
     RandomTestCreator n(0., 10., rng);
 
-    std::vector<double> ps {0.05};//, 0.1, 0.15, 0.2, 0.25};
-    std::vector<int> runs {1000};//, 50, 50, 50, 50};
+    std::vector<double> ps {0.0, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5};
+    std::vector<int> runs {500, 500, 500, 500, 500, 500, 500, 500, 500};//, 50, 50, 50, 50};
     // std::vector<double> ps;
 
     // for (int i=0; i<=10; i++) {
@@ -43,7 +43,7 @@ int main() {
 
     for (int i=0; i<ps.size(); i++) {
         TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
-        std::cout << "Edges:" << ensemble2.two_stage_problem.get_number_edges() << std::endl;
+        // std::cout << "Edges:" << ensemble2.two_stage_problem.get_number_edges() << std::endl;
         // FullyConnectedMinusEdges ensemble2(number_nodes, s, n, rng, number_minus_edges);
 
 

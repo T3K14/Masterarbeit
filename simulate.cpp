@@ -101,7 +101,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     // --- Ende Debug
 
     for (int i=0; i<runs; i++) {
-        std::cout << "run: " << i << std::endl;
+        // std::cout << "run: " << i << std::endl;
 
         // HABE DAS NUR ZUM DEBUGGEN hier nach oben verlegt
         if (save_problems) {
@@ -125,7 +125,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
                     // erst LP-Alg, benutze hier den global definierten rng
                     double res_lp_approx = ensemble.approx_lp(rng);
-                    std::cout << "Alg ist fertig" << std::endl;
+                    // std::cout << "Alg ist fertig" << std::endl;
 
                     results_map[alg].push_back(res_lp_approx);
 

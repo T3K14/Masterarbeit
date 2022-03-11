@@ -46,8 +46,8 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
         // jetzt so lange Cut-Constraints hinzufuegen, bis die Bedingungen immer erfuellt sind 
         int loop_counter = 0;
         while(true) {
-            std::cout << "Iteration: " << loop_counter++ << std::endl;
-            std::cout << "Anzahl an Constraints: " << model.get(GRB_IntAttr_NumConstrs) << std::endl;
+            // std::cout << "Iteration: " << loop_counter++ << std::endl;
+            // std::cout << "Anzahl an Constraints: " << model.get(GRB_IntAttr_NumConstrs) << std::endl;
             model.optimize();
             // model.write("/gss/work/xees8992/model/model_run.lp");
 
@@ -60,6 +60,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
             // map in der angegeben wird, welche Knoten in der einen MinCut-Teilmenge drin sind, output des HaoOrlin-Algorithmus, aus dem ich dann die Kanten bestimmen kann,
             // die die Cut-Teilmengen verbinden
             lemon::ListGraph::NodeMap<bool> min_cut_result_map(two_stage_problem.g);
+
+            // scenario counter, der fuer jedes Szenario hochgezaehlt wird, bei welchem der mincut >= 1 ist
+            int scenario_counter = 0;
 
             // gehe alle szenarien durch und suche nach mincut, der die Bedingung nicht erfuellt
             for (int i=1; i<two_stage_problem.numberScenarios+1; i++) {     //index geht bei 1 los, weil er nur benutzt wird, um auf die gurobi_variablen zuzugreifen und die haben zum index 0 den Variable fuer die erste stage 
@@ -79,7 +82,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
                 // falls der minCut die Bedingung verletzt, der Aufruf speichert direkt auch die bools fuer die Teilmengen in min_cut_result_map
                 min_cut_value = hao.minCutMap(min_cut_result_map);
 
-                if(min_cut_value < 0.99999999) {
+                if(min_cut_value < 1.0) {
                     
                     // fuege neues constraint hinzu, damit diese Bedingung in zukunft erfuellt ist
                     GRBLinExpr constraint = 0.0;
@@ -98,7 +101,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
                         }
                     }
 
-                    std::cout << "Constraint: " << constraint << std::endl;
+                    // std::cout << "Constraint: " << constraint << std::endl;
 
 
                     // constraint jetzt noch hinzufuegen
@@ -108,20 +111,27 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
                     // noch weiter durch alle anderen Szenarien zu schauen
                     break;
                 } 
+                else {
+                    scenario_counter++;
+                }
             }
             // hier hab ich entweder alle szenarien durch und nicht gebreakt, was bedeutet, dass alle min-cut-values >= 1 sind oder ich bin entweder aus dem for-loop rausgebreakt, also
             // muss ich nochmal checken, ob auch der letzte Wert >= 1 ist, weil wenn nicht, muss ich neu mit der neuen Bed. optimieren
 
             
-
+            // DAS ERSETZE ICH DURCH DEN SZENARIO COUNTER
             // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
-            if(min_cut_value >= 1.) {// 0.9999999999999) {        // eigentlich >= 1, aber das laesst sich mit dem int 1 nicht vergleichen, sonst komme ich ab und zu in unendliche loops
-                if (min_cut_value < 1.) {
-                    std::cout << "Das ist das Problem" << std::endl;
-                }
-                // std::cout << "Min_Cut_Value: " << min_cut_value << std::endl; 
+            // if(min_cut_value >= 1.) {// 0.9999999999999) {        // eigentlich >= 1, aber das laesst sich mit dem int 1 nicht vergleichen, sonst komme ich ab und zu in unendliche loops
+            //     if (min_cut_value < 1.) {
+            //         std::cout << "Das ist das Problem" << std::endl;
+            //     }
+            //     // std::cout << "Min_Cut_Value: " << min_cut_value << std::endl; 
+            //     break;
+            // }
+            if (scenario_counter == two_stage_problem.numberScenarios) {
                 break;
             }
+
             // ansonsten optimiere erneut
         }
 
