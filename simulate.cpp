@@ -489,12 +489,12 @@ double Ensemble::approx_lp(std::mt19937 & rng) {
     double lp_res = solve_relaxed_lp(two_stage_problem);
     
     // -- Debug
-    boost_path p("/user/xees8992/Masterarbeit/build/ICHBINLP.txt");
-    boost_path p2("/user/xees8992/Masterarbeit/build");
-    two_stage_problem.save_lp_result_map(p);
-    save_current_graph(p2, "ICHBINGRAPH");
+    // boost_path p("/user/xees8992/Masterarbeit/build/ICHBINLP.txt");
+    // boost_path p2("/user/xees8992/Masterarbeit/build");
+    // two_stage_problem.save_lp_result_map(p);
+    // save_current_graph(p2, "ICHBINGRAPH");
     // -- Ende Debug
-    std::cout << "LP-Alg ist fertig" << std::endl;
+    // std::cout << "LP-Alg ist fertig" << std::endl;
 
     two_stage_problem.approximate(rng);
     return two_stage_problem.calculate_expected_from_bool_map(two_stage_problem.approx_first_stage_map);

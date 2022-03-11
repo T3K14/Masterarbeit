@@ -16,12 +16,12 @@ using namespace lemon;
 int main() {
 
     int number_scenarios = 10;
-    int number_nodes = 15;
+    int number_nodes = 13;
 
     bool on_cluster = true;
     bool save_problems = true;
 
-    int number_minus_edges = 20;
+    // int number_minus_edges = 20;
 
     // Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal, Alg::LPApprox
 
@@ -29,7 +29,7 @@ int main() {
     RandomTestCreator n(0., 10., rng);
 
     std::vector<double> ps {0.05};//, 0.1, 0.15, 0.2, 0.25};
-    std::vector<int> runs {50};//, 50, 50, 50, 50};
+    std::vector<int> runs {1000};//, 50, 50, 50, 50};
     // std::vector<double> ps;
 
     // for (int i=0; i<=10; i++) {

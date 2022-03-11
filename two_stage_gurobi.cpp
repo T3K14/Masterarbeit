@@ -44,10 +44,13 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
 
         // Ende vom Setup
         // jetzt so lange Cut-Constraints hinzufuegen, bis die Bedingungen immer erfuellt sind 
-        // int loop_counter = 0;
+        int loop_counter = 0;
         while(true) {
-
+            std::cout << "Iteration: " << loop_counter++ << std::endl;
+            std::cout << "Anzahl an Constraints: " << model.get(GRB_IntAttr_NumConstrs) << std::endl;
             model.optimize();
+            // model.write("/gss/work/xees8992/model/model_run.lp");
+
 
             double min_cut_value;
 
@@ -76,7 +79,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
                 // falls der minCut die Bedingung verletzt, der Aufruf speichert direkt auch die bools fuer die Teilmengen in min_cut_result_map
                 min_cut_value = hao.minCutMap(min_cut_result_map);
 
-                if(min_cut_value < 1.) {
+                if(min_cut_value < 0.99999999) {
                     
                     // fuege neues constraint hinzu, damit diese Bedingung in zukunft erfuellt ist
                     GRBLinExpr constraint = 0.0;
@@ -95,6 +98,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
                         }
                     }
 
+                    std::cout << "Constraint: " << constraint << std::endl;
+
+
                     // constraint jetzt noch hinzufuegen
                     model.addConstr(constraint, GRB_GREATER_EQUAL, 1.0);
 
@@ -109,8 +115,11 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
             
 
             // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
-            if(min_cut_value > 0.9999999999999) {        // eigentlich >= 1, aber das laesst sich mit dem int 1 nicht vergleichen, sonst komme ich ab und zu in unendliche loops
-                std::cout << "Min_Cut_Value: " << min_cut_value << std::endl; 
+            if(min_cut_value >= 1.) {// 0.9999999999999) {        // eigentlich >= 1, aber das laesst sich mit dem int 1 nicht vergleichen, sonst komme ich ab und zu in unendliche loops
+                if (min_cut_value < 1.) {
+                    std::cout << "Das ist das Problem" << std::endl;
+                }
+                // std::cout << "Min_Cut_Value: " << min_cut_value << std::endl; 
                 break;
             }
             // ansonsten optimiere erneut
@@ -120,16 +129,16 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
             std::cout << "Optimum: " << model.get(GRB_DoubleAttr_ObjVal) << std::endl;
 
             // checken, ob es schon ein model.lp gibt
-            int counter_model = 0;
-            std::string model_s = "model";
+            // int counter_model = 0;
+            // std::string model_s = "model";
 
-            for (boost::filesystem::directory_iterator itr("/gss/work/xees8992/model"); itr != boost::filesystem::directory_iterator(); ++itr) {
-                counter_model++;
-            }
-            model_s += std::to_string(counter_model);
-            model_s += ".lp";
+            // for (boost::filesystem::directory_iterator itr("/gss/work/xees8992/model"); itr != boost::filesystem::directory_iterator(); ++itr) {
+            //     counter_model++;
+            // }
+            // model_s += std::to_string(counter_model);
+            // model_s += ".lp";
 
-            model.write("/gss/work/xees8992/model/" + model_s);
+            // model.write("/gss/work/xees8992/model/" + model_s);
         }
         else {
             std::cout << "No Solution!" << std::endl;
