@@ -20,11 +20,6 @@
 // using namespace std::chrono_literals;
 
 using namespace lemon;
-// using boost_path = boost::filesystem::path;
-
-// Ensemble::Ensemble() {}
-// void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ordner, bool on_cluster, bool save_problems) {
-//}
 
 void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems) {
 
@@ -48,21 +43,13 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     }
     boost_path ueber_ordner_path(ueber_ordner_path_string);
 
-    // std::cout << "Bishier" << std::endl;
-
-
     // erstelle den uebergebenen Ueberordner, falls er noch nicht existiert
     if (!boost::filesystem::exists(ueber_ordner_path)) {
         boost::filesystem::create_directory(ueber_ordner_path);
     } 
-    // std::cout << ueber_ordner_path / boost_path("hii") << std::endl;
 
-    // std::cout << "Bishier2" << std::endl;
     // konfig_dir_path ist dann der Ordner zu den gegebenen Parametern
     boost_path konfig_dir_path = (ueber_ordner_path / ensemble.identify_all());
-    // std::string konfig_dir_path = ueber_ordner_path + "\\" + ensemble.identify_all();
-
-    // std::cout << "Bishier3" << std::endl;
 
     unsigned int counter_simulations = 0;
     // checken, ob der Ordner schon existert, wenn ja, zaehle, wie viele identische Simulationen schon gemacht wurden
@@ -101,7 +88,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     // --- Ende Debug
 
     for (int i=0; i<runs; i++) {
-        // std::cout << "run: " << i << std::endl;
+        std::cout << "run: " << i << std::endl;
 
         // HABE DAS NUR ZUM DEBUGGEN hier nach oben verlegt
         if (save_problems) {
@@ -121,11 +108,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
                 case Alg::LPApprox: {
 
-                    // std::cout << "bin beim LPApprox" << std::endl;
-
                     // erst LP-Alg, benutze hier den global definierten rng
-                    double res_lp_approx = ensemble.approx_lp(rng);
-                    // std::cout << "Alg ist fertig" << std::endl;
+                    double res_lp_approx = ensemble.approx_lp(rng, time);
 
                     results_map[alg].push_back(res_lp_approx);
 
@@ -480,23 +464,53 @@ void Ensemble::save_current_scenarios(boost_path path, std::string name) {
     // writer.run();
 }
 
-
 double Ensemble::bruteforce() {
     return two_stage_problem.bruteforce_new();
 }
 
-double Ensemble::approx_lp(std::mt19937 & rng) {
-    double lp_res = solve_relaxed_lp(two_stage_problem);
-    
-    // -- Debug
-    // boost_path p("/user/xees8992/Masterarbeit/build/ICHBINLP.txt");
-    // boost_path p2("/user/xees8992/Masterarbeit/build");
-    // two_stage_problem.save_lp_result_map(p);
-    // save_current_graph(p2, "ICHBINGRAPH");
-    // -- Ende Debug
-    // std::cout << "LP-Alg ist fertig" << std::endl;
+double Ensemble::approx_lp(std::mt19937 & rng, bool time) {
 
-    two_stage_problem.approximate(rng);
+    // wenn time==true will ich den LP-Alg timen
+
+    double lp_res;
+
+    if (time) {
+
+        // definiere die Trackingvariablen
+        unsigned long counter = 0;
+        std::chrono::seconds setup_zeit;
+        std::chrono::seconds loop_zeit;
+
+        std::vector<std::chrono::milliseconds> opt_times;
+        
+        
+        // time die komplette lp-Fkt.
+        std::chrono::seconds t;
+        auto t_start = std::chrono::high_resolution_clock::now();
+
+        lp_res = solve_relaxed_lp(two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
+
+        auto t_end = std::chrono::high_resolution_clock::now();
+        t = std::chrono::duration_cast<std::chrono::seconds>(t_end - t_start);
+        // std::cout << "Diese LP-Loesung hat " << t.count() << "s gedauert" << std::endl;
+
+        // time noch den Approximationsteil
+        std::chrono::seconds approx_zeit;
+        auto t_start_approx = std::chrono::high_resolution_clock::now();
+
+        two_stage_problem.approximate(rng);
+
+        auto t_end_approx = std::chrono::high_resolution_clock::now();
+
+        approx_zeit = std::chrono::duration_cast<std::chrono::seconds>(t_end_approx - t_start_approx);
+
+        // speichere alles ab HIER WEITERMACHEN
+
+    } else {
+        lp_res = solve_relaxed_lp(two_stage_problem);
+        two_stage_problem.approximate(rng);
+    }
+
     return two_stage_problem.calculate_expected_from_bool_map(two_stage_problem.approx_first_stage_map);
 }
 
@@ -543,7 +557,7 @@ Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEd
 
 void Tree::add_edges() {
 
-    std::cout << "Tree::add_edges\n";
+    std::cout << "Tree::add_edges\n" << std::endl;
 
     // diese Fkt erwartet, dass der Edgesvektor des Graphen leer ist 
 

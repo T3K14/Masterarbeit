@@ -87,6 +87,10 @@ int main(int argc, char * argv[]) {
         ofstream loop_file;
         std::string loop_path = outputPath + "/loop_zeiten_s.txt";
 
+        // approx zeit
+        ofstream approx_file;
+        std::string approx_path = outputPath + "/approx_zeiten_s.txt";
+
         // die optimierungszeiten
         std::string opt_path = outputPath + "/opt/";
 
@@ -106,12 +110,23 @@ int main(int argc, char * argv[]) {
             std::vector<std::chrono::milliseconds> opt_times;
 
             double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
-            // ensemble.two_stage_problem.approximate(rng);
+
+            // time nochmal den approximations-Teil
+            std::chrono::seconds approx_zeit;
+            auto t_start_approx = std::chrono::high_resolution_clock::now();
+            ensemble.two_stage_problem.approximate(rng);
+            auto t_end_approx = std::chrono::high_resolution_clock::now();
+
+            approx_zeit = std::chrono::duration_cast<std::chrono::seconds>(t_end_approx - t_start_approx);
             // Ergebnisse abspeichern:
 
             counter_file.open(counter_path, std::ios::app);
             counter_file << counter << "\n";
             counter_file.close();
+
+            approx_file.open(approx_path, std::ios::app);
+            approx_file << approx_zeit.count() << "\n";
+            approx_file.close();
 
             setup_file.open(setup_path, std::ios::app);
             setup_file << setup_zeit.count() << "\n";
@@ -161,9 +176,9 @@ int main(int argc, char * argv[]) {
         
             // den Graph speichern:
 
-            lemon::GraphWriter<lemon::ListGraph> writer(ensemble.two_stage_problem.g, "/gss/work/xees8992/ICHICHICH.txt");
+            // lemon::GraphWriter<lemon::ListGraph> writer(ensemble.two_stage_problem.g, "/gss/work/xees8992/ICHICHICH.txt");
 
-            writer.run();        
+            // writer.run();        
         }
 
             // counters.push_back(counter);
@@ -244,8 +259,9 @@ int main(int argc, char * argv[]) {
     //     cout << "Error code = " << e.getErrorCode() << endl;
     //     cout << e.getMessage() << endl;
     // } 
-    catch(...) {
-        cout << "Exception during optimization" << endl;
+    catch(std::logic_error & e) {
+        // cout << "Exception during optimization" << endl;
+        throw e;
     }
 
     
