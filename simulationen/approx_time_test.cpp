@@ -107,7 +107,7 @@ int main(int argc, char * argv[]) {
             std::chrono::seconds setup_zeit;
             std::chrono::seconds loop_zeit;
 
-            std::vector<std::chrono::milliseconds> opt_times;
+            std::vector<double> opt_times;
 
             double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
 
@@ -140,7 +140,7 @@ int main(int argc, char * argv[]) {
             opt_file.open(opt_path + std::to_string(counter_iteration) + "_ms.txt");
 
             for (auto t : opt_times) {
-                opt_file << t.count() << "\n";
+                opt_file << t << "\n";
             }
 
             opt_file.close();

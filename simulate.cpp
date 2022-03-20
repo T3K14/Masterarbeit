@@ -17,6 +17,8 @@
 // zum testen
 #include <chrono>
 #include <thread>
+#include <fstream>
+
 // using namespace std::chrono_literals;
 
 using namespace lemon;
@@ -109,7 +111,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                 case Alg::LPApprox: {
 
                     // erst LP-Alg, benutze hier den global definierten rng
-                    double res_lp_approx = ensemble.approx_lp(rng, time);
+                    double res_lp_approx = ensemble.approx_lp(rng, time, simulation_path);
 
                     results_map[alg].push_back(res_lp_approx);
 
@@ -468,7 +470,7 @@ double Ensemble::bruteforce() {
     return two_stage_problem.bruteforce_new();
 }
 
-double Ensemble::approx_lp(std::mt19937 & rng, bool time) {
+double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & path) {
 
     // wenn time==true will ich den LP-Alg timen
 
@@ -476,22 +478,30 @@ double Ensemble::approx_lp(std::mt19937 & rng, bool time) {
 
     if (time) {
 
+        // Ordner, wo die Tracking Daten abgespeichert werden
+        boost_path tracking_path = path / "Tracking";
+        if (!boost::filesystem::exists(tracking_path)) {
+            boost::filesystem::create_directory(tracking_path);
+            boost::filesystem::create_directory(tracking_path / "opt");
+        }
+
+
         // definiere die Trackingvariablen
         unsigned long counter = 0;
         std::chrono::seconds setup_zeit;
         std::chrono::seconds loop_zeit;
 
-        std::vector<std::chrono::milliseconds> opt_times;
+        std::vector<double> opt_times;
         
         
         // time die komplette lp-Fkt.
-        std::chrono::seconds t;
         auto t_start = std::chrono::high_resolution_clock::now();
 
         lp_res = solve_relaxed_lp(two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
 
         auto t_end = std::chrono::high_resolution_clock::now();
-        t = std::chrono::duration_cast<std::chrono::seconds>(t_end - t_start);
+        std::chrono::duration<double, std::milli> total_ms = t_end - t_start;
+
         // std::cout << "Diese LP-Loesung hat " << t.count() << "s gedauert" << std::endl;
 
         // time noch den Approximationsteil
@@ -504,7 +514,59 @@ double Ensemble::approx_lp(std::mt19937 & rng, bool time) {
 
         approx_zeit = std::chrono::duration_cast<std::chrono::seconds>(t_end_approx - t_start_approx);
 
-        // speichere alles ab HIER WEITERMACHEN
+        // speichere alles ab 
+        // totale lp laufzeit
+        std::ofstream total_file;
+        boost_path total_path = tracking_path / "total.txt";
+        total_file.open(total_path.string(), std::ios::app);
+        total_file << total_ms.count() << "\n";
+        total_file.close();
+
+        // counter
+        std::ofstream counter_file;
+        boost_path counter_path = tracking_path / "counters.txt";
+        counter_file.open(counter_path.string(), std::ios::app);
+        counter_file << counter << "\n";
+        counter_file.close();
+
+        // setup zeit
+        std::ofstream setup_file;
+        boost_path setup_path = tracking_path / "setup_zeiten_s.txt";
+        setup_file.open(setup_path.string(), std::ios::app);
+        setup_file << setup_zeit.count() << "\n";
+        setup_file.close();
+
+        // loop zeit
+        std::ofstream loop_file;
+        boost_path loop_path = tracking_path / "loop_zeiten_s.txt";
+        loop_file.open (loop_path.string(), std::ios::app);
+        loop_file << loop_zeit.count() << "\n";
+        loop_file.close();
+
+        // approx zeit
+        std::ofstream approx_file;
+        boost_path approx_path = tracking_path / "approx_zeiten_s.txt";
+        approx_file.open(approx_path.string(), std::ios::app);
+        approx_file << approx_zeit.count() << "\n";
+        approx_file.close();
+
+        // die optimierungszeiten
+        boost_path opt_path = tracking_path / "opt";
+        std::ofstream opt_file;
+
+        int counter_iteration = 0;
+        // rausfinden, wie viele Datein es schon gibt
+        for (boost::filesystem::directory_iterator itr(opt_path); itr != boost::filesystem::directory_iterator(); ++itr) {
+            counter_iteration++;
+        }
+
+        opt_file.open(opt_path.string() + "/" + std::to_string(counter_iteration) + "_ms.txt");
+
+        for (auto ot : opt_times) {
+            opt_file << ot << "\n";
+        }
+
+        opt_file.close();
 
     } else {
         lp_res = solve_relaxed_lp(two_stage_problem);

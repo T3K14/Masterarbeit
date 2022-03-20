@@ -124,7 +124,7 @@ public:
     double greedy();
 
     // die Approx Methode braucht rng, um aus der lp loesung eine gueltige Lsg zu berechnen
-    double approx_lp(std::mt19937 & rng, bool time);
+    double approx_lp(std::mt19937 & rng, bool time, const boost_path & path);
 
     // speichert mir den aktuellen graphen des twostageproblems
     virtual void save_current_graph(boost_path path, std::string name);

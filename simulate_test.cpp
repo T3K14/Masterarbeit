@@ -12,11 +12,11 @@ using namespace lemon;
 int main() {
 
     int number_scenarios = 10;
-    int number_nodes = 500;
+    int number_nodes = 80;
 
     bool on_cluster = true;
     bool save_problems = false;
-    bool time = false;
+    bool time = true;               // ob ich den lp-alg timen/tracken will
 
     // int number_minus_edges = 20;
 
@@ -31,13 +31,14 @@ int main() {
     std::vector<int> runs {500};
 
     for (int i=0; i<ps.size(); i++) {
-        // TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
+        TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
         // std::cout << "Edges:" << ensemble2.two_stage_problem.get_number_edges() << std::endl;
-        FullyConnectedMinusEdges ensemble2(33, s, n, rng, 29);
+        // FullyConnectedMinusEdges ensemble2(33, s, n, rng, 29);
 
 
         ensemble2.initialize();
         std::set<Alg> s {Alg::LPApprox};//, Alg::Schranke4b, Alg::GreedyApprox};
-        simulate(runs[i], ensemble2, s, "Test_Edges_499_10_scen_HPC", on_cluster, save_problems);
+        std::string ordner_name = "TimeTest_" + std::to_string(number_nodes) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+        simulate(runs[i], ensemble2, s, ordner_name, on_cluster, save_problems);
     }
 }

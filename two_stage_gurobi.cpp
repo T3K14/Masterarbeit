@@ -218,7 +218,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
 }
 
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
-double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<std::chrono::milliseconds> & opti_times) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
+double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<double> & opt_times_ms) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
     auto t_start_setup = std::chrono::high_resolution_clock::now();
 
@@ -320,7 +320,8 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
             // die folgenden zwei zeilen gehoeren auch noch dazu
             auto t_end_opt = std::chrono::high_resolution_clock::now();
-            opti_times.push_back(std::chrono::duration_cast<std::chrono::seconds>(t_end_opt - t_start_opt));
+            std::chrono::duration<double, std::milli> fp_ms = t_end_opt - t_start_opt;
+            opt_times_ms.push_back(fp_ms.count());
 
             // DEBUG
             // std::cout << "\n\n Hier nach einem optimierungsvorgang\n";
