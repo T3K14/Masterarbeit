@@ -9,10 +9,11 @@
 
 using namespace lemon;
 
-int main() {
+int main(int argc, char * argv[]) {
 
-    int number_scenarios = 10;
-    int number_nodes = 80;
+    int number_nodes = std::stoi(argv[1]);
+    int number_scenarios = std::stoi(argv[2]);;
+    // int number_nodes = 10;
 
     bool on_cluster = true;
     bool save_problems = false;
@@ -25,10 +26,10 @@ int main() {
     NRandomScenarioCreator s(number_scenarios, rng);    
     RandomTestCreator n(0., 10., rng);
 
-    // std::vector<double> ps {0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-    // std::vector<int> runs {500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500};//, 50, 50, 50, 50};
-    std::vector<double> ps {0.00};
-    std::vector<int> runs {500};
+    std::vector<double> ps {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+    std::vector<int> runs {500, 500, 500, 100, 100, 100, 100, 100, 100, 100, 100};//, 50, 50, 50, 50};
+    // std::vector<double> ps {0.00};
+    // std::vector<int> runs {500};
 
     for (int i=0; i<ps.size(); i++) {
         TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
