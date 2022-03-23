@@ -2,6 +2,8 @@
 #include <random>
 #include <vector>
 #include <lemon/list_graph.h>
+#include <unordered_map>
+
 
 // berechnet mir fuer n gegebene Szenarien Wahrscheinlichkeiten, die sich (fast exakt) zu 1 auf addieren
 std::vector<double> calcScenarioProbabilities(size_t n, std::mt19937 & rng);
@@ -24,4 +26,5 @@ void edgeWeightIncrease(lemon::ListGraph::EdgeMap<std::vector<double>> & edgMap,
 int BinomialCoefficient(const int n, const int k);
 
 void update_c(std::vector<int> & c, const int & number_edges, const int & number_nodes, const bool & stop);
+void update_c_new(std::vector<int> & c, const std::vector<int> & gueltig, std::unordered_map<int, int> & gueltig_index_to_edge_index,  const int & number_edges, const int & number_nodes, const bool & stop);
 

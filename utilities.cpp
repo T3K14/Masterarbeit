@@ -1,5 +1,4 @@
 #include "utilities.hpp"
-#include <unordered_map>
 #include <set>
 #include <utility>
 #include <lemon/core.h>
@@ -459,5 +458,41 @@ void update_c(std::vector<int> & c, const int & number_edges, const int & number
         c.back()++;
     } else {                // wenn ich keinen stop habe, gehe ich den tree eine stufe tiefer und nehme mir die naechste Kante zusaetzlich dazu
         c.push_back(c.back() + 1);
+    }
+}
+
+void update_c_new(std::vector<int> & c, const std::vector<int> & gueltig, std::unordered_map<int, int> & gueltig_index_to_edge_index,  const int & number_edges, const int & number_nodes, const bool & stop) {
+    // update_c wird am Ende des loops ausgefuert, also ist es so, dass wenn diese Funktion aufgerufen wird, das c, was hier uebergeben wird bereits gecheckt wurde 
+    // und nun das naechste ausgerechnen werden muss
+
+    // falls am Ende von c der letzte edge-Index steht, dann entferne ich diesen
+    // das ist auch unabhaengig von stop, weil das immer eine leafnode an dem tree ist
+    if (c.back() == gueltig.back()) {
+        c.pop_back();
+
+        // falls c jetzt empty ist, bin ich komplett fertig
+        if (c.empty()) {
+            return;
+        }
+
+        // ansonsten: erhoehe den jetzt letzten Index auf den naechsten gueltigen
+        // das mache ich, indem ich mir den Index von der Kante c.back() in gueltig suche und diesen um 1 erhoehe und damit dann in gueltig den naechsten edge-Index nehme
+        c.back() = gueltig[gueltig_index_to_edge_index[c.back()]++];
+
+        return;
+    }
+
+    // wenn ich hierher komme und die Laenge von c = N-1 ist, dann weiss ich, das hinten noch nicht der letzte Kantenindex steht und kann einfach den letzten Index in c
+    // auf den naechsten gueltigen setzen und returnen, weil ich unabhaengig von stop eine leaf node im Suchbaum erreicht habe
+    if (c.size() == number_nodes - 1) {
+        c.back() = gueltig[gueltig_index_to_edge_index[c.back()]++];
+        return;
+    }
+
+    // wenn ich stop hab, dann gehe ich den subtree nicht tiefer, sondern nehme mir anstelle der letzten Kante die naechste
+    if (stop) {
+        c.back() = gueltig[gueltig_index_to_edge_index[c.back()]++];
+    } else {                // wenn ich keinen stop habe, gehe ich den tree eine stufe tiefer und nehme mir die naechste gueltige Kante zusaetzlich dazu
+        c.push_back(gueltig[gueltig_index_to_edge_index[c.back()]++]);
     }
 }

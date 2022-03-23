@@ -117,7 +117,7 @@ public:
     virtual void initialize();
 
     void approx_after_lp(std::mt19937 & rng);
-    double bruteforce();
+    double bruteforce(bool time, const boost_path & tracking_path);
 
     // bei 4b kommt keine 1.stage Kantenauswahl raus, daher wird hier direkt das Ergebnis returned
     double do4b();

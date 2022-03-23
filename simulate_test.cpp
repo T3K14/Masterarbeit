@@ -26,10 +26,10 @@ int main(int argc, char * argv[]) {
     NRandomScenarioCreator s(number_scenarios, rng);    
     RandomTestCreator n(0., 10., rng);
 
-    std::vector<double> ps {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-    std::vector<int> runs {500, 500, 500, 100, 100, 100, 100, 100, 100, 100, 100};//, 50, 50, 50, 50};
-    // std::vector<double> ps {0.00};
-    // std::vector<int> runs {500};
+    // std::vector<double> ps {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+    // std::vector<int> runs {500, 500, 500, 100, 100, 100, 100, 100, 100, 100, 100};//, 50, 50, 50, 50};
+    std::vector<double> ps {0.00, 0.5};
+    std::vector<int> runs {500, 500};
 
     for (int i=0; i<ps.size(); i++) {
         TreePlusP ensemble2(number_nodes, s, n, rng, ps[i]);
@@ -38,8 +38,9 @@ int main(int argc, char * argv[]) {
 
 
         ensemble2.initialize();
-        std::set<Alg> s {Alg::LPApprox};//, Alg::Schranke4b, Alg::GreedyApprox};
-        std::string ordner_name = "TimeTest_" + std::to_string(number_nodes) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+        std::set<Alg> s {Alg::Optimal};//, Alg::Schranke4b, Alg::GreedyApprox};
+        // std::string ordner_name = "TimeTest_" + std::to_string(number_nodes) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+        std::string ordner_name = "Optimum_TimeTest_" + std::to_string(number_nodes) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
         simulate(runs[i], ensemble2, s, ordner_name, on_cluster, save_problems);
     }
 }

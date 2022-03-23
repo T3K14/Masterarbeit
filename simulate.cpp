@@ -39,7 +39,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     std::string ueber_ordner_path_string;
     // Ordner ist der Ueberordner, in den alle zusammengehoerigen Ordner reinkommen sollen
     if (!on_cluster) {
-        ueber_ordner_path_string = "D:\\Uni\\Masterarbeit\\Code\\output\\" + ueber_ordner;
+        ueber_ordner_path_string = "D:\\Uni\\Masterarbeit\\Daten" + ueber_ordner;
     } else {
         ueber_ordner_path_string = "/gss/work/xees8992/" + ueber_ordner;
     }
@@ -89,6 +89,16 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     std::vector<int> vector_number_edges;
     // --- Ende Debug
 
+    // Falls ich Laufzeiten etc. tracken will:
+    // Ordner, wo die Tracking Daten abgespeichert werden
+    boost_path tracking_path = simulation_path / "Tracking";
+    if (time) {
+        if (!boost::filesystem::exists(tracking_path)) {
+            boost::filesystem::create_directory(tracking_path);
+            boost::filesystem::create_directory(tracking_path / "opt");
+        }
+    }
+
     for (int i=0; i<runs; i++) {
         std::cout << "run: " << i << std::endl;
 
@@ -111,7 +121,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                 case Alg::LPApprox: {
 
                     // erst LP-Alg, benutze hier den global definierten rng
-                    double res_lp_approx = ensemble.approx_lp(rng, time, simulation_path);
+                    double res_lp_approx = ensemble.approx_lp(rng, time, tracking_path);
 
                     results_map[alg].push_back(res_lp_approx);
 
@@ -134,7 +144,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                 break;
                 
                 case Alg::Optimal: {
-                    double res_optimum = ensemble.bruteforce();
+
+                    double res_optimum = ensemble.bruteforce(time, tracking_path);
                     results_map[alg].push_back(res_optimum);
 
                     // speichere die Ergebnismap
@@ -466,26 +477,41 @@ void Ensemble::save_current_scenarios(boost_path path, std::string name) {
     // writer.run();
 }
 
-double Ensemble::bruteforce() {
-    return two_stage_problem.bruteforce_new();
+double Ensemble::bruteforce(bool time, const boost_path & tracking_path) {
+
+    if (time) {
+        // time die komplette bruteforce-Funktion
+        auto t_start = std::chrono::high_resolution_clock::now();
+        
+        double res = two_stage_problem.bruteforce_new();
+
+        auto t_end = std::chrono::high_resolution_clock::now();
+
+        // std::chrono::duration<double, std::chrono::seconds> total_s(t_end - t_start);
+        std::chrono::duration<double> total_s = t_end - t_start;
+
+        // Laufzeit abspeichern
+        std::ofstream optimum_file;
+        boost_path optimum_path = tracking_path / "optimum.txt";
+        optimum_file.open(optimum_path.string(), std::ios::app);
+        optimum_file << total_s.count() << "\n";
+        optimum_file.close();
+
+        return res;
+
+    } else {
+        return two_stage_problem.bruteforce_new();
+    }
 }
 
-double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & path) {
+double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & tracking_path) {
 
     // wenn time==true will ich den LP-Alg timen
 
     double lp_res;
 
     if (time) {
-
-        // Ordner, wo die Tracking Daten abgespeichert werden
-        boost_path tracking_path = path / "Tracking";
-        if (!boost::filesystem::exists(tracking_path)) {
-            boost::filesystem::create_directory(tracking_path);
-            boost::filesystem::create_directory(tracking_path / "opt");
-        }
-
-
+    
         // definiere die Trackingvariablen
         unsigned long counter = 0;
         std::chrono::seconds setup_zeit;
