@@ -2,6 +2,7 @@
 
 #include "../two_stage.hpp"
 #include "../utilities.hpp"
+#include <chrono>
 
 int main() {
 
@@ -79,7 +80,15 @@ int main() {
     // FullyConnectedTwoStageMST mst(number_nodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
     // auto res = bruteForceEnumeration(mst.g, mst.firstStageWeights, mst.secondStageProbabilities, mst.secondStageWeights);
+    auto t_start = std::chrono::high_resolution_clock::now();
+
     auto res = mst.bruteforce_new();
+    auto t_end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> total_s = t_end - t_start;
+
+    std::cout << "Diese bruteforce-Optimierung hat " << total_s.count() << "s gedauert." << std::endl;
+
     // mst.save_bruteforce_first_stage_map("bruteforce_nur_zyklus_simulation");
 
     double expected_costs = mst.calculate_expected_from_bool_map(mst.bruteforce_first_stage_map);
