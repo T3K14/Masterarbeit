@@ -721,7 +721,7 @@ void TwoStageProblem::greedy() {
 // konstruktor fuer TwoStageProblem
 // die number_scenarios lese ich dabei aus dem Vector ab
 TwoStageProblem::TwoStageProblem(const std::vector<double> & second_stage_probabilites) 
-    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g), approx_first_stage_map(g, false), bruteforce_first_stage_map(g, false), greedy_first_stage_map(g, false) {
+    : numberScenarios(second_stage_probabilites.size()), secondStageProbabilities(second_stage_probabilites), firstStageWeights(g), secondStageWeights(g), lp_results_map(g), approx_first_stage_map(g, false), bruteforce_first_stage_map(g, false), optimum_first_stage_map(g, false), greedy_first_stage_map(g, false) {
 
     }
 
@@ -1021,7 +1021,147 @@ double TwoStageProblem::check(const std::vector<int> & c, double & current_best,
     return sumEV;
 }
 
-double TwoStageProblem::bruteforce_new() {
+double TwoStageProblem::get_second_stage_ev(const lemon::ListGraph::Edge & e) const {
+    double s = 0.;
+
+    for (int i=0; i<numberScenarios; i++) {
+        s += secondStageProbabilities[i] * secondStageWeights[e][i];
+    }
+    return s;
+}
+
+// Methode, die bruteforce_new abloest mit Optimierung, dass ich ueberhaupt nur solche Kanten betrachte, die in der ersten Stage billiger sind als 2. Stage EV
+double TwoStageProblem::optimum(bool tracking, const boost_path & tracking_path) {
+
+    // treffe Vorauswahl
+    std::vector<int> gueltig;
+    std::unordered_map<int, int> gueltig_index_to_edge_index;
+
+    for (int i=0; i<edges.size(); i++) {
+        // ermittle den 2. Stage EV der i-ten Kante
+        double e_ev = get_second_stage_ev(edges[i]);
+
+        // falls die Kante in 1. stage billiger ist, als der EV in 2. stage fuege sie gueltig hinzu
+        if (firstStageWeights[edges[i]] < e_ev) {
+            int index_gueltig = gueltig.size();
+            gueltig.push_back(i);
+            gueltig_index_to_edge_index[i]=index_gueltig;
+        }
+    }
+
+    // std::cout << "Gueltig:" << std::endl;
+
+    // for (auto x: gueltig) {
+    //     std::cout << x << ", ";
+    // }
+    // std::cout << std::endl;
+
+    double current_min = 0.;
+    unsigned int opt_counter;        // soll zaehlen, wenn es mehr als eine Loesung mit minimalen Kosten gibt
+
+    // used as temporary output map of the kruskal algorithm
+    lemon::ListGraph::EdgeMap<bool> output(g); 
+
+    // checke den Fall, dass ich keine Kante in der ersten Stage kaufe (als Startpunkt)
+    for (int i=0; i<numberScenarios; i++) {        // starte bei 0, weil ich hier nur die second_stage_vectors durchgehe und die haben die Laenge numberScenarios
+        // baue mir eine map, die fuer die Kanten nur die Kosten aus szenario i zurueck gibt
+        OneScenarioMap scenario_i_map(secondStageWeights, i);
+        auto weightedResult = secondStageProbabilities[i] * lemon::kruskal(g, scenario_i_map, output);
+        current_min += weightedResult;
+    }
+
+    // jetzt die anderen Auswahlmoeglichkeiten durchgehen
+    std::vector<int> c;
+    if (gueltig.size() > 0) {
+        c.push_back(gueltig[0]);
+    } else {
+        // es gibt keine gueltigen Kanten, also ist die Loesung, wo ich keine Kante in stage 1 kaufe die optimale
+        return current_min;
+    }
+
+    int number_nodes = nodes.size();
+    bool stop;
+
+    if (tracking) {
+        // will die Anzahl an loop-Aufrufen zaehlen
+        unsigned int loop_counter = 0;
+        unsigned int number_runs = 0;
+
+        // will pro Iteration die check_new-Zeit speichern, brauche also Ordner dazu
+        boost_path check_path = tracking_path / "check2";
+        if (!boost::filesystem::exists(check_path)) {
+            boost::filesystem::create_directory(check_path);
+        } else {
+            // zaehle, wie viele Runs bereits gemacht wurden, damit ich fuer den aktuellen die Datei benennen kann
+            for (boost::filesystem::directory_iterator itr(check_path); itr != boost::filesystem::directory_iterator(); ++itr) {
+                number_runs++;
+            }
+        }
+
+        // wenn nur noch die letzte Kante allein ausgewaehlt ist
+        while (!c.empty()) {
+
+            // kann nach dem tracken eigentlich wieder raus
+            loop_counter++;
+
+            // time check_new()
+            auto t_check_start = std::chrono::high_resolution_clock::now();
+
+            // std::cout << "Jetzt kommt check_new:" << std::to_string(loop_counter) << std::endl;
+            // std::cout << "c: " << std::endl;
+            // for (auto y: c) {
+            //     std::cout << y << ", ";
+            // }
+            // std::cout << std::endl;
+
+            // check schaut sich die Edgeauswahl, die ueber c gegeben ist an, vergleicht
+            // das Ergebnis mit dem bisherigen Optimum und ersetzt das, falls diese Auswahl besser ist
+            // check gibt ausserdem zurueck, ob ich den folgenden Subtree ueberspringen kann
+            stop = check_new(c, current_min, output, opt_counter, optimum_first_stage_map, tracking, tracking_path);
+
+            auto t_check_end = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double> t_check_s = t_check_end - t_check_start;
+
+            // std::cout << "Das war check_new" << std::endl;
+
+            // check_new_zeit abspeichern
+            std::ofstream check_file;
+            boost_path check_file_path = check_path / (std::to_string(number_runs) + ".txt");
+            check_file.open(check_file_path.string(), std::ios::app);
+            check_file << t_check_s.count() << "\n";
+            check_file.close();
+
+            // update c abhaengig von stop (stop=true, falls ich den subtree ueberspringen kann)
+            update_c_new(c, gueltig, gueltig_index_to_edge_index, number_nodes, stop);        
+        }
+        // std::cout << "Komme bis hier" << std::endl;
+
+        std::ofstream loop_counter_file;
+        boost_path loop_counter_path = tracking_path / "optimum_loop_counter2.txt";
+        loop_counter_file.open(loop_counter_path.string(), std::ios::app);
+        loop_counter_file << loop_counter << "\n";
+        loop_counter_file.close();
+    
+
+    } else {
+        // wenn nur noch die letzte Kante allein ausgewaehlt ist
+        while (!c.empty()) {
+
+        // check schaut sich die Edgeauswahl, die ueber c gegeben ist an, vergleicht
+        // das Ergebnis mit dem bisherigen Optimum und ersetzt das, falls diese Auswahl besser ist
+        // check gibt ausserdem zurueck, ob ich den folgenden Subtree ueberspringen kann
+        stop = check_new(c, current_min, output, opt_counter, optimum_first_stage_map, tracking, tracking_path);
+
+        // update c abhaengig von stop (stop=true, falls ich den subtree ueberspringen kann)
+        update_c_new(c, gueltig, gueltig_index_to_edge_index, number_nodes, stop);        
+        }
+    }
+
+    return current_min;  
+}
+
+double TwoStageProblem::bruteforce_new(bool tracking, const boost_path & tracking_path) {
 
     double current_min = 0.;
     unsigned int opt_counter;        // soll zaehlen, wenn es mehr als eine Loesung mit minimalen Kosten gibt
@@ -1045,21 +1185,76 @@ double TwoStageProblem::bruteforce_new() {
     int number_nodes = nodes.size();
     bool stop;
 
-    // wenn nur noch die letzte Kante allein ausgewaehlt ist
-    while (!c.empty()) {
+    if (tracking) {
+        // will die Anzahl an loop-Aufrufen zaehlen
+        unsigned int loop_counter = 0;
+
+        unsigned int number_runs = 0;
+
+        // will pro Iteration die check_new-Zeit speichern, brauche also Ordner dazu
+        boost_path check_path = tracking_path / "check";
+        if (!boost::filesystem::exists(check_path)) {
+            boost::filesystem::create_directory(check_path);
+        } else {
+            // zaehle, wie viele Runs bereits gemacht wurden, damit ich fuer den aktuellen die Datei benennen kann
+            for (boost::filesystem::directory_iterator itr(check_path); itr != boost::filesystem::directory_iterator(); ++itr) {
+                number_runs++;
+            }
+        }
+
+        // wenn nur noch die letzte Kante allein ausgewaehlt ist
+        while (!c.empty()) {
+
+            // kann nach dem tracken eigentlich wieder raus
+            loop_counter++;
+
+            // time check_new()
+            auto t_check_start = std::chrono::high_resolution_clock::now();
+
+            // check schaut sich die Edgeauswahl, die ueber c gegeben ist an, vergleicht
+            // das Ergebnis mit dem bisherigen Optimum und ersetzt das, falls diese Auswahl besser ist
+            // check gibt ausserdem zurueck, ob ich den folgenden Subtree ueberspringen kann
+            stop = check_new(c, current_min, output, opt_counter, bruteforce_first_stage_map, tracking, tracking_path);
+
+            auto t_check_end = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double> t_check_s = t_check_end - t_check_start;
+
+            // check_new_zeit abspeichern
+            std::ofstream check_file;
+            boost_path check_file_path = check_path / (std::to_string(number_runs) + ".txt");
+            check_file.open(check_file_path.string(), std::ios::app);
+            check_file << t_check_s.count() << "\n";
+            check_file.close();
+
+            // update c abhaengig von stop (stop=true, falls ich den subtree ueberspringen kann)
+            update_c(c, number_edges, number_nodes, stop);        
+        }
+            std::ofstream loop_counter_file;
+            boost_path loop_counter_path = tracking_path / "optimum_loop_counter.txt";
+            loop_counter_file.open(loop_counter_path.string(), std::ios::app);
+            loop_counter_file << loop_counter << "\n";
+            loop_counter_file.close();
+    
+
+    } else {
+        // wenn nur noch die letzte Kante allein ausgewaehlt ist
+        while (!c.empty()) {
 
         // check schaut sich die Edgeauswahl, die ueber c gegeben ist an, vergleicht
         // das Ergebnis mit dem bisherigen Optimum und ersetzt das, falls diese Auswahl besser ist
         // check gibt ausserdem zurueck, ob ich den folgenden Subtree ueberspringen kann
-        stop = check_new(c, current_min, output, opt_counter);
+        stop = check_new(c, current_min, output, opt_counter, bruteforce_first_stage_map, tracking, tracking_path);
 
         // update c abhaengig von stop (stop=true, falls ich den subtree ueberspringen kann)
         update_c(c, number_edges, number_nodes, stop);        
+        }
     }
-    return current_min;
+
+    return current_min;    
 }
 
-bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter) {
+bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter, lemon::ListGraph::EdgeMap<bool> & opt_result_map, bool tracking, const boost_path & tracking_path) {
     
     // teilsumme stage 1 berechnen (Hier kommt noch die andere Verbesserung dazu)
 
@@ -1116,13 +1311,13 @@ bool TwoStageProblem::check_new(const std::vector<int> & c, double & current_bes
         opt_counter = 1;
         // gehe ueber alle Kanten und setze die auf 1, die in c drin stehen
         for (auto & e : edges) {
-            bruteforce_first_stage_map[e] = false;
+            opt_result_map[e] = false;
         }
 
         // ich will die Kanten, DEREN INDEX IN C DRIN STEHT UND NICHT DIE ERSTEN c KANTEN AUS edges
         for (int j: c) {
 
-            bruteforce_first_stage_map[edges[j]] = true;
+            opt_result_map[edges[j]] = true;
         }
 
         // --- zum Testen soll hier eine Ausgabe der besten Loesungen stattfinden

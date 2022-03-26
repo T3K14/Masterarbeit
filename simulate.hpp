@@ -11,7 +11,7 @@
 using boost_path = boost::filesystem::path;
 
 // enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
-enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal};
+enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal, Optimal2};
 
 // forward declaration  KLAPPT IRGENDWIE NICHT
 // class TwoStageProblem;
@@ -118,6 +118,7 @@ public:
 
     void approx_after_lp(std::mt19937 & rng);
     double bruteforce(bool time, const boost_path & tracking_path);
+    double optimum(bool time, const boost_path & tracking_path);
 
     // bei 4b kommt keine 1.stage Kantenauswahl raus, daher wird hier direkt das Ergebnis returned
     double do4b();

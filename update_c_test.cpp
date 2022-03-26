@@ -91,7 +91,7 @@ int main() {
     cout << "Summe der Binomialkoeffizienten: " << s << "\n";
 
     // Teste update_c_new
-
+    
 
     return 0;
 }

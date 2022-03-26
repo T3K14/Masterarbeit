@@ -30,7 +30,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     // std::cout << "Runs: " << runs << std::endl;
 
     // Namen zu den Algorithmen:
-    std::map<Alg, std::string> name_to_alg {{Alg::GreedyApprox, "Greedy"}, {Alg::LPApprox, "LP_Approx"}, {Alg::Optimal, "Optimum"}, {Alg::Schranke4b, "Schranke4b"}};
+    std::map<Alg, std::string> name_to_alg {{Alg::GreedyApprox, "Greedy"}, {Alg::LPApprox, "LP_Approx"}, {Alg::Optimal, "Optimum"}, {Alg::Optimal2, "Optimum2"}, {Alg::Schranke4b, "Schranke4b"}};
 
     if (alg_set.size() < 1) {
         throw std::invalid_argument("ROBERT-ERROR: Brauche mindestens einen Algorithmus, den ich laufen lasse!\n");
@@ -152,7 +152,18 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                     boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
                     ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.bruteforce_first_stage_map, map_path);
                 }
-                break;                
+                break;      
+
+                case Alg::Optimal2: {
+
+                    double res_optimum = ensemble.optimum(time, tracking_path);
+                    results_map[alg].push_back(res_optimum);
+
+                    // speichere die Ergebnismap
+                    boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
+                    ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.optimum_first_stage_map, map_path);
+                }
+                break;           
 
             // default:
                 // break;
@@ -483,7 +494,7 @@ double Ensemble::bruteforce(bool time, const boost_path & tracking_path) {
         // time die komplette bruteforce-Funktion
         auto t_start = std::chrono::high_resolution_clock::now();
         
-        double res = two_stage_problem.bruteforce_new();
+        double res = two_stage_problem.bruteforce_new(time, tracking_path);
 
         auto t_end = std::chrono::high_resolution_clock::now();
 
@@ -501,6 +512,34 @@ double Ensemble::bruteforce(bool time, const boost_path & tracking_path) {
 
     } else {
         return two_stage_problem.bruteforce_new();
+    }
+}
+
+double Ensemble::optimum(bool time, const boost_path & tracking_path) {
+
+
+    if (time) {
+        // time die komplette optimum-Funktion
+        auto t_start = std::chrono::high_resolution_clock::now();
+        
+        double res = two_stage_problem.optimum(time, tracking_path);
+        
+        auto t_end = std::chrono::high_resolution_clock::now();
+
+        // std::chrono::duration<double, std::chrono::seconds> total_s(t_end - t_start);
+        std::chrono::duration<double> total_s = t_end - t_start;
+
+        // Laufzeit abspeichern
+        std::ofstream optimum_file;
+        boost_path optimum_path = tracking_path / "optimum2.txt";
+        optimum_file.open(optimum_path.string(), std::ios::app);
+        optimum_file << total_s.count() << "\n";
+        optimum_file.close();
+
+        return res;
+
+    } else {
+        return two_stage_problem.optimum();
     }
 }
 

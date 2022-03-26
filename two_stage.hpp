@@ -172,6 +172,7 @@ public:
 
     lemon::ListGraph::EdgeMap<bool> approx_first_stage_map;
     lemon::ListGraph::EdgeMap<bool> bruteforce_first_stage_map;
+    lemon::ListGraph::EdgeMap<bool> optimum_first_stage_map;
     lemon::ListGraph::EdgeMap<bool> greedy_first_stage_map;
 
 public:
@@ -198,7 +199,8 @@ public:
     // nur zum zeit testen:
     friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<double> & opt_times_ms);
 
-
+    // gibt mir den zu erwartenden 2. stage Kostenwert einer Kante zurueck
+    double get_second_stage_ev(const lemon::ListGraph::Edge & e) const; 
 
     // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer 
     // in der ersten Stage zu kaufende Kanten speichert
@@ -208,7 +210,8 @@ public:
     // --- BRUTEFORCEFUNKTIONEN
     // berechnet durch durchprobieren aller (sinnvollen) Moeglichkeiten die optimale Loesung fuer das gegebene Problem und speichert die Kanten, die in Phase 1 gekauft werden in 'bruteforce_first_stage_map'
     double bruteforce();
-    double bruteforce_new();
+    double bruteforce_new(bool tracking=false, const boost_path & tracking_path=boost_path());
+    double optimum(bool tracking=false, const boost_path & tracking_path=boost_path());
 
     void greedy();
 
@@ -218,7 +221,7 @@ public:
 private:
     // schaut sich fuer eine Edgeauswahl an, was dabei herauskommen wuerde und vergleicht das mit dem bisherigen Optimum und ersetzt es, falls das besser ist
     double check(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter);
-    bool check_new(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter);
+    bool check_new(const std::vector<int> & c, double & current_best, lemon::ListGraph::EdgeMap<bool> & output, unsigned int & opt_counter, lemon::ListGraph::EdgeMap<bool> & opt_result_map, bool tracking, const boost_path & tracking_path);
 
 public:
 
