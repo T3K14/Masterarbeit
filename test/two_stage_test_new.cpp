@@ -360,6 +360,7 @@ TEST(TwoStageSuite, Greedy1) {
     }
 }
 
+// ist nicht aufs Cluster ausgelegt
 TEST(TwoStageSuite, Optimum1) {
     unsigned int numberNodes = 4;
 

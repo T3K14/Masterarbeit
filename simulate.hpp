@@ -90,6 +90,20 @@ class RandomTestCreator : public NewEdgeCostCreator {
 
 };
 
+// GV steht fuer gleichverteilt
+class GVBilligFirstCreator : public NewEdgeCostCreator {
+
+    double low_first, high_first;
+    double low_extra_second, high_extra_second;
+    std::mt19937 & rng;
+
+    public:
+        virtual ~GVBilligFirstCreator() = default;
+        GVBilligFirstCreator(double _low_first, double _high_first, double _low_extra_second, double _high_extra_second, std::mt19937 & _rng);
+        virtual void create_costs(TwoStageProblem & tsp) override;
+        virtual std::string identify() override;
+};
+
 class Ensemble {
 
 // protected:
@@ -208,5 +222,5 @@ public:
 };
 
 // void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich);
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster=false, bool save_problems=false);
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster=false, bool save_problems=false, bool tracking=false);
 

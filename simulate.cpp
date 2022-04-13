@@ -19,11 +19,17 @@
 #include <thread>
 #include <fstream>
 
+// fuer output von floats als stings
+#include <sstream>
+
+// fuer setprecision
+#include <iomanip>
+
 // using namespace std::chrono_literals;
 
 using namespace lemon;
 
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems) {
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems, bool tracking) {
 
     // DAS ENSEMBLE MUSS INITIALISIERT UEBERGEBEN WERDEN
 
@@ -92,7 +98,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     // Falls ich Laufzeiten etc. tracken will:
     // Ordner, wo die Tracking Daten abgespeichert werden
     boost_path tracking_path = simulation_path / "Tracking";
-    if (time) {
+    if (tracking) {
         if (!boost::filesystem::exists(tracking_path)) {
             boost::filesystem::create_directory(tracking_path);
             boost::filesystem::create_directory(tracking_path / "opt");
@@ -121,7 +127,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                 case Alg::LPApprox: {
 
                     // erst LP-Alg, benutze hier den global definierten rng
-                    double res_lp_approx = ensemble.approx_lp(rng, time, tracking_path);
+                    double res_lp_approx = ensemble.approx_lp(rng, tracking, tracking_path);
 
                     results_map[alg].push_back(res_lp_approx);
 
@@ -145,7 +151,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                 
                 case Alg::Optimal: {
 
-                    double res_optimum = ensemble.bruteforce(time, tracking_path);
+                    double res_optimum = ensemble.bruteforce(tracking, tracking_path);
                     results_map[alg].push_back(res_optimum);
 
                     // speichere die Ergebnismap
@@ -156,7 +162,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
                 case Alg::Optimal2: {
 
-                    double res_optimum = ensemble.optimum(time, tracking_path);
+                    double res_optimum = ensemble.optimum(tracking, tracking_path);
                     results_map[alg].push_back(res_optimum);
 
                     // speichere die Ergebnismap
@@ -336,7 +342,7 @@ void RandomTestCreator::create_costs(TwoStageProblem & tsp) {
     size_t number_edges = tsp.get_number_edges();
     size_t number_scenarios = tsp.get_number_scenarios();
 
-    auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);
+    auto scenarioProbabilities = calcScenarioProbabilities(number_scenarios, rng);          // was macht diese Zeile hier???
     std::uniform_real_distribution<double> dist(low, high);                
 
     std::vector<double> first_stage_costs;
@@ -358,6 +364,50 @@ void RandomTestCreator::create_costs(TwoStageProblem & tsp) {
     override_costs(tsp, first_stage_costs, second_stage_costs);
 }
 
+// Konstruktor ueberschreibt einfach nur die internen member Variablen
+GVBilligFirstCreator::GVBilligFirstCreator(double _low_first, double _high_first, double _low_extra_second, double _high_extra_second, std::mt19937 & _rng) :
+ low_first(_low_first), high_first(_high_first), low_extra_second(_low_extra_second), high_extra_second(_high_extra_second), rng(_rng) {
+}
+
+std::string GVBilligFirstCreator::identify() {
+
+    std::stringstream s_lf, s_hf, s_les, s_hes;
+    s_lf << std::fixed << std::setprecision(2) << low_first;
+    s_hf<< std::fixed << std::setprecision(2) << high_first;
+    s_les << std::fixed << std::setprecision(2) << low_extra_second;
+    s_hes << std::fixed << std::setprecision(2) << high_extra_second;
+
+    std::string s = "GVBilligFirstCreator_" + s_lf.str() + "_" + s_hf.str() + "_" + s_les.str() + "_" + s_hes.str();
+    return s;
+}
+
+// erzeugt zu den Kanten des TwoStageProblems gleichverteilt first stage Kosten im Intervall [low_first, high_first) und
+// addiert auf diese Werte pro Szenario einen zufaelligen Extrawert gleichverteilt aus dem Intervall [low_extra_second, high_extra_second)
+void GVBilligFirstCreator::create_costs(TwoStageProblem & tsp) {
+
+    // Umschreiben!!!!!!!!!!!
+
+    std::uniform_real_distribution<double> dist_first(low_first, high_first); 
+    std::uniform_real_distribution<double> dist_second(low_extra_second, high_extra_second);                
+
+    std::vector<double> first_stage_costs;
+
+    for (size_t i=0; i<tsp.get_number_edges(); i++) {
+        first_stage_costs.push_back(dist_first(rng));
+    }
+
+    std::vector<std::vector<double>> second_stage_costs;
+    for (size_t i=0; i<tsp.get_number_scenarios(); i++) {
+        std::vector<double> v;
+        for (size_t j=0; j<tsp.get_number_edges(); j++) {
+            v.push_back(first_stage_costs[j] + dist_second(rng));
+        }
+        second_stage_costs.push_back(v);
+    } 
+
+    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
+    override_costs(tsp, first_stage_costs, second_stage_costs);
+}
 
 Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), scenario_creator(_scenario_creator), edge_cost_creator(_edge_cost_creator) {
 
@@ -531,7 +581,7 @@ double Ensemble::optimum(bool time, const boost_path & tracking_path) {
 
         // Laufzeit abspeichern
         std::ofstream optimum_file;
-        boost_path optimum_path = tracking_path / "optimum2.txt";
+        boost_path optimum_path = tracking_path / "total_optimum2_s.txt";
         optimum_file.open(optimum_path.string(), std::ios::app);
         optimum_file << total_s.count() << "\n";
         optimum_file.close();
@@ -582,7 +632,7 @@ double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & tra
         // speichere alles ab 
         // totale lp laufzeit
         std::ofstream total_file;
-        boost_path total_path = tracking_path / "total.txt";
+        boost_path total_path = tracking_path / "total_lp_ms.txt";
         total_file.open(total_path.string(), std::ios::app);
         total_file << total_ms.count() << "\n";
         total_file.close();
