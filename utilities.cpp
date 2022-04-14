@@ -496,3 +496,15 @@ void update_c_new(std::vector<int> & c, const std::vector<int> & gueltig, std::u
         c.push_back(gueltig[gueltig_index_to_edge_index[c.back()]+1]);
     }
 }
+
+double calc_p_to_c(int n, double c) {
+
+    if (c < 2) {
+        std::cout << "ROBERTWARNUNG: da c<2 ist, wird p=0 gesetzt!\n"; 
+        return 0.;
+    }
+    if (c > n) {
+        throw std::invalid_argument("ROBERTERROR: c darf nicht größer als n sein!\n");
+    }
+    return (c * (n-1) - 2*n + 2) / (n*n-3*n+2);
+}

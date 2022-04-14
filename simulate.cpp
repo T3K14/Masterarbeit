@@ -409,6 +409,61 @@ void GVBilligFirstCreator::create_costs(TwoStageProblem & tsp) {
     override_costs(tsp, first_stage_costs, second_stage_costs);
 }
 
+
+// Konstruktor ueberschreibt einfach nur die internen member Variablen
+GVBilligFirstMittelCreator::GVBilligFirstMittelCreator(double _low, double _high, std::mt19937 & _rng) :
+ low(_low), high(_high), rng(_rng) {
+}
+
+std::string GVBilligFirstMittelCreator::identify() {
+
+    std::stringstream s_l, s_h;
+    s_l << std::fixed << std::setprecision(2) << low;
+    s_h<< std::fixed << std::setprecision(2) << high;
+
+    std::string s = "GVBilligFirstCreator_" + s_l.str() + "_" + s_h.str();
+    return s;
+}
+
+void GVBilligFirstMittelCreator::create_costs(TwoStageProblem & tsp) {
+
+    // wenn ich den GVBilligFirstCreator umschreiben will, dann auch diesen
+
+    std::uniform_real_distribution<double> dist(low, high); 
+
+    // initialisiere Vector wo ich die EVs reinschreibe mit 0.
+    std::vector<double> evs(tsp.get_number_edges(), 0.);
+
+    // erzeuge erst die second stage costs
+    std::vector<std::vector<double>> second_stage_costs;
+    for (size_t i=0; i<tsp.get_number_scenarios(); i++) {
+        std::vector<double> v;
+        for (size_t j=0; j<tsp.get_number_edges(); j++) {
+            double cost = dist(rng);
+            v.push_back(cost);
+
+            // und addiere Teil zum EV
+            evs[j] += tsp.secondStageProbabilities[i] * cost;
+        }
+        second_stage_costs.push_back(v);
+    } 
+
+    // erzeuge jetzt first stage costs so, dass sie billiger sind, als der EV in der 2. stage
+    std::vector<double> first_stage_costs;
+
+    for (size_t i=0; i<tsp.get_number_edges(); i++) {
+        double c;
+        do {
+            c = dist(rng);
+        } while (c >= evs[i]);
+
+        first_stage_costs.push_back(c);
+    }
+
+    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
+    override_costs(tsp, first_stage_costs, second_stage_costs);
+}
+
 Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), scenario_creator(_scenario_creator), edge_cost_creator(_edge_cost_creator) {
 
     // baue schon die Knoten in den Graphen, weil die bleiben erstmal fuer eien Mittelung immer konstant

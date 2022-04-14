@@ -90,7 +90,7 @@ class RandomTestCreator : public NewEdgeCostCreator {
 
 };
 
-// GV steht fuer gleichverteilt
+// GV steht fuer gleichverteilt, dieser Creator erzeugt Kantengewichte so, dass die 1. stage Kosten kleiner sind als die zur selben Kante gehoerenden 2. Stage Kosten in jedem Szenario
 class GVBilligFirstCreator : public NewEdgeCostCreator {
 
     double low_first, high_first;
@@ -103,6 +103,20 @@ class GVBilligFirstCreator : public NewEdgeCostCreator {
         virtual void create_costs(TwoStageProblem & tsp) override;
         virtual std::string identify() override;
 };
+
+// GV steht fuer gleichverteilt, dieser Creator erzeugt Kantengewichte so, dass die 1. stage Kosten kleiner als der EV von 2. stage sind (aber nicht unbedingt kleiner als in jedem Szenario)
+class GVBilligFirstMittelCreator : public NewEdgeCostCreator {
+
+    double low, high;
+    std::mt19937 & rng;
+
+    public:
+        virtual ~GVBilligFirstMittelCreator() = default;
+        GVBilligFirstMittelCreator(double _low, double _high, std::mt19937 & _rng);
+        virtual void create_costs(TwoStageProblem & tsp) override;
+        virtual std::string identify() override;
+};
+
 
 class Ensemble {
 

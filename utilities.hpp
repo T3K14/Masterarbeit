@@ -28,3 +28,4 @@ int BinomialCoefficient(const int n, const int k);
 void update_c(std::vector<int> & c, const int & number_edges, const int & number_nodes, const bool & stop);
 void update_c_new(std::vector<int> & c, const std::vector<int> & gueltig, std::unordered_map<int, int> & gueltig_index_to_edge_index, const int & number_nodes, const bool & stop);
 
+double calc_p_to_c(int n, double c);
