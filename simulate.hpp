@@ -211,6 +211,17 @@ public:
     virtual std::string identify() override;
 };
 
+class TreePlusC : public TreePlusP {
+
+    const double c;
+
+public:
+    TreePlusC(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, double _c);
+    virtual ~TreePlusC() = default;
+    virtual std::string identify() override;
+};
+
+
 class FullyConnected : public Ensemble {
 
 public:

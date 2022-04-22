@@ -901,6 +901,16 @@ std::string TreePlusP::identify() {
     return s;
 }
 
+// baut TreePlusP, aber nimmt fuer das p, den Wert, den calc_p_to_c zu dem uebergebenen c ausrechnet
+TreePlusC::TreePlusC(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, double _c)
+    : TreePlusP(_number_nodes, _scenario_creator, _edge_cost_creator, _rng, calc_p_to_c(_number_nodes, _c)), c(_c) {
+}
+
+std::string TreePlusC::identify() {
+    std::string s = "TreePlusC_" + std::to_string(c) + "_c_" + std::to_string(number_nodes) + "_nodes";
+    return s;
+}
+
 // NOCH NICHT FERTIG
 TreePlusEdges::TreePlusEdges(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator, std::mt19937 & _rng, unsigned int _number_extra_edges) 
     : Tree(_number_nodes, _scenario_creator, _edge_cost_creator, _rng), number_extra_edges(_number_extra_edges) {
