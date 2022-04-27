@@ -29,7 +29,12 @@
 
 using namespace lemon;
 
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems, bool tracking) {
+
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems, bool tracking, bool save_lp_results) {
+    /*
+    - save_lp_results hat nur dann einen Einfluss, wenn auch der LP-Approx-Alg aufgerufen wird
+    */
+
 
     // DAS ENSEMBLE MUSS INITIALISIERT UEBERGEBEN WERDEN
 
@@ -98,12 +103,19 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     // Falls ich Laufzeiten etc. tracken will:
     // Ordner, wo die Tracking Daten abgespeichert werden
     boost_path tracking_path = simulation_path / "Tracking";
-    if (tracking) {
+    if (tracking || save_lp_results) {
         if (!boost::filesystem::exists(tracking_path)) {
             boost::filesystem::create_directory(tracking_path);
-            boost::filesystem::create_directory(tracking_path / "opt");
+
+            if (tracking) {
+                boost::filesystem::create_directory(tracking_path / "opt");
+            }
+            if (save_lp_results) {
+                boost::filesystem::create_directory(tracking_path / "lp_results");
+            }
         }
     }
+
 
     for (int i=0; i<runs; i++) {
         std::cout << "run: " << i << std::endl;
@@ -130,6 +142,12 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                     double res_lp_approx = ensemble.approx_lp(rng, tracking, tracking_path);
 
                     results_map[alg].push_back(res_lp_approx);
+
+                    // speichere die lp_results
+                    if (save_lp_results) {
+                        boost_path lp_res_path = simulation_path / "Tracking" / "lp_results" / (std::to_string(i) + ".txt");
+                        ensemble.two_stage_problem.save_lp_result_map(lp_res_path);
+                    }
 
                     // speichere die Ergebnismap
                     boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
@@ -658,16 +676,14 @@ double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & tra
     
         // definiere die Trackingvariablen
         unsigned long counter = 0;
-        std::chrono::seconds setup_zeit;
-        std::chrono::seconds loop_zeit;
-
+        double setup_zeit_ms, loop_zeit_s;
         std::vector<double> opt_times;
         
         
         // time die komplette lp-Fkt.
         auto t_start = std::chrono::high_resolution_clock::now();
 
-        lp_res = solve_relaxed_lp(two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
+        lp_res = solve_relaxed_lp(two_stage_problem, counter, setup_zeit_ms, loop_zeit_s, opt_times);
 
         auto t_end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> total_ms = t_end - t_start;
@@ -701,16 +717,16 @@ double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & tra
 
         // setup zeit
         std::ofstream setup_file;
-        boost_path setup_path = tracking_path / "setup_zeiten_s.txt";
+        boost_path setup_path = tracking_path / "setup_zeiten_ms.txt";
         setup_file.open(setup_path.string(), std::ios::app);
-        setup_file << setup_zeit.count() << "\n";
+        setup_file << setup_zeit_ms << "\n";
         setup_file.close();
 
         // loop zeit
         std::ofstream loop_file;
         boost_path loop_path = tracking_path / "loop_zeiten_s.txt";
         loop_file.open (loop_path.string(), std::ios::app);
-        loop_file << loop_zeit.count() << "\n";
+        loop_file << loop_zeit_s << "\n";
         loop_file.close();
 
         // approx zeit

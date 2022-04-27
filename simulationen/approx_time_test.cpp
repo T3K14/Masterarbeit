@@ -104,12 +104,10 @@ int main(int argc, char * argv[]) {
         while (true) {
         
             unsigned long counter = 0;
-            std::chrono::seconds setup_zeit;
-            std::chrono::seconds loop_zeit;
-
+            double setup_zeit_ms, loop_zeit_s;
             std::vector<double> opt_times;
 
-            double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit, loop_zeit, opt_times);
+            double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit_ms, loop_zeit_s, opt_times);
 
             // time nochmal den approximations-Teil
             std::chrono::seconds approx_zeit;
@@ -129,11 +127,11 @@ int main(int argc, char * argv[]) {
             approx_file.close();
 
             setup_file.open(setup_path, std::ios::app);
-            setup_file << setup_zeit.count() << "\n";
+            setup_file << setup_zeit_ms << "\n";
             setup_file.close();
 
             loop_file.open (loop_path, std::ios::app);
-            loop_file << loop_zeit.count() << "\n";
+            loop_file << loop_zeit_s << "\n";
             loop_file.close();
 
             ofstream opt_file;

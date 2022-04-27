@@ -217,8 +217,8 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
     
 }
 
-// nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
-double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<double> & opt_times_ms) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
+// nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi und trackt die Zeit, modifiziert mit neuen constraints
+double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, double & setup_zeit_ms, double & loop_zeit_s, std::vector<double> & opt_times_ms) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
     auto t_start_setup = std::chrono::high_resolution_clock::now();
 
@@ -251,20 +251,35 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
         // das wird die objective function 
         GRBLinExpr obj = 0;
 
+        // baue gleichzeitig die n-1 constraints fuer alle szenarien
+        std::vector<GRBLinExpr> c_vec(two_stage_problem.get_number_scenarios()); 
+
         // ich tue so, als haette ich die edges nicht zwangsweise selbst in einem array sondern nutze den lemon edge iterator
         for (lemon::ListGraph::EdgeIt e(two_stage_problem.g); e != lemon::INVALID; ++e) {
             
             // jede Kante bekommt array mit Variablen fuer alle Szenarien (+1 fuer die erste Stage)
             gurobi_variables_map[e] = model.addVars(two_stage_problem.numberScenarios + 1, GRB_CONTINUOUS);               // werden unten gefreet
 
-            // und ich kann gleich schon die objektive function mit aufbauen
+            // und ich kann gleich schon die objective function mit aufbauen
             // stage 1
             obj += two_stage_problem.firstStageWeights[e] * gurobi_variables_map[e][0];
+
+            // adde constraint, dass alle x_e^0 kleiner gleich 1 sein sollen
+            model.addConstr(gurobi_variables_map[e][0] <= 1.0);
 
             // stage 2
             // der index geht bei 0 los, aber von den gurobi_variablen muss ich immer 1 drauf rechnen, weil die nullte variable fuer der erste Stage ist
             for (int i=0; i<two_stage_problem.numberScenarios; i++) {
                 obj += two_stage_problem.secondStageProbabilities[i] * two_stage_problem.secondStageWeights[e][i] * gurobi_variables_map[e][i+1];
+
+                // und baue hier noch die n-1 constraints weiter
+                c_vec[i] += gurobi_variables_map[e][0] + gurobi_variables_map[e][i+1];
+
+                // adde constraint, dass alle x_e^i kleiner gleich 1 sein sollen
+                model.addConstr(gurobi_variables_map[e][i+1] <= 1.0);
+
+                // adde constraint, dass pro Szenario eine einzelne Kante nicht in 2. stage gekauft werden darf, wenn sie in 1. stage schon gekauft wurde
+                model.addConstr(gurobi_variables_map[e][0] + gurobi_variables_map[e][i+1] <= 1.0);
             }
         }
 
@@ -276,18 +291,22 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
         model.setObjective(obj, GRB_MINIMIZE);
 
+        // adde die n-1 constraints
+        for (auto & c : c_vec) {
+            model.addConstr(c, GRB_EQUAL, two_stage_problem.get_number_nodes() - 1);
+        }
 
         // Ende vom Setup
 
         // TIMER bis hierhin und ab hier timen und Iterationen zaehlen
 
         auto t_end_setup = std::chrono::high_resolution_clock::now();
-        setup_zeit = std::chrono::duration_cast<std::chrono::seconds>(t_end_setup - t_start_setup);
+        std::chrono::duration<double, std::milli> fs_ms = t_end_setup - t_start_setup;
+        setup_zeit_ms = fs_ms.count();
 
         //std::cout << "Setup-Zeit: " << setup_int.count() << "s\n";
 
         auto t_start_loop = std::chrono::high_resolution_clock::now();
-
 
         // unsigned long counter = 0;
 
@@ -296,12 +315,12 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
         // ENDE TIMER
 
-        // unsigned int counter2 = 0;
+        unsigned int counter2 = 0;
 
         // jetzt so lange Cut-Constraints hinzufuegen, bis die Bedingungen immer erfuellt sind 
         while(true) {
-            // counter2++;
-            // std::cout << "counter2: " << counter2 << std::endl;
+            counter2++;
+            std::cout << "counter2: " << counter2 << std::endl;
 
             // COUNTER zum zaehlen, wie viele Iterationen hier benoetigt werden
             counter++;
@@ -312,7 +331,6 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
             }
             // ENDE COUNTER
 
-
             // will auch tracken, wie lange die optimierungsschritte dauern
             auto t_start_opt = std::chrono::high_resolution_clock::now();
 
@@ -322,6 +340,25 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
             auto t_end_opt = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::milli> fp_ms = t_end_opt - t_start_opt;
             opt_times_ms.push_back(fp_ms.count());
+
+            // // Debug, speichere die Ergebnisse der einzel gurobi variablen, um zu schauen, ob nach 1. gurobi Schritt die constraints erfuellt sind
+            // std::ofstream out_gur;
+            // out_gur.open("/gss/work/xees8992/OutGur.txt", std::ios_base::out);
+            
+            // for (auto eddie : two_stage_problem.edges) {
+            //     // out_gur << "Edge: " << two_stage_problem.g.id(eddie) << ": " << gurobi_variables_map[eddie][0].get(GRB_DoubleAttr_X);
+            //     out_gur << "Edge" << two_stage_problem.g.id(eddie) << ": " << gurobi_variables_map[eddie][0].get(GRB_DoubleAttr_X);
+
+            //     for (int ii=0; ii<two_stage_problem.numberScenarios; ii++) {
+            //         out_gur << ", " << gurobi_variables_map[eddie][ii+1].get(GRB_DoubleAttr_X);
+            //     }
+            //     out_gur << "\n";
+            // }
+            // out_gur.close();
+            // // ENDE Debug,
+
+            // // bruteforce Beenden
+            // throw std::logic_error("ROBERTERROR: Stop!");
 
             // DEBUG
             // std::cout << "\n\n Hier nach einem optimierungsvorgang\n";
@@ -406,7 +443,8 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
         // TIMER
         auto t_end_loop = std::chrono::high_resolution_clock::now();
-        loop_zeit = std::chrono::duration_cast<std::chrono::seconds>(t_end_loop - t_start_loop);
+        std::chrono::duration<double> fl_s = t_end_loop - t_start_loop;
+        loop_zeit_s = fl_s.count();
 
         if (model.get(GRB_IntAttr_Status) == GRB_OPTIMAL) {
             std::cout << "Optimum: " << model.get(GRB_DoubleAttr_ObjVal) << std::endl;

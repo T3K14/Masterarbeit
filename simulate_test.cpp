@@ -17,7 +17,9 @@ int main(int argc, char * argv[]) {
 
     bool on_cluster = true;
     bool save_problems = false;
+
     bool tracking = true;               // ob ich die Algs timen/tracken will (bisher moeglich fuer lp-approx und die beiden optimalen Algs)
+    bool save_lp_results = true;
 
     // int number_minus_edges = 20;
 
@@ -33,8 +35,8 @@ int main(int argc, char * argv[]) {
     std::vector<int> runs {100};
 
     // std::vector<int> nodes = {90, 100};
-    std::vector<int> nodes {10, 20, 30, 40, 50, 60, 70, 80, 100};
-    double c = 5.;
+    std::vector<int> nodes {10, 20, 40, 80, 160, 320};
+    double c = 2.;
 
     for (auto n: nodes) {
         TreePlusC ensemble2(n, sc, rtc, rng, c);
@@ -42,8 +44,8 @@ int main(int argc, char * argv[]) {
 
         std::set<Alg> alg_set {Alg::LPApprox};
         // std::string ordner_name = "TimeTest_" + std::to_string(number_nodes) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
-        std::string ordner_name = "TreeTest_C5_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
-        simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking);
+        std::string ordner_name = "ModTest_C2_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+        simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
     }
     // for (int i=0; i<ps.size(); i++) {
     //     TreePlusP ensemble2(number_nodes, sc, bfc, rng, ps[i]);

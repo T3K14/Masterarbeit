@@ -731,6 +731,9 @@ TwoStageProblem::TwoStageProblem() : TwoStageProblem(std::vector<double>()) {}
 void TwoStageProblem::initialise_graph() {};
 // ENDE ---
 
+unsigned int TwoStageProblem::get_number_nodes() {
+    return nodes.size();
+}
 unsigned int TwoStageProblem::get_number_edges() {
     return edges.size();
 }

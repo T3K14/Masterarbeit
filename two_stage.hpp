@@ -197,7 +197,7 @@ public:
     friend ScenarioCreator;
 
     // nur zum zeit testen:
-    friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, std::chrono::seconds & setup_zeit, std::chrono::seconds & loop_zeit, std::vector<double> & opt_times_ms);
+    friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, double & setup_zeit_ms, double & loop_zeit_s, std::vector<double> & opt_times_ms);
 
     // gibt mir den zu erwartenden 2. stage Kostenwert einer Kante zurueck
     double get_second_stage_ev(const lemon::ListGraph::Edge & e) const; 
@@ -215,6 +215,7 @@ public:
 
     void greedy();
 
+    unsigned int get_number_nodes();
     unsigned int get_number_edges();
     unsigned int get_number_scenarios();
 
