@@ -105,9 +105,9 @@ int main(int argc, char * argv[]) {
         
             unsigned long counter = 0;
             double setup_zeit_ms, loop_zeit_s;
-            std::vector<double> opt_times;
+            std::vector<double> opt_times, add_constr_times_s;
 
-            double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit_ms, loop_zeit_s, opt_times);
+            double res = solve_relaxed_lp(ensemble.two_stage_problem, counter, setup_zeit_ms, loop_zeit_s, opt_times, add_constr_times_s);
 
             // time nochmal den approximations-Teil
             std::chrono::seconds approx_zeit;

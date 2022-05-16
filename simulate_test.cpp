@@ -34,9 +34,9 @@ int main(int argc, char * argv[]) {
     // std::vector<double> ps {0.0};
     std::vector<int> runs {100};
 
-    // std::vector<int> nodes = {90, 100};
-    std::vector<int> nodes {10, 20, 40, 80, 160, 320};
-    double c = 2.;
+    // std::vector<int> nodes = {77};
+    std::vector<int> nodes {640};
+    double c = 3.;
 
     for (auto n: nodes) {
         TreePlusC ensemble2(n, sc, rtc, rng, c);
@@ -44,7 +44,7 @@ int main(int argc, char * argv[]) {
 
         std::set<Alg> alg_set {Alg::LPApprox};
         // std::string ordner_name = "TimeTest_" + std::to_string(number_nodes) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
-        std::string ordner_name = "ModTest_C2_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+        std::string ordner_name = "Track_woB_C3_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
         simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
     }
     // for (int i=0; i<ps.size(); i++) {

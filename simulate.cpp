@@ -109,6 +109,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
             if (tracking) {
                 boost::filesystem::create_directory(tracking_path / "opt");
+                boost::filesystem::create_directory(tracking_path / "add_constr");
             }
             if (save_lp_results) {
                 boost::filesystem::create_directory(tracking_path / "lp_results");
@@ -677,13 +678,13 @@ double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & tra
         // definiere die Trackingvariablen
         unsigned long counter = 0;
         double setup_zeit_ms, loop_zeit_s;
-        std::vector<double> opt_times;
+        std::vector<double> opt_times, add_constr_times_s;
         
         
         // time die komplette lp-Fkt.
         auto t_start = std::chrono::high_resolution_clock::now();
 
-        lp_res = solve_relaxed_lp(two_stage_problem, counter, setup_zeit_ms, loop_zeit_s, opt_times);
+        lp_res = solve_relaxed_lp(two_stage_problem, counter, setup_zeit_ms, loop_zeit_s, opt_times, add_constr_times_s);
 
         auto t_end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> total_ms = t_end - t_start;
@@ -753,6 +754,23 @@ double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & tra
         }
 
         opt_file.close();
+
+        // die add_constr zeiten
+        boost_path add_constr_path = tracking_path / "add_constr";
+        std::ofstream add_constr_file;
+
+        // eigentlich sollte es so viele add_constr dateien geben, wie es opt-datein gibt, aber zur Sicherheit, mache ichs mal genauso wie oben
+        int counter_it = 0;
+        for (boost::filesystem::directory_iterator itr(add_constr_path); itr != boost::filesystem::directory_iterator(); ++itr) {
+            counter_it++;
+        }
+
+        add_constr_file.open(add_constr_path.string() + "/" + std::to_string(counter_it) + "_s.txt");
+        for (auto act : add_constr_times_s) {
+            add_constr_file << act << "\n";
+        }
+
+        add_constr_file.close();
 
     } else {
         lp_res = solve_relaxed_lp(two_stage_problem);

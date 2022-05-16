@@ -165,7 +165,7 @@ public:
     lemon::ListGraph::EdgeMap<std::vector<double>> secondStageWeights;
 
 
-    // hier sollen die double Ergebnisse der LP-Algorithmus zwischengespeichert werden
+    // hier sollen die double Ergebnisse des LP-Algorithmus zwischengespeichert werden
     lemon::ListGraph::EdgeMap<std::vector<double>> lp_results_map;
 
     // in diesen Maps wird gespeichert, welche Kanten von den jeweiligen Algorithmen fuer die erste Phase eine Kaufempfehlung erhalten
@@ -197,7 +197,7 @@ public:
     friend ScenarioCreator;
 
     // nur zum zeit testen:
-    friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, double & setup_zeit_ms, double & loop_zeit_s, std::vector<double> & opt_times_ms);
+    friend double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, double & setup_zeit_ms, double & loop_zeit_s, std::vector<double> & opt_times_ms, std::vector<double> & add_constr_times_s);
 
     // gibt mir den zu erwartenden 2. stage Kostenwert einer Kante zurueck
     double get_second_stage_ev(const lemon::ListGraph::Edge & e) const; 

@@ -218,7 +218,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
 }
 
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi und trackt die Zeit, modifiziert mit neuen constraints
-double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, double & setup_zeit_ms, double & loop_zeit_s, std::vector<double> & opt_times_ms) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
+double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & counter, double & setup_zeit_ms, double & loop_zeit_s, std::vector<double> & opt_times_ms, std::vector<double> & add_constr_times_s) { //, lemon::ListGraph::EdgeMap<std::vector<double>> & two_stage_problem.lp_results_map) {
 
     auto t_start_setup = std::chrono::high_resolution_clock::now();
 
@@ -341,6 +341,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
             std::chrono::duration<double, std::milli> fp_ms = t_end_opt - t_start_opt;
             opt_times_ms.push_back(fp_ms.count());
 
+            // DEBUG
+            // std::cout << model.get(GRB_DoubleAttr_Runtime) << std::endl;
+
             // // Debug, speichere die Ergebnisse der einzel gurobi variablen, um zu schauen, ob nach 1. gurobi Schritt die constraints erfuellt sind
             // std::ofstream out_gur;
             // out_gur.open("/gss/work/xees8992/OutGur.txt", std::ios_base::out);
@@ -367,6 +370,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
             // std::cout << gurobi_variables_map[two_stage_problem.g.edgeFromId(0)][0].get(GRB_DoubleAttr_X) << std::endl;
             // std::cout << gurobi_variables_map[two_stage_problem.g.edgeFromId(0)][1].get(GRB_DoubleAttr_X) << std::endl;
             // ENDE DEBUG
+
+            auto t_start_rest = std::chrono::high_resolution_clock::now();
+
 
             double min_cut_value;
 
@@ -421,7 +427,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
                     // und ich gehe aus derm for-loop raus, in der Annahme, dass allein diese Veraenderung schon was bewirkt und es sich vielleicht nicht lohnt, noch weiter durch alle anderen
                     //Szenarien zu schauen
-                    break;
+                    // break;
                 } 
                 else {
                     scenario_counter++;
@@ -432,6 +438,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem, unsigned long & cou
 
             // std::cout << "min_cut_value: " << min_cut_value << std::endl;
 
+            auto t_end_rest = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> fres_s = t_end_rest - t_start_rest;
+            add_constr_times_s.push_back(fres_s.count());
 
             // falls an diesem Punkt der minCut das Constraint erfuelt, gibt es kein Szenario mehr, wo der minCut gegen das Constraint verstoest und ich bin fertig mit der LP-Loesung
             if (scenario_counter == two_stage_problem.numberScenarios) {
