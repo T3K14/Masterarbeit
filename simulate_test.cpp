@@ -34,19 +34,35 @@ int main(int argc, char * argv[]) {
     // std::vector<double> ps {0.0};
     std::vector<int> runs {100};
 
-    // std::vector<int> nodes = {77};
-    std::vector<int> nodes {640};
-    double c = 3.;
+    std::vector<int> nodes = {320};
+    // std::vector<int> nodes {5, 10, 20, 40, 80, 160, 320, 640};
+    std::vector<double> cs {2., 2.01, 2.02, 2.03, 2.04, 2.05, 2.06};
+    // double c = 5.;
 
+    /* DAS NEHME ICH, WENN ICH DIE KNOTEN VARIIERE
     for (auto n: nodes) {
         TreePlusC ensemble2(n, sc, rtc, rng, c);
         ensemble2.initialize();
 
-        std::set<Alg> alg_set {Alg::LPApprox};
+        std::set<Alg> alg_set {Alg::LPApprox, Alg::LP, Alg::GreedyApprox};
         // std::string ordner_name = "TimeTest_" + std::to_string(number_nodes) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
-        std::string ordner_name = "Track_woB_C3_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+        std::string ordner_name = "Anteil_C5_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
         simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
     }
+
+    */
+
+    // HIER VARIIERE ICH DIE c
+    for (auto c: cs) {
+        TreePlusC ensemble2(nodes[0], sc, rtc, rng, c);
+        ensemble2.initialize();
+
+        std::set<Alg> alg_set {Alg::LPApprox, Alg::LP, Alg::GreedyApprox, Alg::Schranke4b};
+        std::string ordner_name = "Anteil_fein_" + std::to_string(nodes[0]) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+        simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
+    }
+
+
     // for (int i=0; i<ps.size(); i++) {
     //     TreePlusP ensemble2(number_nodes, sc, bfc, rng, ps[i]);
     //     // std::cout << "Edges:" << ensemble2.two_stage_problem.get_number_edges() << std::endl;

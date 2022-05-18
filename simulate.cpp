@@ -41,7 +41,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     // std::cout << "Runs: " << runs << std::endl;
 
     // Namen zu den Algorithmen:
-    std::map<Alg, std::string> name_to_alg {{Alg::GreedyApprox, "Greedy"}, {Alg::LPApprox, "LP_Approx"}, {Alg::Optimal, "Optimum"}, {Alg::Optimal2, "Optimum2"}, {Alg::Schranke4b, "Schranke4b"}};
+    std::map<Alg, std::string> name_to_alg {{Alg::LP, "LP_Schranke"}, {Alg::GreedyApprox, "Greedy"}, {Alg::LPApprox, "LP_Approx"}, {Alg::Optimal, "Optimum"}, {Alg::Optimal2, "Optimum2"}, {Alg::Schranke4b, "Schranke4b"}};
 
     if (alg_set.size() < 1) {
         throw std::invalid_argument("ROBERT-ERROR: Brauche mindestens einen Algorithmus, den ich laufen lasse!\n");
@@ -90,10 +90,23 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
         boost::filesystem::create_directory(simulation_path / "Problems");
     }
 
+    bool b_lp_direct = false;
+    // checke vorher, ob ALG::LP gewuenscht ist
+    for (auto alg: alg_set) {
+        if (alg == Alg::LP) {
+            b_lp_direct = true;
+            break;
+        }
+    }
+
     // map, wo die Ergebnisse reingespeichert werden
     std::map<Alg, std::vector<double>> results_map;
     for (auto alg: alg_set) {
         results_map[alg] = std::vector<double>();
+    }
+
+    if (b_lp_direct) {
+        results_map[Alg::LP] = std::vector<double>();
     }
 
     // --- Debug
@@ -139,10 +152,17 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
                 case Alg::LPApprox: {
 
+                    // hier wird das lp-Ergebnis ohne Runden gespeichert
+                    double lp_res;
+
                     // erst LP-Alg, benutze hier den global definierten rng
-                    double res_lp_approx = ensemble.approx_lp(rng, tracking, tracking_path);
+                    double res_lp_approx = ensemble.approx_lp(rng, lp_res, tracking, tracking_path);
 
                     results_map[alg].push_back(res_lp_approx);
+
+                    if (b_lp_direct) {
+                        results_map[Alg::LP].push_back(lp_res);
+                    }
 
                     // speichere die lp_results
                     if (save_lp_results) {
@@ -667,11 +687,9 @@ double Ensemble::optimum(bool time, const boost_path & tracking_path) {
     }
 }
 
-double Ensemble::approx_lp(std::mt19937 & rng, bool time, const boost_path & tracking_path) {
+double Ensemble::approx_lp(std::mt19937 & rng, double & lp_res, bool time, const boost_path & tracking_path) {
 
     // wenn time==true will ich den LP-Alg timen
-
-    double lp_res;
 
     if (time) {
     

@@ -11,7 +11,7 @@
 using boost_path = boost::filesystem::path;
 
 // enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
-enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal, Optimal2};
+enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal, Optimal2, LP};
 
 // forward declaration  KLAPPT IRGENDWIE NICHT
 // class TwoStageProblem;
@@ -153,7 +153,7 @@ public:
     double greedy();
 
     // die Approx Methode braucht rng, um aus der lp loesung eine gueltige Lsg zu berechnen
-    double approx_lp(std::mt19937 & rng, bool time, const boost_path & path);
+    double approx_lp(std::mt19937 & rng, double & lp_res, bool time, const boost_path & path);
 
     // speichert mir den aktuellen graphen des twostageproblems
     virtual void save_current_graph(boost_path path, std::string name);
