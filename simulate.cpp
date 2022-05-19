@@ -503,6 +503,18 @@ void GVBilligFirstMittelCreator::create_costs(TwoStageProblem & tsp) {
     override_costs(tsp, first_stage_costs, second_stage_costs);
 }
 
+HalbNormalCreator::HalbNormalCreator(double _sigma) : sigma(_sigma) {
+}
+
+std::string HalbNormalCreator::identify() {
+
+    std::stringstream s_sigma;
+    s_sigma << std::fixed << std::setprecision(2) << sigma;
+
+    std::string s = "HalbNormalCreator" + s_sigma.str();
+    return s;
+}
+
 Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), scenario_creator(_scenario_creator), edge_cost_creator(_edge_cost_creator) {
 
     // baue schon die Knoten in den Graphen, weil die bleiben erstmal fuer eien Mittelung immer konstant

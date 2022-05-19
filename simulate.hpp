@@ -5,6 +5,7 @@
 #include "utilities.hpp"
 #include <random>
 #include <set>
+#include <cmath>    // abs
 // #include <string_view>
 #include "boost/filesystem.hpp"
 
@@ -117,6 +118,19 @@ class GVBilligFirstMittelCreator : public NewEdgeCostCreator {
         virtual std::string identify() override;
 };
 
+class HalbNormalCreator : public NewEdgeCostCreator {
+
+    double sigma;
+
+    public: 
+        virtual ~HalbNormalCreator() = default;
+        HalbNormalCreator(double _sigma);
+
+        template<typename RNG>
+        void create_costs(TwoStageProblem & tsp, RNG && rng);
+
+        virtual std::string identify() override;
+};
 
 class Ensemble {
 
@@ -249,3 +263,33 @@ public:
 // void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich);
 void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster=false, bool save_problems=false, bool tracking=false, bool save_lp_results=false);
 
+
+
+//  IMPLEMENTIERE HIER DIE TEMPLATE METHODEN
+
+template<typename RNG>
+void HalbNormalCreator::create_costs(TwoStageProblem & tsp, RNG && rng) {
+
+    size_t number_edges = tsp.get_number_edges();
+    size_t number_scenarios = tsp.get_number_scenarios();
+
+    std::normal_distribution<double> dist(0., sigma);                
+
+    std::vector<double> first_stage_costs;
+
+    for (size_t i=0; i<number_edges; i++) {
+        first_stage_costs.push_back(std::abs(dist(rng)));
+    }
+
+    std::vector<std::vector<double>> second_stage_costs;
+    for (size_t i=0; i<number_scenarios; i++) {
+        std::vector<double> v;
+        for (size_t j=0; j<number_edges; j++) {
+            v.push_back(std::abs(dist(rng)));
+        }
+        second_stage_costs.push_back(v);
+    } 
+
+    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
+    override_costs(tsp, first_stage_costs, second_stage_costs);
+}

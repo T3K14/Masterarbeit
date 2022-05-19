@@ -26,7 +26,8 @@ int main(int argc, char * argv[]) {
     // Alg::GreedyApprox, Alg::Schranke4b, Alg::Optimal, Alg::LPApprox
 
     NRandomScenarioCreator sc(number_scenarios, rng);    
-    RandomTestCreator rtc(0., 10., rng);
+    // RandomTestCreator rtc(0., 10., rng);
+    HalbNormalCreator hnc(1.);
     // GVBilligFirstCreator bfc(0., 10., 0., 1., rng);
 
     // std::vector<double> ps {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
@@ -36,7 +37,7 @@ int main(int argc, char * argv[]) {
 
     std::vector<int> nodes = {320};
     // std::vector<int> nodes {5, 10, 20, 40, 80, 160, 320, 640};
-    std::vector<double> cs {2., 2.01, 2.02, 2.03, 2.04, 2.05, 2.06};
+    std::vector<double> cs {2.};
     // double c = 5.;
 
     /* DAS NEHME ICH, WENN ICH DIE KNOTEN VARIIERE
@@ -54,11 +55,11 @@ int main(int argc, char * argv[]) {
 
     // HIER VARIIERE ICH DIE c
     for (auto c: cs) {
-        TreePlusC ensemble2(nodes[0], sc, rtc, rng, c);
+        TreePlusC ensemble2(nodes[0], sc, hnc, rng, c);
         ensemble2.initialize();
 
         std::set<Alg> alg_set {Alg::LPApprox, Alg::LP, Alg::GreedyApprox, Alg::Schranke4b};
-        std::string ordner_name = "Anteil_fein_" + std::to_string(nodes[0]) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+        std::string ordner_name = "Anteil_fein_rng_" + std::to_string(nodes[0]) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
         simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
     }
 
