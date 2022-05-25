@@ -121,15 +121,38 @@ class GVBilligFirstMittelCreator : public NewEdgeCostCreator {
 class HalbNormalCreator : public NewEdgeCostCreator {
 
     double sigma;
+    std::mt19937 & rng;
 
     public: 
         virtual ~HalbNormalCreator() = default;
-        HalbNormalCreator(double _sigma);
+        HalbNormalCreator(double _sigma, std::mt19937 & _rng);
 
-        template<typename RNG>
-        void create_costs(TwoStageProblem & tsp, RNG && rng);
+        // neu:
+        // template<typename RNG>
+        // void create_costs(TwoStageProblem & tsp, RNG && rng);
 
+        // alt:
+        virtual void create_costs(TwoStageProblem & tsp) override;
         virtual std::string identify() override;
+};
+
+class KantenFaktorCreator : public NewEdgeCostCreator {
+
+    double p, k;
+    std::mt19937 & rng;
+
+    public: 
+        virtual ~KantenFaktorCreator() = default;
+        KantenFaktorCreator(double _p, double _k, std::mt19937 & _rng);
+
+        // neu:
+        // template<typename RNG>
+        // void create_costs(TwoStageProblem & tsp, RNG && rng);
+
+        // alt:
+        virtual void create_costs(TwoStageProblem & tsp) override;
+        virtual std::string identify() override;
+
 };
 
 class Ensemble {
@@ -267,29 +290,29 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
 //  IMPLEMENTIERE HIER DIE TEMPLATE METHODEN
 
-template<typename RNG>
-void HalbNormalCreator::create_costs(TwoStageProblem & tsp, RNG && rng) {
+// template<typename RNG>
+// void HalbNormalCreator::create_costs(TwoStageProblem & tsp, RNG && rng) {
 
-    size_t number_edges = tsp.get_number_edges();
-    size_t number_scenarios = tsp.get_number_scenarios();
+//     size_t number_edges = tsp.get_number_edges();
+//     size_t number_scenarios = tsp.get_number_scenarios();
 
-    std::normal_distribution<double> dist(0., sigma);                
+//     std::normal_distribution<double> dist(0., sigma);                
 
-    std::vector<double> first_stage_costs;
+//     std::vector<double> first_stage_costs;
 
-    for (size_t i=0; i<number_edges; i++) {
-        first_stage_costs.push_back(std::abs(dist(rng)));
-    }
+//     for (size_t i=0; i<number_edges; i++) {
+//         first_stage_costs.push_back(std::abs(dist(rng)));
+//     }
 
-    std::vector<std::vector<double>> second_stage_costs;
-    for (size_t i=0; i<number_scenarios; i++) {
-        std::vector<double> v;
-        for (size_t j=0; j<number_edges; j++) {
-            v.push_back(std::abs(dist(rng)));
-        }
-        second_stage_costs.push_back(v);
-    } 
+//     std::vector<std::vector<double>> second_stage_costs;
+//     for (size_t i=0; i<number_scenarios; i++) {
+//         std::vector<double> v;
+//         for (size_t j=0; j<number_edges; j++) {
+//             v.push_back(std::abs(dist(rng)));
+//         }
+//         second_stage_costs.push_back(v);
+//     } 
 
-    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
-    override_costs(tsp, first_stage_costs, second_stage_costs);
-}
+//     // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
+//     override_costs(tsp, first_stage_costs, second_stage_costs);
+// }

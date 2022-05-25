@@ -503,8 +503,35 @@ void GVBilligFirstMittelCreator::create_costs(TwoStageProblem & tsp) {
     override_costs(tsp, first_stage_costs, second_stage_costs);
 }
 
-HalbNormalCreator::HalbNormalCreator(double _sigma) : sigma(_sigma) {
+HalbNormalCreator::HalbNormalCreator(double _sigma, std::mt19937 & _rng) : sigma(_sigma), rng(_rng) {
 }
+
+void HalbNormalCreator::create_costs(TwoStageProblem & tsp) {
+
+    size_t number_edges = tsp.get_number_edges();
+    size_t number_scenarios = tsp.get_number_scenarios();
+
+    std::normal_distribution<double> dist(0., sigma);                
+
+    std::vector<double> first_stage_costs;
+
+    for (size_t i=0; i<number_edges; i++) {
+        first_stage_costs.push_back(std::abs(dist(rng)));
+    }
+
+    std::vector<std::vector<double>> second_stage_costs;
+    for (size_t i=0; i<number_scenarios; i++) {
+        std::vector<double> v;
+        for (size_t j=0; j<number_edges; j++) {
+            v.push_back(std::abs(dist(rng)));
+        }
+        second_stage_costs.push_back(v);
+    } 
+
+    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
+    override_costs(tsp, first_stage_costs, second_stage_costs);
+}
+
 
 std::string HalbNormalCreator::identify() {
 
@@ -514,6 +541,48 @@ std::string HalbNormalCreator::identify() {
     std::string s = "HalbNormalCreator" + s_sigma.str();
     return s;
 }
+
+KantenFaktorCreator::KantenFaktorCreator(double _p, double _k, std::mt19937 & _rng) : p(_p), k(_k), rng(_rng) {
+}
+
+void KantenFaktorCreator::create_costs(TwoStageProblem & tsp) {
+
+    size_t number_edges = tsp.get_number_edges();
+    size_t number_scenarios = tsp.get_number_scenarios();
+
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::uniform_real_distribution<double> dist2(0.0, 2.0);
+
+
+    // erstmal sind alle Kosten 1
+    std::vector<double> first_stage_costs(number_edges, 1.0);
+
+    std::vector<std::vector<double>> second_stage_costs;
+    for (size_t i=0; i<number_scenarios; i++) {
+        std::vector<double> v(number_edges, 1.0);
+        second_stage_costs.push_back(v);
+    } 
+
+    // jetzt erhoehe ich die 1. stage Kosten pro Kante mit Wahrscheinlichkeit p
+    for (int i=0; i<first_stage_costs.size(); i++) {
+        if (dist(rng) < p) {
+            first_stage_costs[i] = dist2(rng);
+        }
+    }
+
+    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
+    override_costs(tsp, first_stage_costs, second_stage_costs);
+}
+std::string KantenFaktorCreator::identify() {
+
+    std::stringstream s_p, s_k;
+    s_p << std::fixed << std::setprecision(2) << p;
+    s_k << std::fixed << std::setprecision(2) << k;
+
+    std::string s = "KantenFaktorCreator_" + s_p.str() + "_" + s_k.str();
+    return s;
+}
+
 
 Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator) : number_nodes(_number_nodes), scenario_creator(_scenario_creator), edge_cost_creator(_edge_cost_creator) {
 
