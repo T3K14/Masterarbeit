@@ -155,6 +155,45 @@ class KantenFaktorCreator : public NewEdgeCostCreator {
 
 };
 
+// hier werden die 2. stage Kosten mit Wahrscheinlichkeit p_k veraendert
+class KantenFaktorCreator2 : public NewEdgeCostCreator {
+
+    double p, k;
+    std::mt19937 & rng;
+
+    public: 
+        virtual ~KantenFaktorCreator2() = default;
+        KantenFaktorCreator2(double _p, double _k, std::mt19937 & _rng);
+
+        // neu:
+        // template<typename RNG>
+        // void create_costs(TwoStageProblem & tsp, RNG && rng);
+
+        // alt:
+        virtual void create_costs(TwoStageProblem & tsp) override;
+        virtual std::string identify() override;
+
+};
+
+class ZweiIntervallGVCreator : public NewEdgeCostCreator {
+
+    double m1, m2, b1, b2;
+    std::mt19937 & rng;
+
+    public: 
+        virtual ~ZweiIntervallGVCreator() = default;
+        ZweiIntervallGVCreator(double _m1, double _m2, double _b1, double _b2, std::mt19937 & _rng);
+
+        // neu:
+        // template<typename RNG>
+        // void create_costs(TwoStageProblem & tsp, RNG && rng);
+
+        // alt:
+        virtual void create_costs(TwoStageProblem & tsp) override;
+        virtual std::string identify() override;
+
+};
+
 class Ensemble {
 
 // protected:

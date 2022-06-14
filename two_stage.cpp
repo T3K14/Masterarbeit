@@ -685,7 +685,7 @@ void TwoStageProblem::greedy() {
         }
     }
 
-    // wenn ich einen Tree habe, dann muss ich nicht sortieren
+    // wenn ich keinen Tree habe, dann muss ich sortieren
     if (lemon::countEdges(g) > nodes.size()-1) {
 
         std::vector<lemon::ListGraph::Edge> cheap_edges;

@@ -183,8 +183,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                     results_map[alg].push_back(res);
 
                     // speichere die Ergebnismap
-                    boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
-                    ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.greedy_first_stage_map, map_path);
+                    // boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
+                    // ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.greedy_first_stage_map, map_path);
                 }         
                 break;
                 
@@ -532,7 +532,6 @@ void HalbNormalCreator::create_costs(TwoStageProblem & tsp) {
     override_costs(tsp, first_stage_costs, second_stage_costs);
 }
 
-
 std::string HalbNormalCreator::identify() {
 
     std::stringstream s_sigma;
@@ -580,6 +579,109 @@ std::string KantenFaktorCreator::identify() {
     s_k << std::fixed << std::setprecision(2) << k;
 
     std::string s = "KantenFaktorCreator_" + s_p.str() + "_" + s_k.str();
+    return s;
+}
+
+KantenFaktorCreator2::KantenFaktorCreator2(double _p, double _k, std::mt19937 & _rng) : p(_p), k(_k), rng(_rng) {
+}
+
+void KantenFaktorCreator2::create_costs(TwoStageProblem & tsp) {
+
+    size_t number_edges = tsp.get_number_edges();
+    size_t number_scenarios = tsp.get_number_scenarios();
+
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::uniform_real_distribution<double> dist2(0.0, 2.0);
+
+    // erstmal sind alle Kosten 1
+    std::vector<double> first_stage_costs(number_edges, 1.0);
+
+    std::vector<std::vector<double>> second_stage_costs;
+    for (size_t i=0; i<number_scenarios; i++) {
+        std::vector<double> v(number_edges, 1.0);
+        second_stage_costs.push_back(v);
+    } 
+
+    // jetzt erhoehe ich die 2. stage Kosten pro Kante mit Wahrscheinlichkeit p
+    // und zwar erstmal so, dass ich das pro Szenario pro Kante mache und nicht so, dass ich fuer eine Kante alle Szenarien veraendere
+    for (int i=0; i<number_scenarios; i++) {
+        for (int j=0; j<number_edges; j++) {
+            if (dist(rng) < p) {
+                second_stage_costs[i][j] = dist2(rng);
+            } 
+        }
+    }
+
+    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten
+    override_costs(tsp, first_stage_costs, second_stage_costs);
+}
+std::string KantenFaktorCreator2::identify() {
+
+    std::stringstream s_p, s_k;
+    s_p << std::fixed << std::setprecision(2) << p;
+    s_k << std::fixed << std::setprecision(2) << k;
+
+    std::string s = "KantenFaktorCreator2_" + s_p.str() + "_" + s_k.str();
+    return s;
+}
+
+
+ZweiIntervallGVCreator::ZweiIntervallGVCreator(double _m1, double _m2, double _b1, double _b2, std::mt19937 & _rng)
+ : m1(_m1), m2(_m2), b1(_b1), b2(_b2), rng(_rng) {
+
+     // checke ab, ob die uebergebenen Parameter den Vorgaben entsprechen (m1 muss kleiner als m2 sein, beide muessen nichtnegativ sein)
+
+    if (m2 < m1 || m1 < 0 || m2 < 0) {
+        throw std::invalid_argument ("ROBERTERROR: Die uebergebenen Parameter entsprechen nicht den Vorgaben fuer diesen EdgeCostCreator!");
+    }
+}
+
+void ZweiIntervallGVCreator::create_costs(TwoStageProblem & tsp) {
+
+    // baue die Distributionen
+    size_t number_edges = tsp.get_number_edges();
+    size_t number_scenarios = tsp.get_number_scenarios();
+
+    // checken, dass kein Wert kleiner als 0 werden kann
+    // (checke im constructor schon, dass die m1, m2 Werte nichtnegativ sind)
+    if (m1-b1 < 0 || m2-b2 < 0) {
+        throw std::invalid_argument ("ROBERTERROR: Es wuerden Gewichte kleiner 0 erzeugt werden!");
+    }
+
+    std::uniform_real_distribution<double> dist1(m1-b1, m1+b1);
+    std::uniform_real_distribution<double> dist2(m2-b2, m2+b2);
+
+    // die vektoren 
+    std::vector<double> first_stage_costs;
+    std::vector<std::vector<double>> second_stage_costs;
+
+    // neheme die 1. stage Kosten gleichverteilt aus dem ersten Intervall
+    for (size_t i=0; i<number_edges; i++) {
+        first_stage_costs.push_back(dist1(rng));
+    }
+
+    // nehme die 2. stage Kosten alle gleichverteilt aus dem 2. Intervall
+    for (size_t i=0; i<number_scenarios; i++) {
+        std::vector<double> v;
+        for (size_t j=0; j<number_edges; j++) {
+            v.push_back(dist2(rng));
+        }
+        second_stage_costs.push_back(v);
+    }
+
+    // jetzt rufe ich die overide_costs Methode auf, um die neuen Kosten zu uebertragen
+    override_costs(tsp, first_stage_costs, second_stage_costs);
+}
+
+std::string ZweiIntervallGVCreator::identify() {
+
+    std::stringstream s_m1, s_m2, s_b1, s_b2;
+    s_m1 << std::fixed << std::setprecision(2) << m1;
+    s_m2 << std::fixed << std::setprecision(2) << m2;
+    s_b1 << std::fixed << std::setprecision(2) << b1;
+    s_b2 << std::fixed << std::setprecision(2) << b2;
+
+    std::string s = "ZweiIntervallCreator_" + s_m1.str() + "_" + s_m2.str() + "_" + s_b1.str() + "_" + s_b2.str();
     return s;
 }
 
