@@ -18,7 +18,7 @@ int main(int argc, char * argv[]) {
     bool on_cluster = true;
     bool save_problems = false;
 
-    bool tracking = true;               // ob ich die Algs timen/tracken will (bisher moeglich fuer lp-approx und die beiden optimalen Algs)
+    bool tracking = false;               // ob ich die Algs timen/tracken will (bisher moeglich fuer lp-approx und die beiden optimalen Algs)
     bool save_lp_results = true;
 
     // int number_minus_edges = 20;
@@ -40,12 +40,12 @@ int main(int argc, char * argv[]) {
     double c = 4.;
 
     // hier variiere ich die p vom KantenFaktoCreator
-    // std::vector<double> ps {0.58};
-    std::vector<double> ps {0.55, 0.56, 0.57};
+    // std::vector<double> ps {0.565};
+    std::vector<double> ps {0.54, 0.59, 0.6};
     
-    std::vector<int> nodes = {10, 40, 80, 160};
+    std::vector<int> nodes = {80};
     // std::vector<int> nodes = {320};
-    std::vector<int> runs {400};
+    std::vector<int> runs {4000};
 
      for (auto n: nodes) {
         for (auto p: ps) {
