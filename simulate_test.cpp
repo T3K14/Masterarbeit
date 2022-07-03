@@ -41,11 +41,11 @@ int main(int argc, char * argv[]) {
 
     // hier variiere ich die p vom KantenFaktoCreator
     // std::vector<double> ps {0.565};
-    std::vector<double> ps {0.54, 0.59, 0.6};
+    std::vector<double> ps {0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6};
     
-    std::vector<int> nodes = {80};
+    std::vector<int> nodes = {10};
     // std::vector<int> nodes = {320};
-    std::vector<int> runs {4000};
+    std::vector<int> runs {20000};
 
      for (auto n: nodes) {
         for (auto p: ps) {
@@ -56,7 +56,7 @@ int main(int argc, char * argv[]) {
             ensemble2.initialize();
 
             std::set<Alg> alg_set {Alg::GreedyApprox, Alg::Schranke4b, Alg::LPApprox};
-            std::string ordner_name = "KFC2_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+            std::string ordner_name = "kfc2_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
             simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
         }
     }
