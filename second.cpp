@@ -63,7 +63,5 @@ int main() {
 
 
     // std::string outputPath("../../output/output.lgf");       // I run second.exe from the 'Code' directory
-    lemon::GraphWriter(g, "output.lgf").edgeMap("weights", *ptr).run();
-
-
+    // lemon::GraphWriter(g, "output.lgf").edgeMap("weights", *ptr).run();
 }
