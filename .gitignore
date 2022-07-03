@@ -7,4 +7,5 @@ output/
 build/
 *- Kopie*
 boost/
-auswertung/
+#auswertung/
+__pycache__
