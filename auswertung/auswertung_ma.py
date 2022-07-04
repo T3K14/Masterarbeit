@@ -423,7 +423,13 @@ class Read_HO:
             except UnboundLocalError:
                 print(f'ROBERTWARNUNG: Im Ordner {k} gibt es keine results.txt Dateien!')
 
+    def calc_statistic_size(self):
+        
+        df = pd.DataFrame()
+        df['ids'] = self.id_values
+        df['stat_size'] = [self.raw_results[id].shape[0] for id in self.id_values]
 
+        return df
 
     def plot_results(self, **kwargs):
         fig, ax = plt.subplots(figsize=(16,10))
