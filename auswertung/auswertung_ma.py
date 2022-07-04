@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from shutil import move, rmtree
 import os
 
 def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, read_constr=False):
@@ -520,3 +521,24 @@ def calc_lp_schranke(lp_res_source):
     for e in range(at.shape[0]):
         pass
     
+def einordnen(src, dst):
+    """
+    Fkt. um neue Simulationsergebnisse von einem Ordner in bisher bestehenden Ordner einzuordnen
+    
+    src ist dabei der Pfad zu dem Ordner, wo die neuen Simulationsergebnisse liegen
+    dst ist der Ordner, wo ein Ordner mit dem selben Namen wie der src Ordner liegen muss in den dann die Teilordner
+        eingesetzt werden sollen
+    """
+    
+    for ordner_src in os.listdir(src):
+        if ordner_src in os.listdir(dst):
+            print(f'{ordner_src} gibt es bereits, verschiebe Simulationsordner.')
+            number_sims_dst = len(os.listdir(os.path.join(dst, ordner_src)))
+            move(os.path.join(src, ordner_src, 'simulation_0'), os.path.join(dst, ordner_src, f'simulation_{number_sims_dst}'))
+        else:
+            print(f'Den Ordner {ordner_src} gab es noch nicht, ich verschiebe ihn nach dst!')
+            # verschiebe den Ordner einfach
+            move(os.path.join(src, ordner_src), os.path.join(dst, ordner_src))
+    
+    # entferne den src Ordner, nachdem alle Datein uebertragen wurden
+    rmtree(src)
