@@ -41,9 +41,9 @@ int main(int argc, char * argv[]) {
 
     // hier variiere ich die p vom KantenFaktoCreator
     // std::vector<double> ps {0.565};
-    std::vector<double> ps {0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6};
+    std::vector<double> ps {0.25, 0.5, 0.51, 0.52, 0.75, 1.0};
     
-    std::vector<int> nodes = {10};
+    std::vector<int> nodes = {20};
     // std::vector<int> nodes = {320};
     std::vector<int> runs {20000};
 
