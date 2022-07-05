@@ -424,12 +424,29 @@ class Read_HO:
                 print(f'ROBERTWARNUNG: Im Ordner {k} gibt es keine results.txt Dateien!')
 
     def calc_statistic_size(self):
+        """
+        rechnet mir aus, wie viele Simulationen es zu den jeweiligen ids gibt
+        """
         
         df = pd.DataFrame()
         df['ids'] = self.id_values
         df['stat_size'] = [self.raw_results[id].shape[0] for id in self.id_values]
 
-        return df
+        return df.set_index('ids')
+
+    def calc_std_deviation(self, prop):
+        """
+        berechnet die Standardabweichung der Proportion prop (zB. Anteil der Faelle bei denen LP_Approx die Schranke4b * alpha erreicht)
+
+        prop muss sortiert sein, in der Reihenfolge der dazugehoerenden IDs
+        """
+
+        df_stat = self.calc_statistic_size()
+
+        p = np.array(prop)
+
+        return np.sqrt(np.array(p*(1-p) / df_stat['stat_size']))
+
 
     def plot_results(self, **kwargs):
         fig, ax = plt.subplots(figsize=(16,10))
