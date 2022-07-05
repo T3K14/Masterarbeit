@@ -532,8 +532,10 @@ def einordnen(src, dst):
     Fkt. um neue Simulationsergebnisse von einem Ordner in bisher bestehenden Ordner einzuordnen
     
     src ist dabei der Pfad zu dem Ordner, wo die neuen Simulationsergebnisse liegen
-    dst ist der Ordner, wo ein Ordner mit dem selben Namen wie der src Ordner liegen muss in den dann die Teilordner
-        eingesetzt werden sollen
+    
+    dst ist Pfad zu dem Ordner mit dem selben Namen in dem schon die ganzen vorherigen Simulationen drin liegen und in dessen Unterordner die neuen Simulationen einsortiert werden 
+    sollen
+    
     """
     
     for ordner_src in os.listdir(src):
