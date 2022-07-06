@@ -22,4 +22,4 @@ if __name__ == '__main__':
 
     print(args)
     data = Read_HO(args.path_HO, args.id, args.id_index, read_tracking=args.read_tracking, read_lp=args.read_lp)
-    data.save_results(save_path=r'C:\Users\rober\Notebooks\Masterarbeit\Vorauswertung')
+    data.save_results()
