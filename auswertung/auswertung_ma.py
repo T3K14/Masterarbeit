@@ -1,8 +1,11 @@
+from codecs import ignore_errors
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from shutil import move, rmtree
 import os
+
+from sklearn.neighbors import NearestCentroid
 
 def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, read_constr=False):
     """Laedt Tracking Datein fuer einen simulation_x Ordner
@@ -378,50 +381,76 @@ def read_results(konfig_path):
 
 class Read_HO:
     """
-    id steht entweder fuer c oder fuer n
+
+    ho ist der Ordner, wo die ganzen Konfigordner drin liegen
+
+    id: p steht fuer p_k
 
     """
 
-    def __init__(self, path_ho, id, id_stelle, read_lp=True, read_tracking=True):
-        
-        if id not in ('c', 'n', 'p', 'b_beide'):
-            raise ValueError ("ROBERTERROR, die id muss entweder c oder n sein!")
+    def __init__(self, path_ho, id, id_stelle, read_vorauswertung=False, read_lp=True, read_tracking=True):
+        """
+        habe zwei Moeglichkeiten, die Daten einzulesen, beide muessen garantieren, dass alle Folgemethoden korrekt funktionieren
+
+        """
 
         self.path_ho = path_ho
-        self.id_stelle = id_stelle
-        self.id = id
-        self.id_type = int if id == 'n' else float
-        self.id_tups = [(self.id_type(f.split('_')[id_stelle]), f) for f in os.listdir(path_ho)]
-        self.id_values = [id for id, _ in self.id_tups]
 
-        # print(self.id_tups)
+        # lese bereits berechnete Vorauswertung ein, dabei gibt es bisher keine Tracking Daten!
+        if read_vorauswertung:
 
-        print('Lese die TrackingDaten ein...')
-        self.dfs = {id: read_tracking_files(os.path.join(self.path_ho, f), read_lp=read_lp) for id, f in self.id_tups}      # hier stehen die tracking daten drin
-        print('fertig!')
+            # wenn die Daten bereits vorausgewertet sind, dann steht die id am Ende (vor der ID-Art) der raw-results csv Dateien
+            self.id_stelle = -2
+            self.id = id
+            self.id_type = int if id == 'n' else float
+
+            self.raw_results = {}
+
+            for raw_result in os.listdir(self.path_ho):
+
+                self.raw_results.update({float(raw_result.split('_')[self.id_stelle]): pd.read_csv(os.path.join(self.path_ho, raw_result))})
+
+            self.id_values = sorted(self.raw_results.keys())
+
+        else:
+
+            if id not in ('c', 'n', 'p', 'b_beide'):
+                raise ValueError ("ROBERTERROR, die id muss entweder c oder n sein!")
+
+            self.id_stelle = id_stelle
+            self.id = id
+            self.id_type = int if id == 'n' else float
+            self.id_tups = [(self.id_type(f.split('_')[id_stelle]), f) for f in os.listdir(path_ho)]
+            self.id_values = [id for id, _ in self.id_tups]
+
+            # print(self.id_tups)
+
+            print('Lese die TrackingDaten ein...')
+            self.dfs = {id: read_tracking_files(os.path.join(self.path_ho, f), read_lp=read_lp) for id, f in self.id_tups}      # hier stehen die tracking daten drin
+            print('fertig!')
 
 
-        if read_lp:
-            self.anteil_ganz_geloest = [calc_anteil_ganz_geloest(self.dfs[id]) for id in self.id_values]
-            self.mean_anteil_lp_ganz = [self.dfs[id].mean()['anteil_lp_int'] for id in self.id_values]
+            if read_lp:
+                self.anteil_ganz_geloest = [calc_anteil_ganz_geloest(self.dfs[id]) for id in self.id_values]
+                self.mean_anteil_lp_ganz = [self.dfs[id].mean()['anteil_lp_int'] for id in self.id_values]
 
-            if read_tracking:
-                # weitere Trackingwerte
-                self.mean_total_lp = [self.dfs[id].mean()['total_lp[s]'] for id in self.id_values]
-                self.mean_loop_iterations = [self.dfs[id].mean().lp_constraint_counter for id in self.id_values]
+                if read_tracking:
+                    # weitere Trackingwerte
+                    self.mean_total_lp = [self.dfs[id].mean()['total_lp[s]'] for id in self.id_values]
+                    self.mean_loop_iterations = [self.dfs[id].mean().lp_constraint_counter for id in self.id_values]
 
-        # will auch die Algorithmenergebnisse vergleichen
-        self.m_res = read_alg_performances(self.path_ho, id_stelle)
+            # will auch die Algorithmenergebnisse vergleichen
+            self.m_res = read_alg_performances(self.path_ho, id_stelle)
 
-        self.raw_results = {}
+            self.raw_results = {}
 
-        for k in os.listdir(self.path_ho):
+            for k in os.listdir(self.path_ho):
 
-            try:
-                self.raw_results.update({float(k.split('_')[self.id_stelle]): read_results(os.path.join(self.path_ho, k))})
+                try:
+                    self.raw_results.update({float(k.split('_')[self.id_stelle]): read_results(os.path.join(self.path_ho, k))})
 
-            except UnboundLocalError:
-                print(f'ROBERTWARNUNG: Im Ordner {k} gibt es keine results.txt Dateien!')
+                except UnboundLocalError:
+                    print(f'ROBERTWARNUNG: Im Ordner {k} gibt es keine results.txt Dateien!')
 
     def calc_statistic_size(self):
         """
@@ -490,6 +519,22 @@ class Read_HO:
                 print(f'ROBERTERROR: Keyerror mit Alg {alg} fuer die ID {id}, wahrscheinlich gibt es in dieser Simulation keinen Eintrag zum Alg {alg}!')
 
         return ids, proz, diffs
+
+    def save_results(self, save_path='/gss/work/xees8992/Vorauswertung'):
+        """
+        speichere mir die Ergebnisse der Auswertung, dazu Dataframes mit den raw results
+
+        """
+        name_dir = os.path.split(self.path_ho)[1]
+
+        # falls so eine Auswertung bereits existert, erstmal error, spaeter am besten so schreiben, dass die Ergebnisse gemerged werden
+        if os.path.exists(os.path.join(save_path, name_dir)):
+            raise NameError(f'ROBERTERROR: Der Ordner {name_dir} existiert bereits im Vorauswertungsverzerzeichnis!')
+        else:
+            os.mkdir(os.path.join(save_path, name_dir))
+
+        for id in self.raw_results:
+            self.raw_results[id].to_csv(os.path.join(save_path, name_dir, f'raw_results_{id}_{self.id}.csv'), index=False)
 
 # liesst mir die perfomances der verschiedenen Algorithmen ein, die im Hauptordner ho liegen und wo die Konfigurationen nach der id (zb. c) durchgegangen werden
 def read_alg_performances(ho, id_index):
