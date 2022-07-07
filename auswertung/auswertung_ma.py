@@ -405,9 +405,25 @@ class Read_HO:
 
             self.raw_results = {}
 
-            for raw_result in os.listdir(self.path_ho):
+            # erstmal die Daten aus dem ersten sim-Ordner einlesen
+            for raw_result in os.listdir(os.path.join(self.path_ho, 'simulation_0')):
 
-                self.raw_results.update({float(raw_result.split('_')[self.id_stelle]): pd.read_csv(os.path.join(self.path_ho, raw_result))})
+                self.raw_results.update({float(raw_result.split('_')[self.id_stelle]): pd.read_csv(os.path.join(self.path_ho, 'simulation_0', raw_result))})
+
+
+            for sim in sorted(os.listdir(self.path_ho))[1:]:
+                for raw_result in os.listdir(os.path.join(self.path_ho, sim)):
+                    
+                    id_next = float(raw_result.split('_')[self.id_stelle])
+
+                    if id_next in self.raw_results:
+
+                        # an bereits bestehendes dataframe angliedern
+                        df = pd.read_csv(os.path.join(self.path_ho, sim, raw_result))
+                        self.raw_results[id_next] = pd.concat([self.raw_results[id_next], df], ignore_index=True)
+                        pass
+                    else:
+                        self.raw_results.update({id_next: pd.read_csv(os.path.join(self.path_ho, sim, raw_result))})
 
             self.id_values = sorted(self.raw_results.keys())
 
