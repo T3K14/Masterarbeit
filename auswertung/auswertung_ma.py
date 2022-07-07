@@ -521,19 +521,30 @@ class Read_HO:
 
     def save_results(self, save_path='/gss/work/xees8992/Vorauswertung'):
         """
-        speichere mir die Ergebnisse der Auswertung, dazu Dataframes mit den raw results
+        speichere mir die Ergebnisse der Auswertung, dazu Dataframes mit den raw results und zwar wieder im simulation_x Format, damit ich mehrere verschiedene Simulationen 
+        zusammen packen und auswerten kann
 
         """
         name_dir = os.path.split(self.path_ho)[1]
+        #sim_path = ''
 
-        # falls so eine Auswertung bereits existert, erstmal error, spaeter am besten so schreiben, dass die Ergebnisse gemerged werden
+        # falls so eine Auswertung bereits existert, zaehle die simulations ordner und packe den naechsten dazu
         if os.path.exists(os.path.join(save_path, name_dir)):
-            raise NameError(f'ROBERTERROR: Der Ordner {name_dir} existiert bereits im Vorauswertungsverzerzeichnis!')
+            c = len([sim for sim in os.listdir(os.path.join(save_path, name_dir)) if 'simulation_' in sim])
+            sim_path = os.path.join(save_path, name_dir, f'simulation_{c}') 
+            
+
         else:
             os.mkdir(os.path.join(save_path, name_dir))
 
+            # erstelle den Simulationsordner 0
+            sim_path = os.path.join(save_path, name_dir, 'simulation_0') 
+
+        os.mkdir(sim_path)
+
+
         for id in self.raw_results:
-            self.raw_results[id].to_csv(os.path.join(save_path, name_dir, f'raw_results_{id}_{self.id}.csv'), index=False)
+            self.raw_results[id].to_csv(os.path.join(sim_path, f'raw_results_{id}_{self.id}.csv'), index=False)
 
 # liesst mir die perfomances der verschiedenen Algorithmen ein, die im Hauptordner ho liegen und wo die Konfigurationen nach der id (zb. c) durchgegangen werden
 def read_alg_performances(ho, id_index):
@@ -614,10 +625,11 @@ def calc_schnittpunkte(ids1, y1, ids2, y2):
 
     """
     
-    ids1 = np.array(ids1)
-    ids2 = np.array(ids2)
-    y1 = np.array(y1)
-    y2 = np.array(y2)
+    # unnoetig?
+    # ids1 = np.array(ids1)
+    # ids2 = np.array(ids2)
+    # y1 = np.array(y1)``
+    # y2 = np.array(y2)
 
     
     first_line = LineString(np.column_stack((ids1, y1)))
