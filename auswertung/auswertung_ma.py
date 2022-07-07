@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from shutil import move, rmtree
 import os
-from shapely import Point, LineString
+from shapely.geometry import Point, LineString
 
 def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, read_constr=False):
     """Laedt Tracking Datein fuer einen simulation_x Ordner
