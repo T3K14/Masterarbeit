@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from shutil import move, rmtree
 import os
+from shapely import Point, LineString
 
 def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, read_constr=False):
     """Laedt Tracking Datein fuer einen simulation_x Ordner
@@ -567,11 +568,6 @@ def read_alg_performances(ho, id_index):
     
     return m_dic
 
-
-
-
-
-
 # nicht fertig geschrieben, da ich fuer die Berechnung noch die Problemstellungen immer extra abspeichern muesste, daher ist das jetzt in cpp geloest
 def calc_lp_schranke(lp_res_source):
     
@@ -609,3 +605,37 @@ def einordnen(src, dst):
     
     # entferne den src Ordner, nachdem alle Datein uebertragen wurden
     rmtree(src)
+
+def calc_schnittpunkte(ids1, y1, ids2, y2):
+    """
+    Rechnet mit Hilfe von shapely LineString-Objekten die Schnittpunkte der beiden uebergebenen Kurven aus
+    Wichtig: es werden die Schnittpunkte der Linen ermittelt, die sich ergeben, wenn die einzelnen Punkte der Kurven verbunden werden
+
+    """
+    
+    ids1 = np.array(ids1)
+    ids2 = np.array(ids2)
+    y1 = np.array(y1)
+    y2 = np.array(y2)
+
+    
+    first_line = LineString(np.column_stack((ids1, y1)))
+    second_line = LineString(np.column_stack((ids2, y2)))
+    intersection = first_line.intersection(second_line)
+
+    print(intersection)
+    
+    # es gibt keinen Schnittpunkt
+    if intersection.is_empty:
+        return None
+    
+    # es gibt genau einen Schnittpunkt
+    elif type(intersection) == Point:
+        return intersection.x, intersection.y
+    
+    # es gibt mehrere Schnittpunkte
+    else:
+        xs = [p.x for p in intersection.geoms]
+        ys = [p.y for p in intersection.geoms]
+    
+    return xs, ys
