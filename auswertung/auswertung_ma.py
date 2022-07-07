@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from shutil import move, rmtree
 import os
 from shapely.geometry import Point, LineString
+from shapely.geometry.collection import GeometryCollection
 
 def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, read_constr=False):
     """Laedt Tracking Datein fuer einen simulation_x Ordner
@@ -622,20 +623,38 @@ def calc_schnittpunkte(ids1, y1, ids2, y2):
     first_line = LineString(np.column_stack((ids1, y1)))
     second_line = LineString(np.column_stack((ids2, y2)))
     intersection = first_line.intersection(second_line)
+    # print(intersection)
 
-    print(intersection)
-    
-    # es gibt keinen Schnittpunkt
     if intersection.is_empty:
         return None
-    
+
+    # nehme die LineStrings raus, falls es eine GEOMETRYCOLLECTION ist, ansonsten packe ich alle geometry-Objekte so in eine Liste zur leichteren Verarbeitung
+    l = [g for g in intersection.geoms if not isinstance(g, LineString)]
+
+    # es gibt keinen Schnittpunkt
+    if len(l) == 0:
+        return 0
+
     # es gibt genau einen Schnittpunkt
-    elif type(intersection) == Point:
-        return intersection.x, intersection.y
-    
+    elif len(l) == 1:
+        return l[0].x, l[0].y
+
     # es gibt mehrere Schnittpunkte
     else:
-        xs = [p.x for p in intersection.geoms]
-        ys = [p.y for p in intersection.geoms]
+        xs = [p.x for p in l]
+        ys = [p.y for p in l]
+
+        return xs, ys
+
     
-    return xs, ys
+    
+    # es gibt genau einen Schnittpunkt
+    # elif isinstance(intersection, Point):
+        # return intersection.x, intersection.y
+    
+    # es gibt mehrere Schnittpunkte
+    # else:
+    #     xs = [p.x for p in intersection.geoms]
+    #     ys = [p.y for p in intersection.geoms]
+    
+    # return xs, ys
