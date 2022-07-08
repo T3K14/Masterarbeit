@@ -653,28 +653,28 @@ def calc_schnittpunkte(ids1, y1, ids2, y2):
     intersection = first_line.intersection(second_line)
     # print(intersection)
 
+    # es gibt keinen Schnittpunkt
     if intersection.is_empty:
         return None
 
-    # nehme die LineStrings raus, falls es eine GEOMETRYCOLLECTION ist, ansonsten packe ich alle geometry-Objekte so in eine Liste zur leichteren Verarbeitung
-    l = [g for g in intersection.geoms if not isinstance(g, LineString)]
-
-    # es gibt keinen Schnittpunkt
-    if len(l) == 0:
-        return 0
-
     # es gibt genau einen Schnittpunkt
-    elif len(l) == 1:
-        return l[0].x, l[0].y
+    elif isinstance(intersection, Point):
+        return intersection.x, intersection.y
 
     # es gibt mehrere Schnittpunkte
     else:
+        # nehme die LineStrings raus, falls es eine GEOMETRYCOLLECTION ist, ansonsten packe ich alle geometry-Objekte (zB Points eines MultiPoints) so in 
+        # eine Liste zur leichteren Verarbeitung
+        l = [g for g in intersection.geoms if not isinstance(g, LineString)]
+
         xs = [p.x for p in l]
         ys = [p.y for p in l]
 
-        return xs, ys
-
-    
+        # falls nur ein Point uebrig bleibt
+        if len(xs) == 1 and len(ys) == 1:
+            return xs[0], ys[0]
+        else:
+            return xs, ys
     
     # es gibt genau einen Schnittpunkt
     # elif isinstance(intersection, Point):
