@@ -467,6 +467,14 @@ class Read_HO:
                 except UnboundLocalError:
                     print(f'ROBERTWARNUNG: Im Ordner {k} gibt es keine results.txt Dateien!')
 
+    # def __add__(self, other):
+    #     """
+    #     baue aus zwei Read_HOs ein neues, das soll zum Zusammenfuehren von lokalen und vorausgewerteten Daten benutzt werden
+        
+    #     """
+    #     pass
+
+
     def calc_statistic_size(self):
         """
         rechnet mir aus, wie viele Simulationen es zu den jeweiligen ids gibt
@@ -686,3 +694,97 @@ def calc_schnittpunkte(ids1, y1, ids2, y2):
     #     ys = [p.y for p in intersection.geoms]
     
     # return xs, ys
+
+class PlotCollector:
+    """
+    speichert mir die relevanten Daten zum plotten
+    """
+
+    def __init__(self, _ids, _props, _std_dev):
+
+        self.ids = _ids
+        self.props = _props
+        self.std_dev = _std_dev
+
+def read_all_data(p_lokal, p_vor, id_name='p', id_stelle=-2):
+    """
+    liest mir die alten (lokalen) Daten und die auf dem Cluster vorausgewerteten Daten zusammen ein und gibt sie mir fertig zum plotten in Form eines DataFrames zurueck
+
+    p_lokal path zum Ueberordner (dort wo die ganzen Hauptordner (HO) drin liegen)
+    p_vor   path zum Ueberordner der vorausgewerteten Daten
+
+    """
+
+    # Warnung, falls die beiden Ueberordner nicht gleich heissen
+    if os.path.split(p_lokal)[1] != os.path.split(p_vor)[1]:
+        print("ROBERTWARNUNG: Die beiden Ordnernamen stimmen nicht überein! Sicher, dass das so richtig ist?")
+
+    # lese die lokalen Daten ein
+    data = {}
+
+    for ho in os.listdir(p_lokal):
+        if not 'Vorauswertung' in ho:
+            n = int(ho.split("_")[1])
+            data[n] = Read_HO(os.path.join(p_lokal, ho), id_name, id_stelle, read_tracking=False, read_lp=False)
+            
+    # lese die vorausgewerteten Daten ein
+    data_vor = {}
+
+    for ho in os.listdir(p_vor):
+        n = int(ho.split("_")[1])
+        data_vor[n] = Read_HO(os.path.join(p_vor, ho), id_name, id_stelle, read_vorauswertung=True)
+
+    return data, data_vor
+
+def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
+    """
+    baut mir fuer eingelesene Daten PlottCollectorobjekte zum leichten plotten
+    """
+
+    dic = {}
+
+    # bringe lokale und vorausgewertete Daten zum selben n zusammen
+
+    ns = sorted(data.keys())
+    ns_vor = sorted(data_vor.keys())
+
+    for n in set(ns + ns_vor):
+
+        ids = []
+        props = []
+        std_dev = []
+
+        if n in ns:
+            # fuege lokale Daten hinzu
+            ids += data[n].check_alg_vs_schranke4b(alg, alpha)[0]
+            props += data[n].check_alg_vs_schranke4b(alg, alpha)[1]
+            std_dev += list(data[n].calc_std_deviation(data[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+            
+            if n in ns_vor:
+                # n kommt auch in den vorausgewerteten Daten vor und ich haenge die Daten an
+                ids += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
+                prop += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
+                std_dev += list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+
+            # error, falls die selbe ID mehrfach vorkommt
+            if len(set(ids)) != len(ids):
+                raise ValueError('ROBERTERROR: Ein ID-Wert kommt mehrfach vor!')
+
+            # ids sortieren und den rest dazu mit
+        
+            props = [t[1] for t in sorted(zip(ids, prop))]
+            std_dev = [t[1] for t in sorted(zip(ids, std_dev))]
+        
+            ids = sorted(ids)
+
+
+        # ansonsten stammt das n aus ns_vor und ich fuege es dem Dictionary hinzu    
+        else:
+            ids = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
+            prop = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
+            std_dev = list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+
+        # fuege die eingelesenen Daten zum dictionary hinzu    
+        dic[n] = PlotCollector(ids, props, std_dev)
+
+    return dic
