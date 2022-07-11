@@ -749,7 +749,6 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
     ns_vor = sorted(data_vor.keys())
 
     for n in set(ns + ns_vor):
-
         ids = []
         props = []
         std_dev = []
@@ -763,16 +762,16 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
             if n in ns_vor:
                 # n kommt auch in den vorausgewerteten Daten vor und ich haenge die Daten an
                 ids += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
-                prop += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
+                props += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
                 std_dev += list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
 
             # error, falls die selbe ID mehrfach vorkommt
             if len(set(ids)) != len(ids):
-                raise ValueError('ROBERTERROR: Ein ID-Wert kommt mehrfach vor!')
+                raise ValueError(f'ROBERTERROR: Ein ID-Wert kommt bei {n} mehrfach vor!')
 
             # ids sortieren und den rest dazu mit
         
-            props = [t[1] for t in sorted(zip(ids, prop))]
+            props = [t[1] for t in sorted(zip(ids, props))]
             std_dev = [t[1] for t in sorted(zip(ids, std_dev))]
         
             ids = sorted(ids)
@@ -781,7 +780,7 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
         # ansonsten stammt das n aus ns_vor und ich fuege es dem Dictionary hinzu    
         else:
             ids = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
-            prop = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
+            props = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
             std_dev = list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
 
         # fuege die eingelesenen Daten zum dictionary hinzu    
