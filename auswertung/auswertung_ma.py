@@ -543,32 +543,67 @@ class Read_HO:
 
         return ids, proz, diffs
 
-    def save_results(self, save_path='/gss/work/xees8992/Vorauswertung'):
+    def save_results(self, save_lp=False, save_path='/gss/work/xees8992/Vorauswertung'):
         """
         speichere mir die Ergebnisse der Auswertung, dazu Dataframes mit den raw results und zwar wieder im simulation_x Format, damit ich mehrere verschiedene Simulationen 
         zusammen packen und auswerten kann
 
+        speichere ausserdem wenn gewuenscht die lp-Ergebnisse ab, ebenfalls im simulation_x Format
+
         """
         name_dir = os.path.split(self.path_ho)[1]
-        #sim_path = ''
+        res_path = os.path.join(save_path, 'Alg_Results')
 
         # falls so eine Auswertung bereits existert, zaehle die simulations ordner und packe den naechsten dazu
-        if os.path.exists(os.path.join(save_path, name_dir)):
-            c = len([sim for sim in os.listdir(os.path.join(save_path, name_dir)) if 'simulation_' in sim])
-            sim_path = os.path.join(save_path, name_dir, f'simulation_{c}') 
+        if os.path.exists(os.path.join(res_path, name_dir)):
+            c = len([sim for sim in os.listdir(os.path.join(res_path, name_dir)) if 'simulation_' in sim])
+            sim_path = os.path.join(res_path, name_dir, f'simulation_{c}') 
             
 
         else:
-            os.mkdir(os.path.join(save_path, name_dir))
+            os.mkdir(os.path.join(res_path, name_dir))
 
             # erstelle den Simulationsordner 0
-            sim_path = os.path.join(save_path, name_dir, 'simulation_0') 
+            sim_path = os.path.join(res_path, name_dir, 'simulation_0') 
 
         os.mkdir(sim_path)
 
-
         for id in self.raw_results:
-            self.raw_results[id].to_csv(os.path.join(sim_path, f'raw_results_{id}_{self.id}.csv'), index=False)
+            self.raw_results[id].to_csv(os.path.join(res_path, f'raw_results_{id}_{self.id}.csv'), index=False)
+
+        # falls lp-Ergebnisse mit gespeichert werden sollen
+        if save_lp:
+            lp_path = os.path.join(save_path, 'LP_Results')
+
+            # falls so eine Auswertung bereits existert, zaehle die simulations ordner und packe den naechsten dazu
+            if os.path.exists(os.path.join(lp_path, name_dir)):
+                c = len([sim for sim in os.listdir(os.path.join(lp_path, name_dir)) if 'simulation_' in sim])
+                # sim_path = os.path.join(lp_path, name_dir, f'simulation_{c}') 
+                sim = c
+            
+            else:
+                os.mkdir(os.path.join(lp_path, name_dir))
+
+                # erstelle den Simulationsordner 0
+                # sim_path = os.path.join(lp_path, name_dir, 'simulation_0') 
+                sim = 0
+
+            # os.mkdir(sim_path)
+
+            df = pd.DataFrame()
+            df['ids'] = self.id_values
+
+            # Anzahl ganz geloester Problemstellungen
+            df['Anzahl_GGL'] = [self.dfs[id][self.dfs[id]['anteil_lp_int'] == 1].shape[0] for id in self.id_values]
+
+            # Summe der Anteile ganzzahliger LP-Variablen
+            df['Summe_LPV'] = [self.dfs[id].sum()['anteil_lp_int'] for id in self.id_values]
+
+            df.to_csv(os.path.join(lp_path, f'simulation_{sim}.csv'), index=False)
+
+            # self.anteil_ganz_geloest = [calc_anteil_ganz_geloest(self.dfs[id]) for id in self.id_values]
+            # self.mean_anteil_lp_ganz = [self.dfs[id].mean()['anteil_lp_int'] for id in self.id_values]
+
 
 # liesst mir die perfomances der verschiedenen Algorithmen ein, die im Hauptordner ho liegen und wo die Konfigurationen nach der id (zb. c) durchgegangen werden
 def read_alg_performances(ho, id_index):
