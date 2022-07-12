@@ -569,7 +569,7 @@ class Read_HO:
         os.mkdir(sim_path)
 
         for id in self.raw_results:
-            self.raw_results[id].to_csv(os.path.join(res_path, f'raw_results_{id}_{self.id}.csv'), index=False)
+            self.raw_results[id].to_csv(os.path.join(sim_path, f'raw_results_{id}_{self.id}.csv'), index=False)
 
         # falls lp-Ergebnisse mit gespeichert werden sollen
         if save_lp:
@@ -599,7 +599,10 @@ class Read_HO:
             # Summe der Anteile ganzzahliger LP-Variablen
             df['Summe_LPV'] = [self.dfs[id].sum()['anteil_lp_int'] for id in self.id_values]
 
-            df.to_csv(os.path.join(lp_path, f'simulation_{sim}.csv'), index=False)
+            # die Samplegroesse
+            df['Runs'] = [self.dfs[id].shape[0] for id in self.id_values]
+
+            df.to_csv(os.path.join(lp_path, name_dir, f'simulation_{sim}.csv'), index=False)
 
             # self.anteil_ganz_geloest = [calc_anteil_ganz_geloest(self.dfs[id]) for id in self.id_values]
             # self.mean_anteil_lp_ganz = [self.dfs[id].mean()['anteil_lp_int'] for id in self.id_values]
