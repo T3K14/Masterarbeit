@@ -377,6 +377,19 @@ def read_results(konfig_path):
 
     return df
 
+def read_vorauswertung(path_vor, id, id_stelle, read_lp=True):
+    """
+    liest einen Vorauswertungsordner komplett ein und gibt mir ein benutzerfreundliches Dictionary zurueck
+
+    """
+
+    dic = {}
+
+    for ho in os.listdir(os.path.join(path_vor, 'Alg_Results')):
+        n = int(ho.split("_")[1])
+        dic[n] = Read_HO(os.path.join(path_vor, 'Alg_Results', ho), id, id_stelle, read_vorauswertung=True)
+
+    return dic
 
 class Read_HO:
     """
@@ -391,6 +404,7 @@ class Read_HO:
         """
         habe zwei Moeglichkeiten, die Daten einzulesen, beide muessen garantieren, dass alle Folgemethoden korrekt funktionieren
 
+        path_ho ist der Pfad zum Hauptordner im Alg_Results-Ordner
         """
 
         self.path_ho = path_ho
@@ -426,6 +440,23 @@ class Read_HO:
                         self.raw_results.update({id_next: pd.read_csv(os.path.join(self.path_ho, sim, raw_result))})
 
             self.id_values = sorted(self.raw_results.keys())
+
+            # wenn lp daten eingelesen werden sollen, addiere die jeweiligen Werte der gleichen Ids zusammen und berechne daraus die entsprechenden Anteile
+            if read_lp:
+
+                path_vor = os.path.split(os.path.split(self.path_ho)[0])[0]
+                path_lp = os.path.join(path_vor, 'LP_Results')
+
+                for ho in os.listdir(path_lp):
+
+                    df = pd.read_csv(os.path.join(path_lp, ho, 'simulation_0.csv'))
+                
+                    # addiede fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
+                    sims = [pd.read_csv(os.path.join(path_lp, ho, s)) for s in sorted(os.listdir(os.path.join(path_lp, ho)))[1:]]
+                    df = pd.concat([df, *sims]).groupby('ids').sum()
+
+                self.anteil_ggl = df['Anteil_GGL'] / df['Runs']
+                self.anteil_glpv = df['Summe_LPV'] / df['Runs']
 
         else:
 
