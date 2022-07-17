@@ -377,7 +377,7 @@ def read_results(konfig_path):
 
     return df
 
-def read_vorauswertung(path_vor, id, id_stelle, read_lp=True):
+def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
     """
     liest einen Vorauswertungsordner komplett ein und gibt mir ein benutzerfreundliches Dictionary zurueck
 
@@ -387,6 +387,11 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=True):
 
     for ho in os.listdir(os.path.join(path_vor, 'Alg_Results')):
         n = int(ho.split("_")[1])
+
+        # zur Sicherheit, damit nicht irgendwelche wilden Kombinationen entstehen
+        if n in dic.keys():
+            raise ValueError (f"ROBERTERROR: N={n} kommt in mehreren Hauptordnern vor, das sollte lieber eindeutig sein!")
+
         dic[n] = Read_HO(os.path.join(path_vor, 'Alg_Results', ho), id, id_stelle, read_vorauswertung=True)
 
     # lese die lp_Ergebnisse ein
@@ -840,7 +845,7 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
 
             # error, falls die selbe ID mehrfach vorkommt
             if len(set(ids)) != len(ids):
-                raise ValueError(f'ROBERTERROR: Ein ID-Wert kommt bei {n} mehrfach vor!')
+                raise ValueError(f'ROBERTERROR: Ein ID-Wert kommt bei N={n} mehrfach vor!')
 
             # ids sortieren und den rest dazu mit
         
@@ -849,14 +854,20 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
         
             ids = sorted(ids)
 
+            # fuege die eingelesenen Daten zum dictionary hinzu    
+            dic[n] = PlotCollector(ids, props, std_dev)
 
-        # ansonsten stammt das n aus ns_vor und ich fuege es dem Dictionary hinzu    
+        # ansonsten stammt das n aus ns_vor und ich fuege es dem Dictionary hinzu (falls der alg in den neuen Daten ueberhaupt vorkommt)
         else:
-            ids = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
-            props = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
-            std_dev = list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
 
-        # fuege die eingelesenen Daten zum dictionary hinzu    
-        dic[n] = PlotCollector(ids, props, std_dev)
+            # Achtung: hier beruecksichtige ich nicht, dass es sein kann, dass innerhalb eines Hauptordners unterschiedliche Algorithmen bei den verschiedenen ids verwendet wurden
+            if alg in data_vor[n].raw_results[data_vor[n].id_values[0]].columns:
+
+                ids = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
+                props = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
+                std_dev = list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+
+                # fuege die eingelesenen Daten zum dictionary hinzu    
+                dic[n] = PlotCollector(ids, props, std_dev)
 
     return dic
