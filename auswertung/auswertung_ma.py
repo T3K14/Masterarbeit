@@ -405,7 +405,7 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
             # addiere die jeweiligen Werte der gleichen Ids zusammen und berechne daraus die entsprechenden Anteile
             df = pd.read_csv(os.path.join(path_vor, 'LP_Results', ho, 'simulation_0.csv'))
                 
-                    # addiede fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
+                    # addiere fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
             sims = [pd.read_csv(os.path.join(path_vor, 'LP_Results', ho, s)) for s in sorted(os.listdir(os.path.join(path_vor, 'LP_Results', ho)))[1:]]
             df = pd.concat([df, *sims]).groupby('ids').sum()
 
@@ -416,6 +416,11 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
         return dic, dic_lp
 
     return dic
+
+# dazu da, alle Daten auf einmal einzulesen
+def read_ueberordner():
+    pass
+
 
 class Read_HO:
     """
@@ -583,7 +588,7 @@ class Read_HO:
 
         return ids, proz, diffs
 
-    def save_results(self, save_lp=False, save_path='/gss/work/xees8992/Vorauswertung'):
+    def save_results(self, save_path, save_lp=False):
         """
         speichere mir die Ergebnisse der Auswertung, dazu Dataframes mit den raw results und zwar wieder im simulation_x Format, damit ich mehrere verschiedene Simulationen 
         zusammen packen und auswerten kann
@@ -871,3 +876,13 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
                 dic[n] = PlotCollector(ids, props, std_dev)
 
     return dic
+
+
+def prepare_lp_data(data, data_vor):
+    """
+    baut mir die eingelesenen LP-Daten zusammen
+
+    hab ich jetzt nicht implementiert, ich habe stattdessen die paar Daten die ich hatte vorausgewertet
+
+    """
+    pass
