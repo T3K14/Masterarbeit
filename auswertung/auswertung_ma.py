@@ -389,6 +389,27 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=True):
         n = int(ho.split("_")[1])
         dic[n] = Read_HO(os.path.join(path_vor, 'Alg_Results', ho), id, id_stelle, read_vorauswertung=True)
 
+    # lese die lp_Ergebnisse ein
+    if read_lp:
+
+        dic_lp = {}
+
+        for ho in os.listdir(os.path.join(path_vor, 'LP_Results')):
+            n = int(ho.split("_")[1])
+
+            # addiere die jeweiligen Werte der gleichen Ids zusammen und berechne daraus die entsprechenden Anteile
+            df = pd.read_csv(os.path.join(path_vor, 'LP_Results', ho, 'simulation_0.csv'))
+                
+                    # addiede fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
+            sims = [pd.read_csv(os.path.join(path_vor, 'LP_Results', ho, s)) for s in sorted(os.listdir(os.path.join(path_vor, 'LP_Results', ho)))[1:]]
+            df = pd.concat([df, *sims]).groupby('ids').sum()
+
+            df['Anteil_GGL'] = df['Anzahl_GGL'] / df['Runs']
+            df['Anteil_GLPV'] = df['Summe_LPV'] / df['Runs']
+            dic_lp[n] = df
+
+        return dic, dic_lp
+
     return dic
 
 class Read_HO:
@@ -440,23 +461,6 @@ class Read_HO:
                         self.raw_results.update({id_next: pd.read_csv(os.path.join(self.path_ho, sim, raw_result))})
 
             self.id_values = sorted(self.raw_results.keys())
-
-            # wenn lp daten eingelesen werden sollen, addiere die jeweiligen Werte der gleichen Ids zusammen und berechne daraus die entsprechenden Anteile
-            if read_lp:
-
-                path_vor = os.path.split(os.path.split(self.path_ho)[0])[0]
-                path_lp = os.path.join(path_vor, 'LP_Results')
-
-                for ho in os.listdir(path_lp):
-
-                    df = pd.read_csv(os.path.join(path_lp, ho, 'simulation_0.csv'))
-                
-                    # addiede fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
-                    sims = [pd.read_csv(os.path.join(path_lp, ho, s)) for s in sorted(os.listdir(os.path.join(path_lp, ho)))[1:]]
-                    df = pd.concat([df, *sims]).groupby('ids').sum()
-
-                self.anteil_ggl = df['Anteil_GGL'] / df['Runs']
-                self.anteil_glpv = df['Summe_LPV'] / df['Runs']
 
         else:
 
