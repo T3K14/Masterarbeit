@@ -6,7 +6,7 @@ import os
 from shapely.geometry import Point, LineString
 from shapely.geometry.collection import GeometryCollection
 
-def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, read_constr=False):
+def read_tracking_files_sim(p, appendix, read_check=False, read_opt=False, read_lp=False, read_constr=False):
     """Laedt Tracking Datein fuer einen simulation_x Ordner
 
     Args:
@@ -15,6 +15,8 @@ def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, 
         read_opt (bool): gibt an, ob den opt_ordner (LP_Approx) mit eingelesen werden sollen (default=False, weil die Datein darin sehr gross werden koennen)
         read_lp (bool): gibt an, ob ich die LP-Variablen einlesen moechte, zB. um zu schauen, wie viel Prozenta davon ganzzahlig sind
         read_constr (bool): gibt an, ob ich die Zeiten einlesen moechte, die in den Iterationen zum Erzeugen der Min-Cut-Constraints gebraucht werden
+        appendix ... Das, was an read_lp_results (via calc_anteil_ganzzahliger_variablen) weitergegen werden soll, und da an die tmp.txt angehaendt werden soll, 
+                     damit mehrere Skript gleichzeitig laufen koennen und sich nicht gegenseitig die tmp.txt Datein wegloeschen
 
     - Wenn read_opt True ist, dann lese ich die Opt-Zeiten ein, addiere sie zusammen und rechne sie von Millisekunden um in Sekunden
     - Die Gesamtlaufzeit vom LP-Alg (Spalte totale_lp_ms) rechne ich am Ende noch um in Sekunden
@@ -102,7 +104,7 @@ def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, 
         if not os.path.exists(pt_lp):
             raise ValueError('ROBERTERROR: Der lp_results-Ordner existiert nicht!')
 
-        lp_res_prozent = [calc_anteil_ganzzahliger_variablen(os.path.join(pt_lp, i)) for i in sorted(os.listdir(pt_lp), key=lambda x: int(x.split(".")[0]))]
+        lp_res_prozent = [calc_anteil_ganzzahliger_variablen(os.path.join(pt_lp, i), appendix) for i in sorted(os.listdir(pt_lp), key=lambda x: int(x.split(".")[0]))]
 
         df['anteil_lp_int'] = lp_res_prozent
 
@@ -113,23 +115,25 @@ def read_tracking_files_sim(p, read_check=False, read_opt=False, read_lp=False, 
 
     return df
 
-def read_tracking_files(konfig_path, read_check=False, read_opt=False, read_lp=False, read_constr=False):
+def read_tracking_files(konfig_path, appendix, read_check=False, read_opt=False, read_lp=False, read_constr=False):
     """Ist dafuer da, fuer eine Konfiguration die Trackingdaten aller Simulationen einzulesen und in ein Dataframe zu packen
 
     Args:
         konfig_path (_type_): Pfad zu dem Konfigurationsordner
+        appendix ... Das, was an read_lp_results weitergegen werden soll, und da an die tmp.txt angehaendt werden soll, 
+                     damit mehrere Skript gleichzeitig laufen koennen und sich nicht gegenseitig die tmp.txt Datein wegloeschen
     """    
     
     # muss erstmal rausfinden, welche Simulationen alle gemacht wurden
     sims = os.listdir(konfig_path)
 
     # erstes Dataframe, an das dann angebaut wird
-    df = read_tracking_files_sim(os.path.join(konfig_path, sims[0]), read_check=read_check, read_opt=read_opt, read_lp=read_lp, read_constr=read_constr)
+    df = read_tracking_files_sim(os.path.join(konfig_path, sims[0]), appendix, read_check=read_check, read_opt=read_opt, read_lp=read_lp, read_constr=read_constr)
     
     for sim in sims[1:]:
 
         # nehme die results und packe sie an df dran
-        df_sim = read_tracking_files_sim(os.path.join(konfig_path, sim), read_check=read_check, read_opt=read_opt, read_lp=read_lp, read_constr=read_constr)
+        df_sim = read_tracking_files_sim(os.path.join(konfig_path, sim), appendix, read_check=read_check, read_opt=read_opt, read_lp=read_lp, read_constr=read_constr)
         # dabei gehe ich aus, dass selbst, wenn die results in unterschiedlichen Spalten gespeichert werden, dass
         # die an die dazugehoerige, bereits vorhandene Spalte angegliedert werden
         df = pd.concat([df, df_sim], ignore_index=True)
@@ -223,17 +227,16 @@ def readLGF_Network(source):
         df = df.append({'u': int(s[0]), 'v': int(s[1]), 'id': int(s[2]), 'first_stage': int(s[3])}, ignore_index=True)
     return df
 
-def read_lp_results(source):
+def read_lp_results(source, appendix):
     """liesst mir von EINEM BELIEBIGEN ALG die Ergebnismaps ein und returned den relevanten Teil davon als Array
 
     Args:
         source (_type_): path zu der lp_results Datei
+        appendix .. Das, was an das tmp.txt angehaendt werden soll, damit mehrere Skript gleichzeitig laufen koennen und sich nicht gegenseitig die tmp.txt Datein wegloeschen
 
     Returns:
         _type_: Anteil aller LP-Variablen, die ganzzahlig sind
     """
-
-    print(os.getcwd())
 
     mInFile = open(source, mode='r')
     fileString = mInFile.read()
@@ -250,32 +253,34 @@ def read_lp_results(source):
 
     # versuche, die relevanten Daten als np_array aus zwischengespeichertem tmp.txt-File einzulesen
     try:
-        with open('tmp.txt', 'w') as tmp:
+        with open(f'tmp_{appendix}.txt', 'w') as tmp:
             tmp.write(fileString[fileString.find(initKey)+initPos:].split("\n", 1)[1])
         
-        arr = np.loadtxt('tmp.txt')
-        os.remove('tmp.txt')
+        arr = np.loadtxt(f'tmp_{appendix}.txt')
+        os.remove(f'tmp_{appendix}.txt')
     except:
         # falls es einen Fehler gegeben hat
         print('ROBERTERROR: Es gab einen Fehler beim Erzeugen des np-Arrays!')
         
         try:
-            os.remove('tmp.txt')
+            os.remove(f'tmp_{appendix}.txt')
         except FileNotFoundError:
             print('ROBERTERRor: Die tmp.txt Datei war bereits gelöscht!')
     
     return arr
 
-def calc_anteil_ganzzahliger_variablen(lp_res_source):
+def calc_anteil_ganzzahliger_variablen(lp_res_source, appendix):
     """_summary_
 
     Args:
         lp_res_source (_type_): _description_
+        appendix ... Das, was an read_lp_results weitergegen werden soll, und da an die tmp.txt angehaendt werden soll, 
+                     damit mehrere Skript gleichzeitig laufen koennen und sich nicht gegenseitig die tmp.txt Datein wegloeschen
     Returns:
         _type_: _description_
     """
 
-    arr = read_lp_results(lp_res_source)
+    arr = read_lp_results(lp_res_source, appendix)
 
     # nimm von dem array nur den Teil in dem die LP-Variablen drin stehen und checke, wie viele davon integer sind
     at = arr[:, 3:]
@@ -486,11 +491,12 @@ class Read_HO:
             self.id_tups = [(self.id_type(f.split('_')[id_stelle]), f) for f in os.listdir(path_ho)]
             self.id_values = [id for id, _ in self.id_tups]
 
-
+            self.appendix = os.path.split(self.path_ho)[1].split('_')[1]
+            print('Appendix: ', self.appendix)
 
 
             print('Lese die TrackingDaten ein...')
-            self.dfs = {id: read_tracking_files(os.path.join(self.path_ho, f), read_lp=read_lp) for id, f in self.id_tups}      # hier stehen die tracking daten drin
+            self.dfs = {id: read_tracking_files(os.path.join(self.path_ho, f), appendix, read_lp=read_lp) for id, f in self.id_tups}      # hier stehen die tracking daten drin
             print('fertig!')
 
 
