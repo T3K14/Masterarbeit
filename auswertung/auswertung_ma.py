@@ -232,6 +232,9 @@ def read_lp_results(source):
     Returns:
         _type_: Anteil aller LP-Variablen, die ganzzahlig sind
     """
+
+    print(os.getcwd())
+
     mInFile = open(source, mode='r')
     fileString = mInFile.read()
     mInFile.close()
@@ -483,7 +486,8 @@ class Read_HO:
             self.id_tups = [(self.id_type(f.split('_')[id_stelle]), f) for f in os.listdir(path_ho)]
             self.id_values = [id for id, _ in self.id_tups]
 
-            # print(self.id_tups)
+
+
 
             print('Lese die TrackingDaten ein...')
             self.dfs = {id: read_tracking_files(os.path.join(self.path_ho, f), read_lp=read_lp) for id, f in self.id_tups}      # hier stehen die tracking daten drin
@@ -519,6 +523,19 @@ class Read_HO:
     #     """
     #     pass
 
+    def calc_mean_alg_results(self):
+        """
+        rechnet mir die mittleren Ergebnisse der einzelnen Algorithmen aus
+        """
+
+        # gehe alle raw_results durch
+
+        df = pd.concat([self.raw_results[i].mean().to_frame().T for i in self.id_values])
+        df['ids'] = self.id_values
+
+        return df.set_index('ids')
+
+        # return self.raw_results
 
     def calc_statistic_size(self):
         """
@@ -886,3 +903,30 @@ def prepare_lp_data(data, data_vor):
 
     """
     pass
+
+def plot_hist_alg_vs_schranke(l, l_ns, alg, id_value, xlim_max=4, alpha=.6):
+    """
+    erzeugt mit ein Histogram zu den Verhaeltnissen der Algwerte zu den Schranke4b Werten
+
+    l .. Sequence of Read_HO-Objects
+    l_ns .. Liste mit den Ns zum labeln
+
+    alg .. the alg that should be investigated
+    id_value .. Wert der ID
+
+    """
+
+    if alg not in ('LP_Approx', 'Greedy'):
+        raise ValueError ('ROBERTERROR: Unterstuetze nur LP_Approx und Greedy!')
+
+    fig, ax = plt.subplots(figsize=(16,10))
+
+    vhs = [rho.raw_results[id_value][alg] / rho.raw_results[id_value]['Schranke4b'] for rho in l]
+
+    max_vh = max([s.max() for s in vhs])
+
+    for i, vh in enumerate(vhs):
+        ax.hist(vh, bins=150, range=(1,max_vh), label=f'N={l_ns[i]}', alpha=alpha)
+    
+    ax.set_xlim([1, xlim_max])
+    ax.legend()

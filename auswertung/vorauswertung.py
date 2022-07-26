@@ -21,6 +21,9 @@ if __name__ == '__main__':
     args  = parser.parse_args()
 
     # print(args)
+
+    print(os.getcwd())
+
     data = Read_HO(args.path_HO, args.id, args.id_index, read_tracking=args.read_tracking, read_lp=args.read_lp)
     save_lp = True if args.read_lp else False
 
