@@ -496,7 +496,7 @@ class Read_HO:
 
 
             print('Lese die TrackingDaten ein...')
-            self.dfs = {id: read_tracking_files(os.path.join(self.path_ho, f), appendix, read_lp=read_lp) for id, f in self.id_tups}      # hier stehen die tracking daten drin
+            self.dfs = {id: read_tracking_files(os.path.join(self.path_ho, f), self.appendix, read_lp=read_lp) for id, f in self.id_tups}      # hier stehen die tracking daten drin
             print('fertig!')
 
 
