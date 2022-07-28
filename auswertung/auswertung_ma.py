@@ -6,6 +6,8 @@ import os
 from shapely.geometry import Point, LineString
 from shapely.geometry.collection import GeometryCollection
 
+from functools import reduce
+
 def read_tracking_files_sim(p, appendix, read_check=False, read_opt=False, read_lp=False, read_constr=False):
     """Laedt Tracking Datein fuer einen simulation_x Ordner
 
@@ -492,7 +494,7 @@ class Read_HO:
             self.id_values = [id for id, _ in self.id_tups]
 
             self.appendix = os.path.split(self.path_ho)[1].split('_')[1]
-            print('Appendix: ', self.appendix)
+            # print('Appendix: ', self.appendix)
 
 
             print('Lese die TrackingDaten ein...')
@@ -553,6 +555,17 @@ class Read_HO:
         df['stat_size'] = [self.raw_results[id].shape[0] for id in self.id_values]
 
         return df.set_index('ids')
+
+    def calc_variance(self, prop):
+        """
+        berechnet die Varianz der Proportion prop (zB. Anteil der Faelle bei denen LP_Approx die Schranke4b * alpha erreicht)
+
+        prop muss in der Reihenfolge der dazugehoerenden IDs sortiert sein
+        """
+
+        df_stat = self.calc_statistic_size()
+        p = np.array(prop)
+        return p * (1 - p)
 
     def calc_std_deviation(self, prop):
         """
@@ -804,13 +817,16 @@ def calc_schnittpunkte(ids1, y1, ids2, y2):
 class PlotCollector:
     """
     speichert mir die relevanten Daten zum plotten
+
+    std_dev ist eher der Standardfehler
     """
 
-    def __init__(self, _ids, _props, _std_dev):
+    def __init__(self, _ids, _props, _std_dev, _var):
 
         self.ids = _ids
         self.props = _props
         self.std_dev = _std_dev
+        self.var = _var
 
 def read_all_data(p_lokal, p_vor, id_name='p', id_stelle=-2):
     """
@@ -858,18 +874,21 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
         ids = []
         props = []
         std_dev = []
+        var = []
 
         if n in ns:
             # fuege lokale Daten hinzu
             ids += data[n].check_alg_vs_schranke4b(alg, alpha)[0]
             props += data[n].check_alg_vs_schranke4b(alg, alpha)[1]
             std_dev += list(data[n].calc_std_deviation(data[n].check_alg_vs_schranke4b(alg, alpha)[1]))
-            
+            var += list(data[n].calc_variance(data[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+
             if n in ns_vor:
                 # n kommt auch in den vorausgewerteten Daten vor und ich haenge die Daten an
                 ids += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
                 props += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
                 std_dev += list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+                var += list(data_vor[n].calc_variance(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
 
             # error, falls die selbe ID mehrfach vorkommt
             if len(set(ids)) != len(ids):
@@ -879,11 +898,12 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
         
             props = [t[1] for t in sorted(zip(ids, props))]
             std_dev = [t[1] for t in sorted(zip(ids, std_dev))]
+            var = [t[1] for t in sorted(zip(ids, var))]
         
             ids = sorted(ids)
 
             # fuege die eingelesenen Daten zum dictionary hinzu    
-            dic[n] = PlotCollector(ids, props, std_dev)
+            dic[n] = PlotCollector(ids, props, std_dev, var)
 
         # ansonsten stammt das n aus ns_vor und ich fuege es dem Dictionary hinzu (falls der alg in den neuen Daten ueberhaupt vorkommt)
         else:
@@ -894,9 +914,10 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
                 ids = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
                 props = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
                 std_dev = list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+                var = list(data_vor[n].calc_variance(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
 
                 # fuege die eingelesenen Daten zum dictionary hinzu    
-                dic[n] = PlotCollector(ids, props, std_dev)
+                dic[n] = PlotCollector(ids, props, std_dev, var)
 
     return dic
 
@@ -936,3 +957,32 @@ def plot_hist_alg_vs_schranke(l, l_ns, alg, id_value, xlim_max=4, alpha=.6):
     
     ax.set_xlim([1, xlim_max])
     ax.legend()
+
+def prepare_fssa(ls, pcs, ordnername):
+    """
+    bereitet mir die Daten zu den uebergebenen Ls (Ns) und den dazugehoerenden pcs (PlottCollectors) im Ordner mit dem uebergebenen Namen so vor, dass ich sie leicht
+    in meinem alten fssa Skript einlesen kann
+
+    """
+    
+    p = os.path.join(r'D:\Uni\Masterarbeit\Daten\fssa', ordnername)
+    
+    # kann nur id werte nehmen, die fuer alle L vorliegen
+    common_ids = sorted(reduce(lambda a, b : a.intersection(b), [set(pcs[l].ids) for l in ls]))
+    
+    # a und da bauen
+    al = []
+    dal = []
+    
+    for l in ls:
+        # gehe alle eigenen IDs durch und fuege zum selben Index die entsprechenden Werte (props, std_dev) hinzu, falls
+        # die id auch in den common_ids vorkommt, sonst nicht
+        al.append([pcs[l].props[i] for i, ii in enumerate(pcs[l].ids) if ii in common_ids])
+        dal.append([pcs[l].std_dev[i] for i, ii in enumerate(pcs[l].ids) if ii in common_ids])
+        
+    # alles abspeichern
+    np.savetxt(os.path.join(p, 'l.txt'),  np.array(sorted(ls)))
+    np.savetxt(os.path.join(p, 'rho.txt'),  np.array(sorted(common_ids)))
+    
+    np.savetxt(os.path.join(p, 'a.txt'), np.array(al))
+    np.savetxt(os.path.join(p, 'da.txt'), np.array(dal))
