@@ -551,6 +551,7 @@ class Read_HO:
         """
         
         df = pd.DataFrame()
+
         df['ids'] = self.id_values
         df['stat_size'] = [self.raw_results[id].shape[0] for id in self.id_values]
 
@@ -567,14 +568,21 @@ class Read_HO:
         p = np.array(prop)
         return p * (1 - p)
 
-    def calc_std_deviation(self, prop):
+    def calc_std_deviation(self, prop, id_subset=None):
         """
         berechnet die Standardabweichung der Proportion prop (zB. Anteil der Faelle bei denen LP_Approx die Schranke4b * alpha erreicht)
 
         prop muss sortiert sein, in der Reihenfolge der dazugehoerenden IDs
+
+        falls ein id_subset uebergeben wird, dann sollen nur die stats zu den uebergebenen ids zureuck gegeben werden
         """
 
         df_stat = self.calc_statistic_size()
+
+        if id_subset:
+            # gleiche die Ids im Subset mit den eigenen ab
+            ids = sorted(set(self.id_values).intersection(set(id_subset)))
+            df_stat = df_stat.loc[ids]
 
         p = np.array(prop)
 
@@ -620,7 +628,8 @@ class Read_HO:
                 diffs.append((df[alg] / df['Schranke4b']).mean())
 
             except KeyError:
-                print(f'ROBERTERROR: Keyerror mit Alg {alg} fuer die ID {id}, wahrscheinlich gibt es in dieser Simulation keinen Eintrag zum Alg {alg}!')
+                # print(f'ROBERTERROR: Keyerror mit Alg {alg} fuer die ID {id}, wahrscheinlich gibt es in dieser Simulation keinen Eintrag zum Alg {alg}!')
+                pass
 
         return ids, proz, diffs
 
@@ -885,9 +894,14 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
 
             if n in ns_vor:
                 # n kommt auch in den vorausgewerteten Daten vor und ich haenge die Daten an
-                ids += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
-                props += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
-                std_dev += list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+
+                ii, pp, dd =  data_vor[n].check_alg_vs_schranke4b(alg, alpha)
+
+                ids += ii
+                props += pp
+                # ids += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
+                # props += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
+                std_dev += list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1], id_subset=ii))
                 var += list(data_vor[n].calc_variance(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
 
             # error, falls die selbe ID mehrfach vorkommt
@@ -986,3 +1000,22 @@ def prepare_fssa(ls, pcs, ordnername):
     
     np.savetxt(os.path.join(p, 'a.txt'), np.array(al))
     np.savetxt(os.path.join(p, 'da.txt'), np.array(dal))
+
+if __name__ == '__main__':
+
+    alpha = 1.001
+    alg = 'LP_Approx'
+
+    data1 = {}
+    p1 = r"D:\Uni\Masterarbeit\Daten\KFC2\1_scenario"
+
+    for ho in os.listdir(p1):
+    #     print(ho)
+        if not 'Vorauswertung' in ho:
+            n = int(ho.split("_")[1])
+            data1[n] = Read_HO(os.path.join(p1, ho), 'p', -2, read_tracking=False, read_lp=False)
+
+    pv = r'D:\Uni\Masterarbeit\Daten\KFC2\1_scenario\Vorauswertungen'
+    data1_vor = read_vorauswertung(pv, id='p', id_stelle=-2)
+
+    pcs1 = prepare_alg_vs_schranke_data(data1, data1_vor, alg, alpha)
