@@ -545,17 +545,27 @@ class Read_HO:
 
         # return self.raw_results
 
-    def calc_statistic_size(self):
+    def calc_statistic_size(self, alg=None):
         """
         rechnet mir aus, wie viele Simulationen es zu den jeweiligen ids gibt
+
+        falls alg uebergeben wurde, dann returen stattdessen die Anzahl an runs bei dem dieser Alg vorkommt
         """
-        
-        df = pd.DataFrame()
 
-        df['ids'] = self.id_values
-        df['stat_size'] = [self.raw_results[id].shape[0] for id in self.id_values]
+        if not alg:
+            df = pd.DataFrame()
+            df['ids'] = self.id_values
+            df['stat_size'] = [self.raw_results[id].shape[0] for id in self.id_values]
 
-        return df.set_index('ids')
+            return df.set_index('ids')
+        else:
+            df = pd.DataFrame(columns=['stat_size'])
+            for i in self.id_values:
+                if alg in self.raw_results[i].columns:
+                    df.loc[i] = self.raw_results[i][alg].shape[0]
+            
+            return df
+
 
     def calc_variance(self, prop):
         """
@@ -945,7 +955,7 @@ def prepare_lp_data(data, data_vor):
     """
     pass
 
-def plot_hist_alg_vs_schranke(l, l_ns, alg, id_value, xlim_max=4, alpha=.6):
+def plot_hist_alg_vs_schranke(l, l_ns, alg, id_value, xlim_max=4, alpha=.6, density=False):
     """
     erzeugt mit ein Histogram zu den Verhaeltnissen der Algwerte zu den Schranke4b Werten
 
@@ -964,13 +974,16 @@ def plot_hist_alg_vs_schranke(l, l_ns, alg, id_value, xlim_max=4, alpha=.6):
 
     vhs = [rho.raw_results[id_value][alg] / rho.raw_results[id_value]['Schranke4b'] for rho in l]
 
+    print([d.mean() for d in vhs])
+
     max_vh = max([s.max() for s in vhs])
 
     for i, vh in enumerate(vhs):
-        ax.hist(vh, bins=150, range=(1,max_vh), label=f'N={l_ns[i]}', alpha=alpha)
+        ax.hist(vh, bins=150, range=(1,max_vh), label=f'N={l_ns[i]}', alpha=alpha, density=density)
     
     ax.set_xlim([1, xlim_max])
     ax.legend()
+    return ax
 
 def prepare_fssa(ls, pcs, ordnername):
     """
