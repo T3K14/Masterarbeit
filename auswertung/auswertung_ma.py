@@ -545,16 +545,27 @@ class Read_HO:
 
         # return self.raw_results
 
-    def calc_statistic_size(self):
+    def calc_statistic_size(self, alg=None):
         """
         rechnet mir aus, wie viele Simulationen es zu den jeweiligen ids gibt
-        """
-        
-        df = pd.DataFrame()
-        df['ids'] = self.id_values
-        df['stat_size'] = [self.raw_results[id].shape[0] for id in self.id_values]
 
-        return df.set_index('ids')
+        falls alg uebergeben wurde, dann returen stattdessen die Anzahl an runs bei dem dieser Alg vorkommt
+        """
+
+        if not alg:
+            df = pd.DataFrame()
+            df['ids'] = self.id_values
+            df['stat_size'] = [self.raw_results[id].shape[0] for id in self.id_values]
+
+            return df.set_index('ids')
+        else:
+            df = pd.DataFrame(columns=['stat_size'])
+            for i in self.id_values:
+                if alg in self.raw_results[i].columns:
+                    df.loc[i] = self.raw_results[i][alg].shape[0]
+            
+            return df
+
 
     def calc_variance(self, prop):
         """
@@ -567,14 +578,21 @@ class Read_HO:
         p = np.array(prop)
         return p * (1 - p)
 
-    def calc_std_deviation(self, prop):
+    def calc_std_deviation(self, prop, id_subset=None):
         """
         berechnet die Standardabweichung der Proportion prop (zB. Anteil der Faelle bei denen LP_Approx die Schranke4b * alpha erreicht)
 
         prop muss sortiert sein, in der Reihenfolge der dazugehoerenden IDs
+
+        falls ein id_subset uebergeben wird, dann sollen nur die stats zu den uebergebenen ids zureuck gegeben werden
         """
 
         df_stat = self.calc_statistic_size()
+
+        if id_subset:
+            # gleiche die Ids im Subset mit den eigenen ab
+            ids = sorted(set(self.id_values).intersection(set(id_subset)))
+            df_stat = df_stat.loc[ids]
 
         p = np.array(prop)
 
@@ -620,7 +638,8 @@ class Read_HO:
                 diffs.append((df[alg] / df['Schranke4b']).mean())
 
             except KeyError:
-                print(f'ROBERTERROR: Keyerror mit Alg {alg} fuer die ID {id}, wahrscheinlich gibt es in dieser Simulation keinen Eintrag zum Alg {alg}!')
+                # print(f'ROBERTERROR: Keyerror mit Alg {alg} fuer die ID {id}, wahrscheinlich gibt es in dieser Simulation keinen Eintrag zum Alg {alg}!')
+                pass
 
         return ids, proz, diffs
 
@@ -885,9 +904,14 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
 
             if n in ns_vor:
                 # n kommt auch in den vorausgewerteten Daten vor und ich haenge die Daten an
-                ids += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
-                props += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
-                std_dev += list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+
+                ii, pp, dd =  data_vor[n].check_alg_vs_schranke4b(alg, alpha)
+
+                ids += ii
+                props += pp
+                # ids += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
+                # props += data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
+                std_dev += list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1], id_subset=ii))
                 var += list(data_vor[n].calc_variance(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
 
             # error, falls die selbe ID mehrfach vorkommt
@@ -931,7 +955,7 @@ def prepare_lp_data(data, data_vor):
     """
     pass
 
-def plot_hist_alg_vs_schranke(l, l_ns, alg, id_value, xlim_max=4, alpha=.6):
+def plot_hist_alg_vs_schranke(l, l_ns, alg, id_value, xlim_max=4, alpha=.6, density=False):
     """
     erzeugt mit ein Histogram zu den Verhaeltnissen der Algwerte zu den Schranke4b Werten
 
@@ -950,13 +974,16 @@ def plot_hist_alg_vs_schranke(l, l_ns, alg, id_value, xlim_max=4, alpha=.6):
 
     vhs = [rho.raw_results[id_value][alg] / rho.raw_results[id_value]['Schranke4b'] for rho in l]
 
+    print([d.mean() for d in vhs])
+
     max_vh = max([s.max() for s in vhs])
 
     for i, vh in enumerate(vhs):
-        ax.hist(vh, bins=150, range=(1,max_vh), label=f'N={l_ns[i]}', alpha=alpha)
+        ax.hist(vh, bins=150, range=(1,max_vh), label=f'N={l_ns[i]}', alpha=alpha, density=density)
     
     ax.set_xlim([1, xlim_max])
     ax.legend()
+    return ax
 
 def prepare_fssa(ls, pcs, ordnername):
     """
@@ -986,3 +1013,22 @@ def prepare_fssa(ls, pcs, ordnername):
     
     np.savetxt(os.path.join(p, 'a.txt'), np.array(al))
     np.savetxt(os.path.join(p, 'da.txt'), np.array(dal))
+
+if __name__ == '__main__':
+
+    alpha = 1.001
+    alg = 'LP_Approx'
+
+    data1 = {}
+    p1 = r"D:\Uni\Masterarbeit\Daten\KFC2\1_scenario"
+
+    for ho in os.listdir(p1):
+    #     print(ho)
+        if not 'Vorauswertung' in ho:
+            n = int(ho.split("_")[1])
+            data1[n] = Read_HO(os.path.join(p1, ho), 'p', -2, read_tracking=False, read_lp=False)
+
+    pv = r'D:\Uni\Masterarbeit\Daten\KFC2\1_scenario\Vorauswertungen'
+    data1_vor = read_vorauswertung(pv, id='p', id_stelle=-2)
+
+    pcs1 = prepare_alg_vs_schranke_data(data1, data1_vor, alg, alpha)
