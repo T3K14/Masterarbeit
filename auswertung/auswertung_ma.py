@@ -345,7 +345,7 @@ def read_results(konfig_path):
     """
     # muss erstmal rausfinden, welche Simulationen alle gemacht wurden
     sims = os.listdir(konfig_path)
-    print('konfig_path: ', konfig_path)
+    # print('konfig_path: ', konfig_path)
     # versuche so lange ein df anzufangen, bis es in einem simulation Ordner eine results datei gibt
     i = 0
     while(True):
@@ -933,15 +933,25 @@ def prepare_alg_vs_schranke_data(data, data_vor, alg, alpha):
         else:
 
             # Achtung: hier beruecksichtige ich nicht, dass es sein kann, dass innerhalb eines Hauptordners unterschiedliche Algorithmen bei den verschiedenen ids verwendet wurden
-            if alg in data_vor[n].raw_results[data_vor[n].id_values[0]].columns:
+            # if alg in data_vor[n].raw_results[data_vor[n].id_values[0]].columns:
+            ii, pp, dd = data_vor[n].check_alg_vs_schranke4b(alg, alpha)
+            # ids = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
+            # props = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
+            ids = ii
+            props = pp
 
-                ids = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[0]
-                props = data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]
-                std_dev = list(data_vor[n].calc_std_deviation(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
-                var = list(data_vor[n].calc_variance(data_vor[n].check_alg_vs_schranke4b(alg, alpha)[1]))
+            if len(ids) == 0:
+                # raise ValueError(f"ROBERTERROR: Voraussichtlich gibt es bei N={n} keine ID, zu welcher es Simulationsergebnisse zum Alg {alg} gibt.") 
+                # Voraussichtlich gibt es bei N={n} keine ID, zu welcher es Simulationsergebnisse zum Alg {alg} gibt.
+                # mache mit dem naechsten n weiter
+                continue
 
-                # fuege die eingelesenen Daten zum dictionary hinzu    
-                dic[n] = PlotCollector(ids, props, std_dev, var)
+            std_dev = list(data_vor[n].calc_std_deviation(pp, id_subset=ii))
+            var = list(data_vor[n].calc_variance(pp))
+
+            # fuege die eingelesenen Daten zum dictionary hinzu   
+            
+            dic[n] = PlotCollector(ids, props, std_dev, var)
 
     return dic
 
@@ -1016,19 +1026,31 @@ def prepare_fssa(ls, pcs, ordnername):
 
 if __name__ == '__main__':
 
-    alpha = 1.001
-    alg = 'LP_Approx'
+    # alpha = 1.001
+    # alg = 'LP_Approx'
 
-    data1 = {}
-    p1 = r"D:\Uni\Masterarbeit\Daten\KFC2\1_scenario"
+    # data1 = {}
+    # p1 = r"D:\Uni\Masterarbeit\Daten\KFC2\1_scenario"
 
-    for ho in os.listdir(p1):
-    #     print(ho)
-        if not 'Vorauswertung' in ho:
-            n = int(ho.split("_")[1])
-            data1[n] = Read_HO(os.path.join(p1, ho), 'p', -2, read_tracking=False, read_lp=False)
+    # for ho in os.listdir(p1):
+    # #     print(ho)
+    #     if not 'Vorauswertung' in ho:
+    #         n = int(ho.split("_")[1])
+    #         data1[n] = Read_HO(os.path.join(p1, ho), 'p', -2, read_tracking=False, read_lp=False)
 
-    pv = r'D:\Uni\Masterarbeit\Daten\KFC2\1_scenario\Vorauswertungen'
-    data1_vor = read_vorauswertung(pv, id='p', id_stelle=-2)
+    # pv = r'D:\Uni\Masterarbeit\Daten\KFC2\1_scenario\Vorauswertungen'
+    # data1_vor = read_vorauswertung(pv, id='p', id_stelle=-2)
 
-    pcs1 = prepare_alg_vs_schranke_data(data1, data1_vor, alg, alpha)
+    # pcs1 = prepare_alg_vs_schranke_data(data1, data1_vor, alg, alpha)
+
+    ### VORAUSWERTUNG VON LPNEU
+
+    pv = r'D:\Uni\Masterarbeit\Daten\KFC2\1_scenario\Vorauswertungen_KFC2alt_40_nodes_1_scenarios'
+
+    data = Read_HO(pv, 'p', -2, read_tracking=False, read_lp=True)
+
+    save_path = r'D:\Uni\Masterarbeit\Daten\Vorauswertung'
+
+    data.save_results(save_path, save_lp=True)
+
+    ### ENDE VORAUSWERTUNG VON LPNEU
