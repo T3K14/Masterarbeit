@@ -132,7 +132,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
 
     for (int i=0; i<runs; i++) {
-        std::cout << "run: " << i << std::endl;
+        // std::cout << "run: " << i << std::endl;
 
         // HABE DAS NUR ZUM DEBUGGEN hier nach oben verlegt
         if (save_problems) {
@@ -247,6 +247,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
     boost_path filepath = simulation_path / "results.txt";
     std::ofstream outFile(filepath.string(), std::ios_base::out);
 
+    std::cout << "alg_set_size" << alg_set.size() << std::endl;
+
     std::vector<Alg> ordered_algs;
     for (auto alg: alg_set) {
         ordered_algs.push_back(alg);
@@ -259,6 +261,7 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
         for (auto alg: ordered_algs) {
             header += name_to_alg[alg] + ",";
         }
+        std::cout << header << std::endl;
 
         outFile << header + "\n";
 
@@ -695,7 +698,7 @@ Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creat
 }
 
 void Ensemble::recreate() {
-    std::cout << "Ensemble::recreate\n";
+    // std::cout << "Ensemble::recreate\n";
 
      // loesche die bisherigen Kanten
     erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
@@ -1024,7 +1027,7 @@ Tree::Tree(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEd
 
 void Tree::add_edges() {
 
-    std::cout << "Tree::add_edges\n" << std::endl;
+    // std::cout << "Tree::add_edges\n" << std::endl;
 
     // diese Fkt erwartet, dass der Edgesvektor des Graphen leer ist 
 

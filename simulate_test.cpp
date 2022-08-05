@@ -39,24 +39,37 @@ int main(int argc, char * argv[]) {
 
     double c = 4.;
 
-    // hier variiere ich die p vom KantenFaktoCreator
-    // std::vector<double> ps {0.565};
-    std::vector<double> ps {0.25, 0.5, 0.51, 0.52, 0.75, 1.0};
+    // hier variiere ich die p vom KantenFaktorCreator
+    // std::vector<double> ps {0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95};
+    // std::vector<double> ps {0.8};
+    // , 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8
+    // std::vector<double> ps {0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8};
+    std::vector<double> ps;
+    double pp = 0.4;
+    while (pp < 0.81) {
+        ps.push_back(pp);
+        pp += 0.01;
+    }
+
+    // std::vector<double> cs {2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9};
     
-    std::vector<int> nodes = {20};
-    // std::vector<int> nodes = {320};
-    std::vector<int> runs {20000};
+    std::vector<int> nodes = {100};
+    // std::vector<int> nodes = {2560};
+    std::vector<int> runs {50000};
 
      for (auto n: nodes) {
         for (auto p: ps) {
 
+            std::cout << "p: "<< p << std::endl;
+
             KantenFaktorCreator2 kfc2(p, 2., rng);
+            // RandomTestCreator rtc(0., 10., rng);
 
             TreePlusC ensemble2(n, sc, kfc2, rng, c);
             ensemble2.initialize();
 
-            std::set<Alg> alg_set {Alg::GreedyApprox, Alg::Schranke4b, Alg::LPApprox};
-            std::string ordner_name = "KFC2_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+            std::set<Alg> alg_set {Alg::Schranke4b, Alg::LPApprox};
+            std::string ordner_name = "ResultsProblem2_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
             simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
         }
     }

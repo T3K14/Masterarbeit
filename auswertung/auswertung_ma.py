@@ -345,7 +345,7 @@ def read_results(konfig_path):
     """
     # muss erstmal rausfinden, welche Simulationen alle gemacht wurden
     sims = os.listdir(konfig_path)
-
+    print('konfig_path: ', konfig_path)
     # versuche so lange ein df anzufangen, bis es in einem simulation Ordner eine results datei gibt
     i = 0
     while(True):
