@@ -145,12 +145,20 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
             switch (alg) {
                 case Alg::Schranke4b: {
+
+                    std::cout << "Start Schranke4b" << std::endl;
+
                     double res_4b = ensemble.do4b();
                     results_map[alg].push_back(res_4b);
+
+                    std::cout << "Ende Schranke4b" << std::endl;
+
                 }
                 break;
 
                 case Alg::LPApprox: {
+
+                    std::cout << "Start LPApprox" << std::endl;
 
                     // hier wird das lp-Ergebnis ohne Runden gespeichert
                     double lp_res;
@@ -174,6 +182,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
                     boost_path map_path = simulation_path / name_to_alg[alg] / (std::to_string(i) + ".txt");
                     // ensemble.two_stage_problem.save_approx_result_map(map_path.string(), on_cluster);
                     ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.approx_first_stage_map, map_path);
+
+                    std::cout << "Ende LPApprox" << std::endl;
 
                 }
                 break;
@@ -697,13 +707,18 @@ Ensemble::Ensemble(unsigned int _number_nodes, ScenarioCreator & _scenario_creat
     }
 }
 
-void Ensemble::recreate() {
+void Ensemble::recreate(int seed) {
     // std::cout << "Ensemble::recreate\n";
 
      // loesche die bisherigen Kanten
     erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
     // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe
     add_edges();        // DAS SOLL DANN DIE JEWEILIGE UEBERSCHRIEBENE add_edges METHODE SEIN!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    // falls ein Wert zum seeden uebergeben wurde, dann resette den rng-Zustand mit diesem Seed+1000 (die +1000 sind willkuerlich)
+    if (seed > 0) {
+        rng.seed(seed + 1000);
+    }
 
     // fuege neue Scenariowahrscheinlichkeiten hinzu (ensprechend des uebergebenen Scenariocreators)
     scenario_creator.create_scenarios(two_stage_problem);
@@ -888,7 +903,11 @@ double Ensemble::approx_lp(std::mt19937 & rng, double & lp_res, bool time, const
         // time die komplette lp-Fkt.
         auto t_start = std::chrono::high_resolution_clock::now();
 
+        std::cout << "\tStart solve_relaxed_lp" << std::endl;
+
         lp_res = solve_relaxed_lp(two_stage_problem, counter, setup_zeit_ms, loop_zeit_s, opt_times, add_constr_times_s);
+
+        std::cout << "\tEnde solve_relaxed_lp" << std::endl;
 
         auto t_end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> total_ms = t_end - t_start;
@@ -899,7 +918,11 @@ double Ensemble::approx_lp(std::mt19937 & rng, double & lp_res, bool time, const
         std::chrono::seconds approx_zeit;
         auto t_start_approx = std::chrono::high_resolution_clock::now();
 
+        std::cout << "\tStart tsp.approximate" << std::endl;
+
         two_stage_problem.approximate(rng);
+
+        std::cout << "\tEnde tsp.approximate" << std::endl;
 
         auto t_end_approx = std::chrono::high_resolution_clock::now();
 

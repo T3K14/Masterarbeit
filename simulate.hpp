@@ -216,7 +216,7 @@ public:
     Ensemble(unsigned int number_nodes, ScenarioCreator & _scenario_creator, NewEdgeCostCreator & _edge_cost_creator);
 
     // soll das Ensemble neu aufsetzen, zB. einen neuen Baum erzeugen und neue Kosten
-    virtual void recreate();// = 0;      
+    virtual void recreate(int seed=0);// = 0;      
     virtual void add_edges() = 0;       // PROTECTED MACHEN? SONST KANN ICH DIE AUCH VON AUSSERHALB AUFRUFEN, ODER SIND DIE SAVE SO???                  
     virtual void initialize();
 
