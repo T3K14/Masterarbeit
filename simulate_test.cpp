@@ -69,7 +69,7 @@ int main(int argc, char * argv[]) {
             ensemble2.initialize();
 
             std::set<Alg> alg_set {Alg::Schranke4b, Alg::LPApprox};
-            std::string ordner_name = "ResultsProblem2v4_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+            std::string ordner_name = "ResultsProblem2v4EC_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
             simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
         }
     }

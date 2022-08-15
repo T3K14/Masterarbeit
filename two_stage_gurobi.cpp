@@ -6,7 +6,7 @@
 
 #include <chrono>
 
-/*
+
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi
 double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
     
@@ -179,9 +179,9 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
     std::cout << e.getMessage() << std::endl;
     }
 }
-*/
 
 
+/*
 // NUR ZUM TESTEN: VERAENDERT SICH DIE PERFORMANCE VOM LP-ALG, WENN DIE EXTRA CONSTRAINTS RAUSFALLEN??
 double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
     
@@ -356,7 +356,7 @@ double solve_relaxed_lp(TwoStageProblem & two_stage_problem) {
     std::cout << e.getMessage() << std::endl;
     }
 }
-
+*/
 
 
 // nimmt ein two_stage_problem und loesst das mit hilfe von Gurobi und trackt die Zeit, modifiziert mit neuen constraints
