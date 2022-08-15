@@ -235,8 +235,8 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
         vector_number_edges.push_back(lemon::countEdges(ensemble.two_stage_problem.g));
         // -- Ende Debug
 
-        // Problemstellung resetten
-        ensemble.recreate();
+        // Problemstellung resetten, uebergebe hier standardmaessig die Run-Iterationsnummer i als Seed fuer den rng
+        ensemble.recreate(i);
     }
     
     // -- Debug
@@ -712,13 +712,16 @@ void Ensemble::recreate(int seed) {
 
      // loesche die bisherigen Kanten
     erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
-    // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe
-    add_edges();        // DAS SOLL DANN DIE JEWEILIGE UEBERSCHRIEBENE add_edges METHODE SEIN!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // falls ein Wert zum seeden uebergeben wurde, dann resette den rng-Zustand mit diesem Seed+1000 (die +1000 sind willkuerlich)
-    if (seed > 0) {
+    if (seed >= 0) {
         rng.seed(seed + 1000);
+    } else {
+        throw std::invalid_argument("ROBERTERROR: Der Seed muss nicht negativ sein!");
     }
+
+    // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe
+    add_edges();        // DAS SOLL DANN DIE JEWEILIGE UEBERSCHRIEBENE add_edges METHODE SEIN!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // fuege neue Scenariowahrscheinlichkeiten hinzu (ensprechend des uebergebenen Scenariocreators)
     scenario_creator.create_scenarios(two_stage_problem);
