@@ -13,6 +13,7 @@ using boost_path = boost::filesystem::path;
 
 // enum class Vergleich {ApproxVs4b, ApproxVsTriv, ApproxVsBruteforce};
 enum class Alg {Schranke4b, LPApprox, GreedyApprox, Optimal, Optimal2, LP};
+enum class Stoerung {SingleIncrease, SingleDecrease};
 
 // forward declaration  KLAPPT IRGENDWIE NICHT
 // class TwoStageProblem;
@@ -239,6 +240,8 @@ public:
 
     virtual std::string identify_all();
     virtual std::string identify() = 0;
+
+    void disturb(Stoerung stoerung);
 
 };
 

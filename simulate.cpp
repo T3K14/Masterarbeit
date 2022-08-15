@@ -891,6 +891,48 @@ double Ensemble::optimum(bool time, const boost_path & tracking_path) {
     }
 }
 
+void Ensemble::disturb(Stoerung stoerung) {
+
+    switch (stoerung) {
+    case Stoerung::SingleIncrease: {
+        // die billigste Kante, die im optimalen Fall in der ersten Phase gekauft wird, wird extrem verteuert
+        
+        // finde die entsprechende Kante
+        std::unique_ptr<lemon::ListGraph::Edge> edge_ptr(& two_stage_problem.edges[0]);     //= std::make_unique<lemon::ListGraph::Edge>();
+        // edge_ptr.reset(two_stage_problem.edges[0]);
+
+        // falls Kante in optimum_first_stage_map true ist und das first_stage_weight kleiner als das der bisher besten Kante ist, ersetze die bisher beste mit der neuen Kante
+        for (int i=1; i<two_stage_problem.edges.size(); i++) {
+            if (two_stage_problem.optimum_first_stage_map[two_stage_problem.edges[i]]) {
+                if (two_stage_problem.firstStageWeights[two_stage_problem.edges[i]] < two_stage_problem.firstStageWeights[*edge_ptr]) {
+                    edge_ptr.reset(& two_stage_problem.edges[i]);
+                }
+            }
+        } 
+
+        // verteure die Kosten dieser billigsten Kante extrem
+        two_stage_problem.firstStageWeights[*edge_ptr] += 1000;
+        }
+        break;
+
+    case Stoerung::SingleDecrease: {
+        // die teuerste Kante der ersten Phase wird stark verguenstigt
+        /* code */
+        }
+        break;
+    
+    default:
+        break;
+    }
+
+    // resette alle Aenderungen, die vom vorhergegangenen optimum-Aufruf am tsp-Memberobjekt vorgenommen wurden
+    // resette die optimum_first_stage_map, ICH BIN MIR SICHER, DASS AUSSER optimum_first_stage_map kein weiteres Member von tsp durch die optimum-Methode veraendert wird!
+    for (auto & e : two_stage_problem.edges) {
+            two_stage_problem.optimum_first_stage_map[e] = false;
+    }
+
+}
+
 double Ensemble::approx_lp(std::mt19937 & rng, double & lp_res, bool time, const boost_path & tracking_path) {
 
     // wenn time==true will ich den LP-Alg timen
