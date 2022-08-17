@@ -50,15 +50,16 @@ add_test(
 )
 
 # habe den rausgenommen, weil er nichts macht und weil ich hier auf dem Cluster noch two_stage_gurobi verlinken muesste
-#add_executable(simulate_t simulate_test.cpp)
-#target_link_libraries(simulate_t PUBLIC
-#    gtest_main
-#    two_stage
-#    gtest
-#    simulate
-#)
+add_executable(rsb_test rsb_test.cpp)
+target_link_libraries(rsb_test PUBLIC
+   gtest_main
+   two_stage
+   gtest
+   simulate
+   two_stage_gurobi
+)
 
 add_test(
-    NAME simulate_test
-    COMMAND simulate_t
+    NAME rsb_test
+    COMMAND rsb_test
 )

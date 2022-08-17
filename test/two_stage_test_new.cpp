@@ -361,17 +361,17 @@ TEST(TwoStageSuite, Greedy1) {
 }
 
 // ist nicht aufs Cluster ausgelegt
-TEST(TwoStageSuite, Optimum1) {
-    unsigned int numberNodes = 4;
+// TEST(TwoStageSuite, Optimum1) {
+//     unsigned int numberNodes = 4;
 
-    std::vector<double> scenarioProbabilities {0.5, 0.25, 0.25};
-    std::vector<double> firstStageWeights {1.1, .9, 2.4, 1.1, 3.8, 2.2};
-    std::vector<std::vector<double>> secondStageWeights {{{3.7, 2.9, 3., 2., 8.4, 2.1}, {7.3, 5.6, 5.9, 10., 3.1, 7.8}, {9.4, 5.1, 7.6, 6.7, 5.2, 4.6}}};
+//     std::vector<double> scenarioProbabilities {0.5, 0.25, 0.25};
+//     std::vector<double> firstStageWeights {1.1, .9, 2.4, 1.1, 3.8, 2.2};
+//     std::vector<std::vector<double>> secondStageWeights {{{3.7, 2.9, 3., 2., 8.4, 2.1}, {7.3, 5.6, 5.9, 10., 3.1, 7.8}, {9.4, 5.1, 7.6, 6.7, 5.2, 4.6}}};
 
-    FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
+//     FullyConnectedTwoStageMST mst(numberNodes, firstStageWeights, secondStageWeights, scenarioProbabilities);
 
-    boost_path tp("D:\\Uni\\Masterarbeit\\Code\\output");
+//     boost_path tp("D:\\Uni\\Masterarbeit\\Code\\output");
 
-    double res = mst.optimum(true, tp);
-    ASSERT_NEAR(res, 4.2, 0.000001);
-}
+//     double res = mst.optimum(true, tp);
+//     ASSERT_NEAR(res, 4.2, 0.000001);
+// }
