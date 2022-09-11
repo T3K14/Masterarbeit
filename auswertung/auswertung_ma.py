@@ -5,6 +5,9 @@ from shutil import move, rmtree
 import os
 from shapely.geometry import Point, LineString
 from shapely.geometry.collection import GeometryCollection
+import networkx as nx
+
+
 
 from functools import reduce
 
@@ -228,6 +231,30 @@ def readLGF_Network(source):
         s = row.split("\t")
         df = df.append({'u': int(s[0]), 'v': int(s[1]), 'id': int(s[2]), 'first_stage': int(s[3])}, ignore_index=True)
     return df
+
+def read_lgf_network(source):
+    mInFile = open( source ,mode='r')
+    fileString = mInFile.read()
+    mInFile.close()
+    if '@arcs' in fileString:
+        initKey = '@arcs'
+        initPos = 6
+    elif '@edges' in fileString:
+        initKey = '@edges'
+        initPos = 7
+    else:
+        print('No keyword \'@arcs\' or \'@edges\' found\n Wrong file format')
+        return
+    strDat = fileString[fileString.find(initKey)+initPos:].split("\n", 1)[1]
+    
+    # temporary file to store the extraced edge values
+    mOutFile = open('tmp.txt',mode='w')
+    mOutFile.write(strDat)
+    mOutFile.close()
+
+    # create a graph out of this temporary file
+    g = nx.read_edgelist('tmp.txt', nodetype=int, edgetype=int, data=False)#(("label", int), ("weight", float)))
+    return g
 
 def read_lp_results(source, appendix):
     """liesst mir von EINEM BELIEBIGEN ALG die Ergebnismaps ein und returned den relevanten Teil davon als Array
@@ -534,6 +561,8 @@ class Read_HO:
     def calc_mean_alg_results(self):
         """
         rechnet mir die mittleren Ergebnisse der einzelnen Algorithmen aus
+
+        gebe ausserdem die standard errors mit zurueck
         """
 
         # gehe alle raw_results durch
@@ -541,7 +570,10 @@ class Read_HO:
         df = pd.concat([self.raw_results[i].mean().to_frame().T for i in self.id_values])
         df['ids'] = self.id_values
 
-        return df.set_index('ids')
+        dfs = pd.concat([(self.raw_results[i].std() / np.sqrt(self.raw_results[i].count())).to_frame().T for i in self.id_values])
+        dfs['ids'] = self.id_values
+
+        return df.set_index('ids'), dfs.set_index('ids')
 
         # return self.raw_results
 
