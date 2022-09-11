@@ -615,7 +615,7 @@ void KantenFaktorCreator2::create_costs(TwoStageProblem & tsp) {
         second_stage_costs.push_back(v);
     } 
 
-    // jetzt erhoehe ich die 2. stage Kosten pro Kante mit Wahrscheinlichkeit p
+    // jetzt tausche ich die 2. stage Kosten pro Kante mit Wahrscheinlichkeit p
     // und zwar erstmal so, dass ich das pro Szenario pro Kante mache und nicht so, dass ich fuer eine Kante alle Szenarien veraendere
     for (int i=0; i<number_scenarios; i++) {
         for (int j=0; j<number_edges; j++) {
@@ -631,7 +631,7 @@ void KantenFaktorCreator2::create_costs(TwoStageProblem & tsp) {
 std::string KantenFaktorCreator2::identify() {
 
     std::stringstream s_p, s_k;
-    s_p << std::fixed << std::setprecision(2) << p;
+    s_p << std::fixed << std::setprecision(4) << p;
     s_k << std::fixed << std::setprecision(2) << k;
 
     std::string s = "KantenFaktorCreator2_" + s_p.str() + "_" + s_k.str();
@@ -715,6 +715,7 @@ void Ensemble::recreate(int seed) {
 
     // falls ein Wert zum seeden uebergeben wurde, dann resette den rng-Zustand mit diesem Seed+1000 (die +1000 sind willkuerlich)
     if (seed >= 0) {
+        std::cout << "Seed: " << seed+1000 << std::endl;
         rng.seed(seed + 1000);
     } else {
         throw std::invalid_argument("ROBERTERROR: Der Seed muss nicht negativ sein!");

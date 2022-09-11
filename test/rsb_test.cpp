@@ -13,7 +13,7 @@ TEST(RSBSuite, Test1) {
     // formuliere Problemstellung
 
     NRandomScenarioCreator sc(number_scenarios, rng);    
-    double c = 4.;
+    double c = 2.5;
     double p = 0.4;
     int n = 4;
 
@@ -40,12 +40,15 @@ TEST(RSBSuite, Test1) {
 
     // nochmal schauen, ob fuer beide Versionen die selben Ergebnisse rauskommen (optimum soll nur schneller als bruteforce sein, aber die selben Ergebnisse liefern)
     ASSERT_NEAR(opt, opt_b, 0.0000001);
+    ASSERT_NEAR(opt, 5.5869, 0.00001);      // das habe ich nachgerechnet und es ist die beste Loesung fuer dieses Problem!
 
     ensemble.disturb(Stoerung::SingleIncrease);
 
     // rufe optimum-Fkt erneut auf
     auto opt2 = ensemble.optimum(false, boost_path());
     std::cout << "Optimum2 : " << opt2 << std::endl;
+
+    ASSERT_NEAR(opt2, 8.33692, 0.00001);    // das habe ich nachgerechnet und es ist die beste Loesung fuer das gestoerte Problem
 
     ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.optimum_first_stage_map, rsb_path / "nachher.txt");
 
