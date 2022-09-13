@@ -5,7 +5,7 @@ from shutil import move, rmtree
 import os
 from shapely.geometry import Point, LineString
 from shapely.geometry.collection import GeometryCollection
-import networkx as nx
+# import networkx as nx                 # auf dem cluster
 
 
 

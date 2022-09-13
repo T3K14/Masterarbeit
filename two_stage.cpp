@@ -1045,7 +1045,7 @@ double TwoStageProblem::optimum(bool tracking, const boost_path & tracking_path)
         double e_ev = get_second_stage_ev(edges[i]);
 
         // falls die Kante in 1. stage billiger ist, als der EV in 2. stage fuege sie gueltig hinzu
-        if (firstStageWeights[edges[i]] < e_ev) {
+        if (firstStageWeights[edges[i]] <= e_ev) {
             int index_gueltig = gueltig.size();
             gueltig.push_back(i);
             gueltig_index_to_edge_index[i]=index_gueltig;
