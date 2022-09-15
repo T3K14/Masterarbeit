@@ -1,3 +1,10 @@
+/*
+Copyright (C) 2003-2012 Egerváry Jenő Kombinatorikus Optimalizálási
+Kutatócsoport (Egerváry Research Group on Combinatorial Optimization,
+EGRES).
+*/
+
+
 #pragma once
 
 #include <lemon/list_graph.h>
