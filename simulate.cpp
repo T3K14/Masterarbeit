@@ -30,7 +30,7 @@
 using namespace lemon;
 
 
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems, bool tracking, bool save_lp_results) {
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems, bool tracking, bool save_lp_results, bool seed) {
     /*
     - save_lp_results hat nur dann einen Einfluss, wenn auch der LP-Approx-Alg aufgerufen wird
     */
@@ -235,8 +235,12 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
         vector_number_edges.push_back(lemon::countEdges(ensemble.two_stage_problem.g));
         // -- Ende Debug
 
-        // Problemstellung resetten, uebergebe hier standardmaessig die Run-Iterationsnummer i als Seed fuer den rng
-        ensemble.recreate(i);
+        // Problemstellung resetten, uebergebe hier die Run-Iterationsnummer i als Seed fuer den rng, falls seeds gesetzt werden sollen
+        if (seed) {
+            ensemble.recreate(i);
+        } else {
+            ensemble.recreate(-1);
+        }
     }
     
     // -- Debug
@@ -713,12 +717,17 @@ void Ensemble::recreate(int seed) {
      // loesche die bisherigen Kanten
     erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
 
+    // falls nicht geseeded werden soll, setzte keinen seed
+    if(seed=-1) {
+        // rng.seed(std::random_device{}());
+        std::cout << "Kein Seed gesetzt\n";
+    }
     // falls ein Wert zum seeden uebergeben wurde, dann resette den rng-Zustand mit diesem Seed+1000 (die +1000 sind willkuerlich)
-    if (seed >= 0) {
+    else if (seed >= 0) {
         std::cout << "Seed: " << seed+1000 << std::endl;
         rng.seed(seed + 1000);
     } else {
-        throw std::invalid_argument("ROBERTERROR: Der Seed muss nicht negativ sein!");
+        throw std::invalid_argument("ROBERTERROR: Der Seed muss nicht negativ sein (oder gleich -1 um nicht zu seeden)!");
     }
 
     // fuege neu random so Kanten hinzu, dass ich am Ende einen Tree habe

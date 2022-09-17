@@ -45,24 +45,25 @@ int main(int argc, char * argv[]) {
     // , 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8
     // std::vector<double> ps {0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8};
     std::vector<double> ps;
-    double pp = 0.01;
-    while (pp < 0.4) {
+    double pp = 0.4;
+    while (pp < 0.61) {
         ps.push_back(pp);
         pp += 0.01;
     }
-    pp = 0.81;
-    while (pp < 1.01) {
-        ps.push_back(pp);
-        pp += 0.01;
-    }
+    // pp = 0.81;
+    // while (pp < 1.01) {
+    //     ps.push_back(pp);
+    //     pp += 0.01;
+    // }
 
     // std::vector<double> ps {0.595, 0.605, 0.6125, 0.615, 0.6175, 0.6225, 0.625, 0.6275, 0.6325, 0.635, 0.6375, 0.6425, 0.645, 0.6475, 0.6525, 0.655, 0.6575, 0.6625, 0.665, 0.6675, 0.6725, 0.675, 0.6775, 0.6825, 0.685, 0.6875};
-    // std::vector<double> ps {0.025, 0.05, 0.075, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.825, 0.85, 0.875, 0.9, 0.925, 0.95, 0.975};
+    // std::vector<double> ps {0., 0.025, 0.075, 0.125, 0.175, 0.225, 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.};
+    // std::vector<double> ps {0., 0.025, 0.075, 0.125, 0.175, 0.825, 0.875, 0.925, 0.975, 1.};
 
     // std::vector<double> cs {2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9};
     // std::vector<int> nodes = {320, 640, 1280, 2560};
-    std::vector<int> nodes = {80, 100, 120};
-    std::vector<int> runs {10000};
+    std::vector<int> nodes = {120};
+    std::vector<int> runs {50000};
 
     for (auto n: nodes) {
         for (auto p: ps) {
@@ -76,9 +77,9 @@ int main(int argc, char * argv[]) {
             // FullyConnected ensemble2(n, sc, rtc);
             ensemble2.initialize();
 
-            std::set<Alg> alg_set {Alg::Schranke4b, Alg::LPApprox};
-            std::string ordner_name = "LP_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
-            simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results);
+            std::set<Alg> alg_set {Alg::LPApprox, Alg::Schranke4b};
+            std::string ordner_name = "LPE_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+            simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results, false);
         }
     }
 

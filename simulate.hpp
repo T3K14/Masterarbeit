@@ -332,7 +332,7 @@ public:
 };
 
 // void simulate(unsigned int runs, Ensemble & ensemble, Vergleich vergleich);
-void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster=false, bool save_problems=false, bool tracking=false, bool save_lp_results=false);
+void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster=false, bool save_problems=false, bool tracking=false, bool save_lp_results=false, bool seed=true);
 
 
 
