@@ -109,9 +109,20 @@ def read_tracking_files_sim(p, appendix, read_check=False, read_opt=False, read_
         if not os.path.exists(pt_lp):
             raise ValueError('ROBERTERROR: Der lp_results-Ordner existiert nicht!')
 
-        lp_res_prozent = [calc_anteil_ganzzahliger_variablen(os.path.join(pt_lp, i), appendix) for i in sorted(os.listdir(pt_lp), key=lambda x: int(x.split(".")[0]))]
+        # Anteil ganzzahliger LP-Variablen nur aus der ersten Stage berechnen
+        lp_res_prozent0 = []
+        # und den selben Anteil fuer alle LP-Variablen 
+        lp_res_prozent_gesamt = []
 
-        df['anteil_lp_int'] = lp_res_prozent
+        for i in sorted(os.listdir(pt_lp), key=lambda x: int(x.split(".")[0])):
+            lp0, lp_ges = calc_anteil_ganzzahliger_variablen(os.path.join(pt_lp, i), appendix)
+            
+            lp_res_prozent0.append(lp0)
+            lp_res_prozent_gesamt.append(lp_ges)
+
+
+        df['anteil_lp_int'] = lp_res_prozent_gesamt
+        df['anteil_lp0_int'] = lp_res_prozent0
 
     # falls die total_lp_ms Spalte drin ist, rechne ich die noch in Sekunden um
     if 'total_lp_ms' in df.columns:
@@ -299,14 +310,16 @@ def read_lp_results(source, appendix):
     return arr
 
 def calc_anteil_ganzzahliger_variablen(lp_res_source, appendix):
-    """_summary_
+    """Liest eine lp_results txt Datei ein und rechnet aus, welcher Anteil der LP-Variablen ganzzahlig ist
+
+    Das wird separat ebenfalls nur fuer die Variablen der ersten Stage wiederholt 
 
     Args:
         lp_res_source (_type_): _description_
         appendix ... Das, was an read_lp_results weitergegen werden soll, und da an die tmp.txt angehaendt werden soll, 
                      damit mehrere Skript gleichzeitig laufen koennen und sich nicht gegenseitig die tmp.txt Datein wegloeschen
     Returns:
-        _type_: _description_
+        _type_: Anteil der ganzzahligen Variablen der ersten Stage, Anteil der ganzzahligen Variablen beider Stages
     """
 
     arr = read_lp_results(lp_res_source, appendix)
@@ -314,8 +327,10 @@ def calc_anteil_ganzzahliger_variablen(lp_res_source, appendix):
     # nimm von dem array nur den Teil in dem die LP-Variablen drin stehen und checke, wie viele davon integer sind
     at = arr[:, 3:]
 
+    at0 = arr[:, 0]
+
     # wen modulo 1 groesser als 0 ist, dann ist es nicht ganzzahlig, ich rechne also erst den Anteil der nicht ganzzahligen lsg aus und ziehe das dann von 1 ab
-    return 1 - ((at[np.mod(at, 1)>0]).size / at.size)
+    return 1 - ((at0[np.mod(at0, 1)>0]).size / at0.size), 1 - ((at[np.mod(at, 1)>0]).size / at.size)
 
 # rechnet mir zu einem geg. p (Wahrscheinlichkeit pro Kante) aus, wie viele Kanten in mit meinem TreePlusP Konstruktor zu erwarten habe
 def calc_expected_edges_p(n, p):
@@ -442,12 +457,18 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
             # addiere die jeweiligen Werte der gleichen Ids zusammen und berechne daraus die entsprechenden Anteile
             df = pd.read_csv(os.path.join(path_vor, 'LP_Results', ho, 'simulation_0.csv'))
                 
-                    # addiere fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
+            # addiere fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
             sims = [pd.read_csv(os.path.join(path_vor, 'LP_Results', ho, s)) for s in sorted(os.listdir(os.path.join(path_vor, 'LP_Results', ho)))[1:]]
             df = pd.concat([df, *sims]).groupby('ids').sum()
 
             df['Anteil_GGL'] = df['Anzahl_GGL'] / df['Runs']
             df['Anteil_GLPV'] = df['Summe_LPV'] / df['Runs']
+            df['Delta_Anteil_GLPV'] = np.sqrt((df['Anteil_GLPV'] * (1 - df['Anteil_GLPV'])) / df['Runs'])
+
+            # falls es schon separate Daten fuer die LP-Variablen der ersten Stage gibt, werden diese ebenfalls mit ausgewertet
+            if 'Anteil_GLPV0' in df.columns:
+                df['Anteil_GLPV0'] = df['Summe_LPV0'] / df['Runs']
+                df['Delta_Anteil_GLPV0'] = np.sqrt((df['Anteil_GLPV0'] * (1 - df['Anteil_GLPV0'])) / df['Runs'])
             dic_lp[n] = df
 
         return dic, dic_lp
@@ -512,7 +533,7 @@ class Read_HO:
         else:
 
             if id not in ('c', 'n', 'p', 'b_beide'):
-                raise ValueError ("ROBERTERROR, die id muss entweder c oder n sein!")
+                raise ValueError ("ROBERTERROR, die id muss entweder c oder p sein!")
 
             self.id_stelle = id_stelle
             self.id = id
@@ -530,8 +551,17 @@ class Read_HO:
 
 
             if read_lp:
-                self.anteil_ganz_geloest = [calc_anteil_ganz_geloest(self.dfs[id]) for id in self.id_values]
-                self.mean_anteil_lp_ganz = [self.dfs[id].mean()['anteil_lp_int'] for id in self.id_values]
+                self.anteil_ganz_geloest = [calc_anteil_ganz_geloest(self.dfs[idd]) for idd in self.id_values]
+                self.mean_anteil_lp_ganz = [self.dfs[idd].mean()['anteil_lp_int'] for idd in self.id_values]
+                self.mean_anteil_lp_ganz0 = [self.dfs[idd].mean()['anteil_lp0_int'] for idd in self.id_values]
+
+                # rechne dazu noch die Standardfehler aus, BRAUCHE ICH NICHT, WEIL ICH DEN AUCH AM ENDE AUSRECHNEN KANN, WENN ICH ZUR SELBEN ID DIE SUMMEN ZUSAMMENGEFUEHRT HABE
+                # self.delta_mean_anteil_lp_ganz = [np.sqrt((self.mean_anteil_lp_ganz[i] * (1-self.mean_anteil_lp_ganz[i])) / self.dfs[idd]['anteil_lp_int'].dropna().size()) for i, idd in enumerate(self.id_values)]
+                # self.delta_mean_anteil_lp_ganz0 = [np.sqrt((self.mean_anteil_lp_ganz0[i] * (1-self.mean_anteil_lp_ganz0[i])) / self.dfs[idd]['anteil_lp0_int'].dropna().size()) for i, idd in (self.id_values)]
+
+                # fuer den Fehler des anteil_ganz_geloest muss ich bootstraping machen, weil ich da nur einen Mittelwert ueber alle simulierten Probleminstanzen habe
+                # self.delta_anteil_ganz_geloest = []
+                
 
                 if read_tracking:
                     # weitere Trackingwerte
@@ -612,7 +642,7 @@ class Read_HO:
 
     def calc_std_deviation(self, prop, id_subset=None):
         """
-        berechnet die Standardabweichung der Proportion prop (zB. Anteil der Faelle bei denen LP_Approx die Schranke4b * alpha erreicht)
+        berechnet den Standardfehler der Proportion prop (zB. Anteil der Faelle bei denen LP_Approx die Schranke4b * alpha erreicht)
 
         prop muss sortiert sein, in der Reihenfolge der dazugehoerenden IDs
 
@@ -730,6 +760,9 @@ class Read_HO:
 
             # Summe der Anteile ganzzahliger LP-Variablen
             df['Summe_LPV'] = [self.dfs[id].sum()['anteil_lp_int'] for id in self.id_values]
+
+            # Summe der Anteile ganzzahliger LP-Variablen
+            df['Summe_LPV0'] = [self.dfs[id].sum()['anteil_lp0_int'] for id in self.id_values]
 
             # die Samplegroesse
             df['Runs'] = [self.dfs[id].shape[0] for id in self.id_values]
