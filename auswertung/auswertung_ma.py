@@ -466,7 +466,7 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
             df['Delta_Anteil_GLPV'] = np.sqrt((df['Anteil_GLPV'] * (1 - df['Anteil_GLPV'])) / df['Runs'])
 
             # falls es schon separate Daten fuer die LP-Variablen der ersten Stage gibt, werden diese ebenfalls mit ausgewertet
-            if 'Anteil_GLPV0' in df.columns:
+            if 'Summe_LPV0' in df.columns:
                 df['Anteil_GLPV0'] = df['Summe_LPV0'] / df['Runs']
                 df['Delta_Anteil_GLPV0'] = np.sqrt((df['Anteil_GLPV0'] * (1 - df['Anteil_GLPV0'])) / df['Runs'])
             dic_lp[n] = df
