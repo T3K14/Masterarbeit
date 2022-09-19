@@ -29,6 +29,86 @@
 
 using namespace lemon;
 
+void rsb_check(unsigned int runs, Ensemble & ensemble, const Stoerung & stoerung, const std::string & ueber_ordner, bool on_cluster, bool seed) {
+
+    std::string ueber_ordner_path_string;
+    // Ordner ist der Ueberordner, in den alle zusammengehoerigen Ordner reinkommen sollen
+    if (!on_cluster) {
+        ueber_ordner_path_string = "D:\\Uni\\Masterarbeit\\Daten" + ueber_ordner;
+    } else {
+        ueber_ordner_path_string = "/gss/work/xees8992/" + ueber_ordner;
+    }
+    boost_path ueber_ordner_path(ueber_ordner_path_string);
+
+    // erstelle den uebergebenen Ueberordner, falls er noch nicht existiert
+    if (!boost::filesystem::exists(ueber_ordner_path)) {
+        boost::filesystem::create_directory(ueber_ordner_path);
+    } 
+
+    // konfig_dir_path ist dann der Ordner zu den gegebenen Parametern
+    boost_path konfig_dir_path = (ueber_ordner_path / ensemble.identify_all());
+
+    unsigned int counter_simulations = 0;
+    // checken, ob der Ordner schon existert, wenn ja, zaehle, wie viele identische Simulationen schon gemacht wurden
+    if (boost::filesystem::exists(konfig_dir_path)) {
+
+        for (boost::filesystem::directory_iterator itr(konfig_dir_path); itr != boost::filesystem::directory_iterator(); ++itr) {
+            counter_simulations++;
+        }
+    } else {
+        boost::filesystem::create_directory(konfig_dir_path);
+    }
+
+    // neuer Simulationsordner:    
+    // std::string sim_name("simulation_" + std::to_string(counter_simulations));
+    boost_path simulation_path = konfig_dir_path / ("simulation_" + std::to_string(counter_simulations));
+    boost::filesystem::create_directory(simulation_path);
+
+    // Unterordner fuer original und disturbed
+
+    boost_path original_path = simulation_path / "original";
+    boost_path disturbed_path = simulation_path / "disturbed";
+    boost::filesystem::create_directory(original_path);
+    boost::filesystem::create_directory(disturbed_path);
+
+    // ersetelle Datei, wo die Ergebnisse abgespeichert werden sollen
+    std::ofstream results_file;
+    boost_path results_path = simulation_path / "results.txt";
+    results_file.open(results_path.string(), std::ios::app);
+    results_file << "run, original, disturbed\n";
+    results_file.close();
+
+    for (int i=0; i<runs; i++) {
+
+        std::string file_name = std::to_string(i) + ".txt";
+
+        // loese optimal und speichere mir die Ergebnissemap ab
+        double res_optimum = ensemble.optimum(false, boost_path());
+        ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.optimum_first_stage_map, original_path / file_name);
+
+        // veraendere die Problemstellung entsprechend der uebergebenen stoerung
+        ensemble.disturb(stoerung);
+
+        // loese erneut optimal und speichere neue Ergebnissmap ab
+        double res_optimum_disturbed = ensemble.optimum(false, boost_path());
+        ensemble.two_stage_problem.save_result_map(ensemble.two_stage_problem.optimum_first_stage_map, disturbed_path / file_name);
+
+        // speichere die Ergebnisse ab
+        // std::ofstream results_file;
+        // boost_path results_path = simulation_path / "results.txt";
+        results_file.open(results_path.string(), std::ios::app);
+        results_file << i << ", " << res_optimum << ", " << res_optimum_disturbed  << "\n";
+        results_file.close();
+
+        // Ensemble neu aufsetzen
+        if (seed) {
+            ensemble.recreate(i);
+        } else {
+            ensemble.recreate(-1);
+        }
+    }
+}
+
 
 void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, const std::string & ueber_ordner, bool on_cluster, bool save_problems, bool tracking, bool save_lp_results, bool seed) {
     /*

@@ -327,7 +327,7 @@ def calc_anteil_ganzzahliger_variablen(lp_res_source, appendix):
     # nimm von dem array nur den Teil in dem die LP-Variablen drin stehen und checke, wie viele davon integer sind
     at = arr[:, 3:]
 
-    at0 = arr[:, 0]
+    at0 = at[:, 0]
 
     # wen modulo 1 groesser als 0 ist, dann ist es nicht ganzzahlig, ich rechne also erst den Anteil der nicht ganzzahligen lsg aus und ziehe das dann von 1 ab
     return 1 - ((at0[np.mod(at0, 1)>0]).size / at0.size), 1 - ((at[np.mod(at, 1)>0]).size / at.size)
@@ -474,6 +474,79 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
         return dic, dic_lp
 
     return dic
+
+def read_edgemap(source):
+    mInFile = open(source, mode='r')
+    fileString = mInFile.read()
+    mInFile.close()
+    if '@arcs' in fileString:
+        initKey = '@arcs'
+        initPos = 6
+    elif '@edges' in fileString:
+        initKey = '@edges'
+        initPos = 7
+    else:
+        print('No keyword \'@arcs\' or \'@edges\' found\n Wrong file format')
+        return
+    strDat = fileString[fileString.find(initKey)+initPos:].split("\n", 1)[1]
+    
+#     return strDat
+    df = pd.DataFrame(columns=['u', 'v', 'id', 'first_stage'])
+    
+    rows = []
+    for row in strDat.split('\n')[:-1]:
+        s = row.split("\t")
+    
+        rows.append(pd.Series({'u': int(s[0]), 'v': int(s[1]), 'id': int(s[2]), 'first_stage': int(s[3])}).to_frame().T)
+    return pd.concat(rows).set_index('id')
+
+def rsb_vorauswertung(path_ho):
+    """
+    gehe in jeden Konfig-Ordner rein und mache da eine Vorauswertung, falls noch nicht geschehen
+
+    BISHER ERSTMAL JEDE SIMULATION_X EINZELN!!!
+    """
+
+    konfig_ordner = os.listdir(path_ho)
+    for ko in konfig_ordner:
+
+        # falls es mehr als eine Simulation gibt, erstmal Alarm
+        if len(os.listdir(os.path.join(path_ho, ko))) > 1:
+            raise ValueError("ROBERTERROR: Hier gibt es mehr als nur einen Simulationsordner!")
+
+        # falls in simulation_0 bereits ein Vorauswertungsordner drin ist, kann ich aufhoeren
+        if 'Vorauswertung' in os.listdir(os.path.join(path_ho, ko, 'simulation_0')):
+            return
+
+        os.mkdir(os.path.join(path_ho, ko, 'simulation_0', 'Vorauswertung'))
+
+        p_orig = os.path.join(path_ho, ko, 'simulation_0', 'original')
+        p_dist = os.path.join(path_ho, ko, 'simulation_0', 'disturbed')
+
+        # checken, ob im original und im disturbed ordner gleich viele Datein liegen
+
+        if not (len(os.listdir(p_orig)) == len(os.listdir(p_dist))):
+            raise ValueError("ROBERTERROR: In den beiden Ordnern befinden sich nicht gleich viele Dateien!")
+            
+        ds = []    
+            
+        for i in range(len(os.listdir(p_orig))):
+            ro = read_edgemap(os.path.join(p_orig, f'{i}.txt'))
+            rd = read_edgemap(os.path.join(p_dist, f'{i}.txt'))
+            
+            so = set(ro[ro['first_stage'] == 1].index)
+            sd = set(rd[rd['first_stage'] == 1].index)
+            
+            if len(so) > 0:
+            
+                d = len(so - sd) / len(so)
+                ds.append(d)
+            else:
+                ds.append('None')
+
+        # speichere ds als DataFrame ab
+        df = pd.DataFrame(ds, columns=['d'])
+        df.to_csv(os.path.join(path_ho, ko, 'simulation_0', 'Vorauswertung', 'd.txt'), index=True)
 
 # dazu da, alle Daten auf einmal einzulesen
 def read_ueberordner():
