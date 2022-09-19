@@ -459,7 +459,7 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
                 
             # addiere fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
             sims = [pd.read_csv(os.path.join(path_vor, 'LP_Results', ho, s)) for s in sorted(os.listdir(os.path.join(path_vor, 'LP_Results', ho)))[1:]]
-            df = pd.concat([df, *sims]).groupby('ids').sum()
+            df = pd.concat([df, *sims]).groupby('ids').sum(min_count=1)
 
             df['Anteil_GGL'] = df['Anzahl_GGL'] / df['Runs']
             df['Anteil_GLPV'] = df['Summe_LPV'] / df['Runs']
