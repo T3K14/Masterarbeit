@@ -459,6 +459,12 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
                 
             # addiere fuer alle anderen simulationen die entsprechenden werte zu bestehenden hinzu oder fuege neue Zeilen dem df hinzu
             sims = [pd.read_csv(os.path.join(path_vor, 'LP_Results', ho, s)) for s in sorted(os.listdir(os.path.join(path_vor, 'LP_Results', ho)))[1:]]
+            
+            # extraspalte fuer runs, wo LPV0 mitgemessen wurde, weil sonst wird nachher durch alle Runs zur id geteilt
+            for d in [df, *sims]:
+                if 'Summe_LPV0' in d.columns:
+                    d['Runs0'] = d['Runs']
+            
             df = pd.concat([df, *sims]).groupby('ids').sum(min_count=1)
 
             df['Anteil_GGL'] = df['Anzahl_GGL'] / df['Runs']
@@ -467,8 +473,8 @@ def read_vorauswertung(path_vor, id, id_stelle, read_lp=False):
 
             # falls es schon separate Daten fuer die LP-Variablen der ersten Stage gibt, werden diese ebenfalls mit ausgewertet
             if 'Summe_LPV0' in df.columns:
-                df['Anteil_GLPV0'] = df['Summe_LPV0'] / df['Runs']
-                df['Delta_Anteil_GLPV0'] = np.sqrt((df['Anteil_GLPV0'] * (1 - df['Anteil_GLPV0'])) / df['Runs'])
+                df['Anteil_GLPV0'] = df['Summe_LPV0'] / df['Runs0']
+                df['Delta_Anteil_GLPV0'] = np.sqrt((df['Anteil_GLPV0'] * (1 - df['Anteil_GLPV0'])) / df['Runs0'])
             dic_lp[n] = df
 
         return dic, dic_lp
