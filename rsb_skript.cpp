@@ -22,10 +22,10 @@ int main(int argc, char * argv[]) {
 
     double c = 3.;
 
-    std::vector<int> nodes = {5, 6, 7, 8, 9, 10};
+    std::vector<int> nodes = {20};
     // int n = 5;
 
-    std::vector<int> runs {20000};
+    std::vector<int> runs {5000};
 
     for (auto n: nodes) {
 

@@ -8,6 +8,43 @@
 
 using namespace lemon;
 
+TEST(TwoStageSuite, Test1) {
+
+    ListGraph g;
+    const unsigned nodeNumber = 6;
+    std::vector<ListGraph::Node> nodes;
+    // std::array<ListGraph::Node, nodeNumber> nodes;
+
+    for(int i=0; i < nodeNumber; i++) {
+        nodes.push_back(g.addNode());
+    }
+
+    // std::array<ListGraph::Edge, 11> edges;
+    std::vector<ListGraph::Edge> edges;
+
+    edges.push_back(g.addEdge(nodes[0], nodes[1]));
+    edges.push_back(g.addEdge(nodes[0], nodes[3]));
+    edges.push_back(g.addEdge(nodes[0], nodes[5]));
+    edges.push_back(g.addEdge(nodes[1], nodes[4]));
+    edges.push_back(g.addEdge(nodes[2], nodes[4]));
+    edges.push_back(g.addEdge(nodes[2], nodes[5]));
+    edges.push_back(g.addEdge(nodes[3], nodes[4]));
+    edges.push_back(g.addEdge(nodes[4], nodes[5]));
+
+    std::vector<double> scenarioProbabilities {0.5, 0.5};
+    std::vector<double> firstStageWeights {6.0, 8.0, 5.0, 9.0, 1.0, 1.0, 7.0, 2.0};
+    std::vector<std::vector<double>> secondStageWeights {{{7.0, 1.5, .5, 3.5, 1.0, 1.0, 1.0, 4.0}, {8.0, 1.0, .5, 2.0, 1.0, 4.0, 2.0, 3.5}}};
+
+
+    UseExternGraphTwoStageMST mst(g, nodes, edges, firstStageWeights, secondStageWeights, scenarioProbabilities);
+
+    auto res = mst.bruteforce_new(); //_new
+
+
+
+    ASSERT_NEAR(res, 5.64, 0.00000001);
+}
+
 TEST(TwoStageSuite, Test2) {
 
     ListGraph g;
