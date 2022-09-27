@@ -317,6 +317,9 @@ void simulate(unsigned int runs, Ensemble & ensemble, std::set<Alg> & alg_set, c
 
         // Problemstellung resetten, uebergebe hier die Run-Iterationsnummer i als Seed fuer den rng, falls seeds gesetzt werden sollen
         if (seed) {
+
+            std::cout << "KOMME IN DIE RICHTIGE IF KLAUSEL"<< std::endl;
+
             ensemble.recreate(i);
         } else {
             ensemble.recreate(-1);
@@ -798,7 +801,7 @@ void Ensemble::recreate(int seed) {
     erase_all_edges();          // SCHAUEN, OB DAS MIT DER VERERBUNG SO KLAPPT
 
     // falls nicht geseeded werden soll, setzte keinen seed
-    if(seed=-1) {
+    if(seed==-1) {
         // rng.seed(std::random_device{}());
         std::cout << "Kein Seed gesetzt\n";
     }

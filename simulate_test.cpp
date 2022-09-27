@@ -37,13 +37,19 @@ int main(int argc, char * argv[]) {
     // std::vector<double> ps {0.0};
 
     // std::vector<int> nodes {5, 10, 20, 40, 80, 160, 320, 640};
-    // std::vector<double> cs {2., 2.5, 3., 3.5, 4.};
+    // std::vector<double> cs; //{2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25.};
+    // double cc = 2.0;
+    // while (cc < 51.) {
+    //     cs.push_back(cc);
+    //     cc += 1.0;
+    // }
+    double c = 4.;
 
-    // double c = 4.;
+    // double p = 0.5;
 
     // hier variiere ich die p vom KantenFaktorCreator
-    // std::vector<double> ps {0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95};
-    // std::vector<double> ps {0.48, 0.49, 0.5, 0.51};
+    std::vector<double> ps {0., 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.};
+    // std::vector<double> ps {0.95};
     // , 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8
     // std::vector<double> ps {0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8};
     // std::vector<double> ps;
@@ -62,27 +68,42 @@ int main(int argc, char * argv[]) {
     // std::vector<double> ps {0., 0.025, 0.075, 0.125, 0.175, 0.225, 0.275, 0.325, 0.375, 0.425, 0.475, 0.525, 0.575, 0.625, 0.675, 0.725, 0.775, 0.825, 0.875, 0.925, 0.975, 1.};
     // std::vector<double> ps {0., 0.025, 0.075, 0.125, 0.175, 0.825, 0.875, 0.925, 0.975, 1.};
 
-    // std::vector<double> cs {2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9};
+    // std::vector<double> cs {2.0, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09};
+
+    // std::vector<double> cs; //{2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25.};
+    // double cc = 2.;
+    // while (cc < 51.) {
+    //     cs.push_back(cc);
+    //     cc += 1.0;
+    // }
+
+    // while (cc < 21.) {
+    //     cs.push_back(cc);
+    //     cc += 1.;
+    // }
+
     // std::vector<int> nodes = {320, 640, 1280, 2560};
-    std::vector<int> nodes = {5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
-    std::vector<int> runs {10000};
+    std::vector<int> nodes = {8};
+    std::vector<int> runs {5000};
 
     for (auto n: nodes) {
-        // for (auto p: ps) {
+        for (auto p: ps) {
 
             // std::cout << "p: "<< p << std::endl;
 
-            // KantenFaktorCreator2 kfc2(p, 2., rng);
-            RandomTestCreator rtc(0., 10., rng);
+            KantenFaktorCreator2 kfc2(p, 2., rng);
+            // RandomTestCreator rtc(0., 10., rng);
 
-            // TreePlusC ensemble2(n, sc, kfc2, rng, c);
-            FullyConnected ensemble2(n, sc, rtc);
+            TreePlusC ensemble2(n, sc, kfc2, rng, c);
+            // FullyConnected ensemble2(n, sc, rtc);
             ensemble2.initialize();
 
-            std::set<Alg> alg_set {Alg::Optimal2};
-            std::string ordner_name = "BnB_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
+            // ACHTUNG, LP GUROBI IST NOCH AUF ALT OHNE EC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            std::set<Alg> alg_set {Alg::Schranke4b, Alg::LPApprox, Alg::Optimal2};
+            std::string ordner_name = "LPVLPOPT3_" + std::to_string(n) + "_nodes_" + std::to_string(number_scenarios) + "_scenarios";
             simulate(runs[0], ensemble2, alg_set, ordner_name, on_cluster, save_problems, tracking, save_lp_results, seed);
-        // }
+        }
     }
 
     // variiere eine Intervallsbreite fuer beide Intervalle
