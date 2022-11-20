@@ -1079,7 +1079,17 @@ double TwoStageProblem::optimum(bool tracking, const boost_path & tracking_path)
         c.push_back(gueltig[0]);
     } else {
         // es gibt keine gueltigen Kanten, also ist die Loesung, wo ich keine Kante in stage 1 kaufe die optimale
-        return current_min;
+
+        // dann muss ich aber auch die loop_counter als Null ausgeben
+        if (tracking) {
+            std::ofstream loop_counter_file;
+            boost_path loop_counter_path = tracking_path / "optimum_loop_counter2.txt";
+            loop_counter_file.open(loop_counter_path.string(), std::ios::app);
+            loop_counter_file << 0 << "\n";
+            loop_counter_file.close();
+        }
+
+        return current_min;        
     }
 
     int number_nodes = nodes.size();
@@ -1128,12 +1138,12 @@ double TwoStageProblem::optimum(bool tracking, const boost_path & tracking_path)
 
             // std::cout << "Das war check_new" << std::endl;
 
-            // check_new_zeit abspeichern
-            std::ofstream check_file;
-            boost_path check_file_path = check_path / (std::to_string(number_runs) + ".txt");
-            check_file.open(check_file_path.string(), std::ios::app);
-            check_file << t_check_s.count() << "\n";
-            check_file.close();
+            // check_new_zeit abspeichern       HAB ICH AUSKOMMENTIERT, DIE DATEN WERTE ICH NICHT MEHR AUS!
+            // std::ofstream check_file;
+            // boost_path check_file_path = check_path / (std::to_string(number_runs) + ".txt");
+            // check_file.open(check_file_path.string(), std::ios::app);
+            // check_file << t_check_s.count() << "\n";
+            // check_file.close();
 
             // update c abhaengig von stop (stop=true, falls ich den subtree ueberspringen kann)
             update_c_new(c, gueltig, gueltig_index_to_edge_index, number_nodes, stop);        

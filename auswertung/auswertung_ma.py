@@ -620,7 +620,8 @@ class Read_HO:
             self.id_tups = [(self.id_type(f.split('_')[id_stelle]), f) for f in os.listdir(path_ho)]
             self.id_values = [id for id, _ in self.id_tups]
 
-            self.appendix = os.path.split(self.path_ho)[1].split('_')[1]
+            # appendix splittet nach der Anzahl Knoten, also niemals zweimal mit selbem N vorauswertungen laufen lassen, ist kacke so..
+            self.appendix = os.path.split(self.path_ho)[1].split('_')[-1] + os.path.split(self.path_ho)[1].split('_')[1]
             # print('Appendix: ', self.appendix)
 
 
