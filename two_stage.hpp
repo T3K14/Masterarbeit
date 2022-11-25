@@ -209,6 +209,9 @@ public:
     // gibt mir den zu erwartenden 2. stage Kostenwert einer Kante zurueck
     double get_second_stage_ev(const lemon::ListGraph::Edge & e) const; 
 
+    //4b
+    double do4b() const;
+
     // nimmt die gurobi-lp loesung und ermittelt daraus die approximierte Loesung, die in der EdgeMap final_sirst_stage_map die Vorschlaege fuer 
     // in der ersten Stage zu kaufende Kanten speichert
     // void approximate(lemon::ListGraph::EdgeMap<bool> & final_first_stage_map, std::mt19937 & rng);        // WOHER KOMMT DER ENG?????????????

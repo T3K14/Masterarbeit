@@ -23,6 +23,13 @@ simulate
 two_stage_gurobi
 )
 
+add_executable(verteidigung verteidigung.cpp)
+target_link_libraries(verteidigung PUBLIC
+    two_stage
+    simulate
+    two_stage_gurobi
+)
+
 endif()
 
 add_executable(erste_bruteforce bruteforce.cpp)

@@ -800,6 +800,30 @@ void TwoStageProblem::save_greedy_first_stage_map(boost_path output_path) {
 }
 */
 
+double TwoStageProblem::do4b() const {
+
+    double res = 0.;
+    lemon::ListGraph::EdgeMap<double> minMap(g); 
+
+    // loope ueber alle szenarien
+    for (int i=0; i<numberScenarios; i++) {
+
+        // baue fuer dieses Szenario die map mit billigsten Kosten fuer jede Edge
+        for (lemon::ListGraph::EdgeIt e(g); e != lemon::INVALID; ++e) {
+            minMap[e] = (firstStageWeights[e] < secondStageWeights[e][i] ? firstStageWeights[e] : secondStageWeights[e][i]);
+        }
+
+        // do the MST calculation
+        lemon::ListGraph::EdgeMap<bool> kruskalResMap(g);
+        double scenario_mst_costs = lemon::kruskal(g, minMap, kruskalResMap);
+
+        res += secondStageProbabilities[i] * scenario_mst_costs;
+    }
+
+    return res;  
+
+}
+
 void TwoStageProblem::save_result_map(const lemon::ListGraph::EdgeMap<bool> & bool_map, const boost_path & output_path) {
     
     lemon::GraphWriter<lemon::ListGraph> writer(g, output_path.string());
@@ -825,6 +849,10 @@ double TwoStageProblem::calculate_expected_from_bool_map(lemon::ListGraph::EdgeM
     for (int i=0; i<numberScenarios; i++) {
         // erstelle mir eine Map, die die Kosten nur fuer das Szenario i pro Kante zurueckgibt und dabei alle Kosten der Kanten auf 0 setzt, die schon in Phase 1 gekauft wurden
         double mst = lemon::kruskal(g, OneScenarioSecondStageMap(secondStageWeights, i, bool_map), output);
+
+        // std::cout << "MST: " << mst << std::endl;
+        // std::cout << mst * secondStageProbabilities[i] << std::endl;
+
         sum += mst * secondStageProbabilities[i];
     }
 
